@@ -237,7 +237,7 @@ test('cleanReply: strips invented assistant names', async () => {
 test('isAffirmative recognises short confirmations only', async () => {
   const { isAffirmative } = await import('../src/engine/engine.ts');
   for (const t of ['sim', 'pode sim, blz!', 'Confirmo', 'fechado', 'ok']) assert.equal(isAffirmative(t), true, t);
-  for (const t of ['nao, prefiro outro dia', 'qual o valor?', 'sim nao sei']) assert.equal(isAffirmative(t), false, t);
+  for (const t of ['nao, prefiro outro dia', 'qual o valor?', 'sim nao sei', 'confirma, mas preciso mudar pra outro dia']) assert.equal(isAffirmative(t), false, t);
 });
 
 test('cleanReply strips leaked /no_think control tokens', async () => {

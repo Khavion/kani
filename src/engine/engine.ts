@@ -554,6 +554,24 @@ export class Engine {
         reply = 'Só pra eu confirmar certinho: qual dia e horário você prefere?';
       }
     }
+    // The model asked the customer to confirm a specific offered slot: remember it as a pending action,
+    // so a plain "sim" books it deterministically on the next turn.
+    const actedNow = run.calls.some((c) => ['book', 'reschedule', 'cancel'].includes(c.name) && c.result.ok);
+    if (!run.unverifiedClaim && !actedNow && /\?\s*$/.test(reply.trim()) && /\b(confirm|pode ser|posso (agendar|marcar|remarcar|reservar)|fechado|combinado|fica bom)/.test(norm(reply))) {
+      const offered = this.offeredSlots(conv.id);
+      const slot = matchOfferedSlot([reply], offered);
+      if (slot && offered) {
+        const hasActive = this.repo
+          .appointmentsForContact(contact.id)
+          .some((a) => (a.status === 'booked' || a.status === 'confirmed') && a.startsAt > this.clock.nowIso());
+        const moving = hasActive && /remarc|mudar|trocar|adiar|reagend/.test(norm(text + ' ' + reply));
+        this.setPendingAction(conv.id, {
+          tool: moving ? 'reschedule' : 'book',
+          args: moving ? { slot: slot.slot } : { service: offered.service, slot: slot.slot, contact: { name: contact.profile.nome ?? contact.waName } },
+          label: slot.label,
+        });
+      }
+    }
     let escalated = run.calls.some((c) => c.name === 'escalate' && c.result.ok);
     let lowConfidence = !!run.error || run.exhausted;
 
@@ -1060,7 +1078,7 @@ export interface PendingAction {
 /** Short affirmative answer to a yes/no confirmation question. */
 export function isAffirmative(text: string): boolean {
   const t = norm(text).replace(/[!.,]+/g, ' ').trim();
-  if (/\bnao\b/.test(t)) return false;
+  if (/\b(nao|mas|porem|so que|entretanto)\b/.test(t)) return false;
   return /^(sim|s|pode|pode sim|pode ser|pode agendar|pode marcar|pode remarcar|pode cancelar|confirmo|confirmado|confirma|isso|isso mesmo|blz|beleza|fechado|ok|okay|claro|perfeito|bora|show|com certeza|manda ver|quero|quero sim|certo|ta bom|tá bom|ta otimo|otimo)\b/.test(t);
 }
 
