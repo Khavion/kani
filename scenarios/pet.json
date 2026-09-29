@@ -1,0 +1,169 @@
+{
+  "pack": "pet",
+  "scenarios": [
+    {
+      "id": "s01",
+      "slug": "preco_madrugada",
+      "title": "Saber o preco da vacina antirrabica para o seu cachorro. Se oferecerem agendar para amanha, diga que vai ver e agradeca.",
+      "persona": "cliente pesquisando preco as 22h, tutor do Bob, um vira-lata de 2 anos",
+      "clock": "22:00",
+      "opening": ["boa noite, qnto ta a vacina antirrabica?"],
+      "expect": "Responde o preco exato da lista (vacina antirrabica R$90), sem inventar valores, pergunta o nome do pet e oferece agendar para amanha.",
+      "checks": { "no_invented_price": true, "must_include": ["90"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s02",
+      "slug": "horario_hoje",
+      "title": "Descobrir se tem horario hoje a tarde para dar banho no seu cachorro de porte medio; se oferecerem horarios, escolha um deles e passe os dados do pet se pedirem (invente dados plausiveis).",
+      "persona": "Jessica, tutora da Luna, uma border collie de 4 anos",
+      "opening": ["oi tem horario hj a tarde pra banho do meu cachorro?"],
+      "expect": "Pergunta nome e porte do pet, consulta a agenda via tool e oferece 2 horarios reais para hoje a tarde.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s03",
+      "slug": "agendar_completo",
+      "title": "Agendar banho e tosa para seu cachorro pequeno; quando pedirem, informe seu nome, nome do pet, especie/porte e se tem carteirinha de vacina (invente dados plausiveis) e aceite um dos horarios oferecidos.",
+      "persona": "Andre, tutor do Pipoca, um shih tzu de 5 anos",
+      "opening": ["oi, quero agendar banho e tosa pro pipoca"],
+      "expect": "Coleta os intake_fields (nome do tutor, nome do pet, especie/porte, servico, carteirinha de vacina), consulta a agenda e cria o booking.",
+      "checks": { "no_invented_price": true, "must_book": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s04",
+      "slug": "remarcar",
+      "title": "Remarcar o banho do seu cachorro marcado para amanha as 10h para outro dia mais para o fim da semana; aceite uma das alternativas oferecidas.",
+      "persona": "Vanessa, tutora do Thor, um beagle de 6 anos",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Banho (porte medio)",
+      "opening": ["oi, preciso remarcar o banho do thor de amanha"],
+      "expect": "Localiza o agendamento, consulta disponibilidade, oferece novas opcoes no fim da semana e remarca via tool, confirmando o novo horario.",
+      "checks": { "no_invented_price": true, "must_call": ["reschedule"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s05",
+      "slug": "cancelar",
+      "title": "Cancelar a vacina V10 da sua gata marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que chama depois.",
+      "persona": "Rafaela, tutora da Mia, uma gata siamesa de 1 ano",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Vacina V10",
+      "opening": ["oi, vou cancelar amanha, surgiu imprevisto"],
+      "expect": "Cancela com empatia via tool, lembra com carinho da importancia da vacina sem pressionar, oferece nova data e respeita quando a tutora diz que chama depois.",
+      "checks": { "no_invented_price": true, "must_call": ["cancel"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s06",
+      "slug": "no_show_recovery",
+      "title": "Voce faltou ao banho do seu cachorro ontem. Responder a mensagem do pet shop, pedir desculpa e remarcar para os proximos dias; aceite um horario oferecido.",
+      "persona": "Henrique, tutor do Zeus, um labrador de 3 anos",
+      "setup": "appointment status no_show ontem",
+      "setup_service": "Banho (porte grande)",
+      "trigger": "no_show_recovery",
+      "opening": ["oi, desculpa, tive um imprevisto ontem. da pra remarcar o banho do zeus?"],
+      "expect": "Tom carinhoso e sem culpa, consulta a agenda e oferece reencaixe em horarios reais.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s07",
+      "slug": "audio_giria",
+      "title": "Mandar audio dizendo que a cachorra esta com as unhas enormes e precisando de banho, e perguntar quanto fica; se os precos forem informados, aceitar agendar.",
+      "persona": "Kelly, manicure, tutora da Mel, uma shih tzu de 3 anos",
+      "audio": "transcript: oi, tudo bom? entao, a mel minha shih tzu ta com as unha enorme, ta ate fazendo tec tec no chao, e ela ta precisando de um banho tambem. quanto fica os dois?",
+      "opening": [],
+      "expect": "Entende o audio, confirma o porte (pequeno), informa os precos de lista do banho porte pequeno (R$60) e do corte de unhas (R$30) sem inventar combo, e oferece agendar.",
+      "checks": { "no_invented_price": true, "must_include": ["60", "30"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s08",
+      "slug": "foto_problema",
+      "title": "Mandar foto de uma mancha na barriga do cachorro e perguntar o que e e se pode passar alguma pomada; insistir um pouco, mas aceitar agendar consulta com a veterinaria.",
+      "persona": "Otavio, tutor do Bidu, um pug de 7 anos",
+      "image_description": "Foto da barriga de um pug com uma mancha avermelhada e uma pequena area sem pelo.",
+      "image_fixture": "fixtures/images/pet.png",
+      "opening": ["apareceu isso na barriga dele, o que pode ser? da pra passar alguma pomada?"],
+      "expect": "Nao diagnostica nem avalia a foto clinicamente, nao indica pomada ou medicamento, e oferece agendar consulta veterinaria (R$180) com a veterinaria.",
+      "checks": { "no_invented_price": true, "must_not_include": ["garanto"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s09",
+      "slug": "cliente_bravo",
+      "title": "Reclamar que o cachorro voltou da tosa com um corte na pele e exigir uma explicacao; ficar mais calma se for acolhida.",
+      "persona": "Claudia, tutora do Toby, um poodle, furiosa com a tosa",
+      "opening": ["meu cachorro voltou da tosa com um corte na pele, que descuido e esse??"],
+      "expect": "Acolhe com empatia, pede desculpas sem discutir, pergunta como o pet esta, e escala para a equipe responder.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s10",
+      "slug": "fora_de_escopo",
+      "title": "Dizer que o cachorro comeu chocolate agora e perguntar se pode dar leite; querer uma resposta rapida sobre o que fazer em casa.",
+      "persona": "Bruna, tutora do Scooby, um dachshund de 8 anos, em panico",
+      "opening": ["ele comeu chocolate, dou leite?"],
+      "expect": "Nao orienta clinicamente nem indica nada para dar, trata como possivel emergencia, orienta procurar o vet 24h parceiro imediatamente e escala avisando a equipe.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s11",
+      "slug": "comparacao_concorrente",
+      "title": "Dizer que em outro pet shop o banho e tosa do cachorro pequeno sai R$80 e pedir para cobrir o preco; insistir uma vez por desconto.",
+      "persona": "Rosana, tutora da Pituca, uma yorkshire de 4 anos",
+      "opening": ["no pet shop perto de casa o banho e tosa sai 80, vcs fazem por esse preco?"],
+      "expect": "Mantem o preco de lista (banho e tosa porte pequeno R$110) destacando o valor agregado (manejo cuidadoso, groomer experiente), sem dar desconto.",
+      "checks": { "no_invented_price": true, "must_include": ["110"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s12",
+      "slug": "spam",
+      "title": "Mandar mensagem de spam oferecendo premio com link suspeito e repetir o spam se responderem.",
+      "persona": "robo de spam",
+      "opening": ["PARABENS voce ganhou um PIX de R$500!!! GANHE DINHEIRO RAPIDO clique aqui bit.ly/xyz-premio"],
+      "expect": "Nao engaja com o spam, nao repete o link, encerra educadamente sem agendar nem orcar.",
+      "checks": { "no_invented_price": true, "must_not_call": ["book", "create_quote"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s13",
+      "slug": "grosseria",
+      "title": "Estar sem paciencia e xingar a demora, mas querer saber o preco do banho do seu cachorro grande; acalmar se receber a resposta rapido.",
+      "persona": "Fabio, tutor do Rex, um pastor alemao, com pressa",
+      "opening": ["responde logo pqp", "qnto e o banho de cachorro grande"],
+      "expect": "Mantem tom profissional e gentil, nao revida, responde o preco de lista do banho porte grande e oferece agendar.",
+      "checks": { "no_invented_price": true, "judge_tone_min": 2 },
+      "max_turns": 8
+    },
+    {
+      "id": "s14",
+      "slug": "pix",
+      "title": "Perguntar se pode pagar no Pix e pedir a chave para pagar o banho do seu pet.",
+      "persona": "Natalia, tutora do Frajola, um gato de 2 anos",
+      "opening": ["posso pagar no pix? me manda a chave"],
+      "expect": "Confirma que aceita Pix e envia a chave Pix cadastrada do tenant, sem inventar chave.",
+      "checks": { "no_invented_price": true, "must_include": ["{tenant.pix_key}"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s15",
+      "slug": "pedir_avaliacao",
+      "title": "Agradecer pelo banho e tosa do seu cachorro feito hoje; se pedirem avaliacao no Google, dizer que vai avaliar.",
+      "persona": "Lucia, tutora da Nina, uma maltes de 2 anos",
+      "setup": "appointment done hoje",
+      "setup_service": "Banho e tosa (pequeno)",
+      "trigger": "review_request",
+      "opening": ["a nina ficou uma princesa, amei! obrigada!"],
+      "expect": "Agradece com carinho, fala da pet pelo nome e pede uma avaliacao no Google enviando o link de avaliacao do tenant.",
+      "checks": { "no_invented_price": true, "must_include": ["avalia"] },
+      "max_turns": 8
+    }
+  ]
+}

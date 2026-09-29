@@ -1,0 +1,40 @@
+{
+  "name": "kani",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kani: multi-tenant WhatsApp AI assistant prototype (fully local)",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "start": "node src/main.ts",
+    "dev:server": "node --watch src/main.ts",
+    "dev:ui": "vite --config ui/vite.config.ts",
+    "build:ui": "vite build --config ui/vite.config.ts",
+    "migrate": "node src/db/migrate-cli.ts",
+    "seed": "node src/seed/seed-cli.ts",
+    "test": "node --test --test-concurrency=1 tests/",
+    "typecheck": "tsc -p tsconfig.json && tsc -p ui/tsconfig.json",
+    "scenarios": "node src/scenarios/cli.ts",
+    "e2e": "playwright test -c e2e/playwright.config.ts",
+    "lint:dashes": "node scripts/check-dashes.ts"
+  },
+  "dependencies": {
+    "@fastify/multipart": "^10.1.2",
+    "@fastify/static": "^10.1.5",
+    "fastify": "^5.12.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1"
+  }
+}

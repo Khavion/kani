@@ -1,0 +1,283 @@
+{
+  "_note": "Fictional Sao Paulo demo tenants, one per category pack. services default to the pack price list at seed time and can be overridden per tenant with a \"services\" array. Pix keys are random-format demo keys.",
+  "tenants": [
+    {
+      "id": "oficina-vila-mariana",
+      "name": "Auto Center Vila Mariana",
+      "pack_id": "oficina",
+      "phone": "+55 11 94000-1001",
+      "address": "Rua Domingos de Morais, 1450 - Vila Mariana, Sao Paulo - SP",
+      "hours": {
+        "seg": [
+          "08:00",
+          "18:00"
+        ],
+        "ter": [
+          "08:00",
+          "18:00"
+        ],
+        "qua": [
+          "08:00",
+          "18:00"
+        ],
+        "qui": [
+          "08:00",
+          "18:00"
+        ],
+        "sex": [
+          "08:00",
+          "18:00"
+        ],
+        "sab": [
+          "08:00",
+          "12:00"
+        ],
+        "dom": null
+      },
+      "staff": [
+        {
+          "name": "Marcos",
+          "role": "mecanico chefe"
+        },
+        {
+          "name": "Renata",
+          "role": "mecanica e atendimento tecnico"
+        }
+      ],
+      "pix_key": "7f3c2a1e-5b8d-4c9a-9e21-0d4b6f8a1c35",
+      "google_review_link": "https://g.page/r/kani-demo-oficina-vm/review",
+      "settings": {
+        "avatar_color": "#3b6fb6",
+        "emoji": "🔧",
+        "preposition": "do"
+      }
+    },
+    {
+      "id": "salao-pinheiros",
+      "name": "Studio Bela Pinheiros",
+      "pack_id": "salao",
+      "phone": "+55 11 94000-1002",
+      "address": "Rua dos Pinheiros, 870 - Pinheiros, Sao Paulo - SP",
+      "hours": {
+        "seg": [
+          "09:00",
+          "19:00"
+        ],
+        "ter": [
+          "09:00",
+          "19:00"
+        ],
+        "qua": [
+          "09:00",
+          "19:00"
+        ],
+        "qui": [
+          "09:00",
+          "19:00"
+        ],
+        "sex": [
+          "09:00",
+          "19:00"
+        ],
+        "sab": [
+          "09:00",
+          "19:00"
+        ],
+        "dom": null
+      },
+      "staff": [
+        {
+          "name": "Rafael",
+          "role": "cabeleireiro e barbeiro",
+          "services": [
+            "Corte masculino",
+            "Barba",
+            "Corte feminino",
+            "Escova",
+            "Sobrancelha"
+          ]
+        },
+        {
+          "name": "Juliana",
+          "role": "colorista e manicure",
+          "services": [
+            "Coloracao (raiz)",
+            "Luzes/mechas",
+            "Progressiva",
+            "Corte feminino",
+            "Escova",
+            "Manicure",
+            "Pedicure",
+            "Sobrancelha"
+          ]
+        }
+      ],
+      "pix_key": "c1d9e4b2-8a7f-4e3c-b6d1-5f2a9c0e7b48",
+      "google_review_link": "https://g.page/r/kani-demo-salao-pin/review",
+      "settings": {
+        "avatar_color": "#c2528b",
+        "emoji": "💇",
+        "preposition": "do"
+      }
+    },
+    {
+      "id": "odonto-moema",
+      "name": "Clinica Sorriso Moema",
+      "pack_id": "odonto",
+      "phone": "+55 11 94000-1003",
+      "address": "Av. Ibirapuera, 2120 - Moema, Sao Paulo - SP",
+      "hours": {
+        "seg": [
+          "08:00",
+          "19:00"
+        ],
+        "ter": [
+          "08:00",
+          "19:00"
+        ],
+        "qua": [
+          "08:00",
+          "19:00"
+        ],
+        "qui": [
+          "08:00",
+          "19:00"
+        ],
+        "sex": [
+          "08:00",
+          "19:00"
+        ],
+        "sab": [
+          "08:00",
+          "13:00"
+        ],
+        "dom": null
+      },
+      "staff": [
+        {
+          "name": "Dra. Fernanda Lima",
+          "role": "dentista clinica geral"
+        },
+        {
+          "name": "Dr. Paulo Mendes",
+          "role": "dentista endodontista"
+        }
+      ],
+      "pix_key": "a8e2f1c7-3d4b-4f6a-8c2e-9b1d7e5a3f60",
+      "google_review_link": "https://g.page/r/kani-demo-odonto-moema/review",
+      "settings": {
+        "avatar_color": "#1f9d8f",
+        "emoji": "🦷",
+        "convenios": [
+          "Amil Dental",
+          "OdontoPrev",
+          "SulAmerica Odonto"
+        ],
+        "preposition": "da"
+      }
+    },
+    {
+      "id": "pet-perdizes",
+      "name": "Pet Care Perdizes",
+      "pack_id": "pet",
+      "phone": "+55 11 94000-1004",
+      "address": "Rua Cardoso de Almeida, 1100 - Perdizes, Sao Paulo - SP",
+      "hours": {
+        "seg": [
+          "09:00",
+          "18:00"
+        ],
+        "ter": [
+          "09:00",
+          "18:00"
+        ],
+        "qua": [
+          "09:00",
+          "18:00"
+        ],
+        "qui": [
+          "09:00",
+          "18:00"
+        ],
+        "sex": [
+          "09:00",
+          "18:00"
+        ],
+        "sab": [
+          "09:00",
+          "18:00"
+        ],
+        "dom": null
+      },
+      "staff": [
+        {
+          "name": "Dra. Beatriz",
+          "role": "medica-veterinaria"
+        },
+        {
+          "name": "Lucas",
+          "role": "groomer (banho e tosa)"
+        }
+      ],
+      "pix_key": "e5b7c3a9-1f2d-4a8e-b4c6-2d9f8e1a7c03",
+      "google_review_link": "https://g.page/r/kani-demo-pet-perdizes/review",
+      "settings": {
+        "avatar_color": "#d9822b",
+        "emoji": "🐶",
+        "vet_24h_partner": "Hospital Veterinario 24h parceiro (a equipe envia o contato)",
+        "preposition": "do"
+      }
+    },
+    {
+      "id": "estetica-itaim",
+      "name": "Essenza Estetica Itaim",
+      "pack_id": "estetica",
+      "phone": "+55 11 94000-1005",
+      "address": "Rua Joaquim Floriano, 500 - Itaim Bibi, Sao Paulo - SP",
+      "hours": {
+        "seg": [
+          "09:00",
+          "20:00"
+        ],
+        "ter": [
+          "09:00",
+          "20:00"
+        ],
+        "qua": [
+          "09:00",
+          "20:00"
+        ],
+        "qui": [
+          "09:00",
+          "20:00"
+        ],
+        "sex": [
+          "09:00",
+          "20:00"
+        ],
+        "sab": [
+          "09:00",
+          "14:00"
+        ],
+        "dom": null
+      },
+      "staff": [
+        {
+          "name": "Patricia",
+          "role": "esteticista"
+        },
+        {
+          "name": "Dra. Carla",
+          "role": "biomedica esteta"
+        }
+      ],
+      "pix_key": "b3f6d8e1-9c4a-4b2f-a7e5-6c1d3b8f9a24",
+      "google_review_link": "https://g.page/r/kani-demo-estetica-itaim/review",
+      "settings": {
+        "avatar_color": "#8a63d2",
+        "emoji": "✨",
+        "preposition": "da"
+      }
+    }
+  ]
+}

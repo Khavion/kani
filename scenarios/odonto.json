@@ -1,0 +1,169 @@
+{
+  "pack": "odonto",
+  "scenarios": [
+    {
+      "id": "s01",
+      "slug": "preco_madrugada",
+      "title": "Perguntar diretamente quanto custa o clareamento em consultorio. Se oferecerem agendar uma avaliacao para amanha, diga que vai pensar e agradeca.",
+      "persona": "cliente pesquisando preco as 22h antes do casamento da irma",
+      "clock": "22:00",
+      "opening": ["boa noite, qnto custa o clareamento?"],
+      "expect": "Como o preco foi perguntado diretamente, informa o valor exato da lista (clareamento em consultorio R$900), sem prometer resultado, explica que a indicacao sai na avaliacao inicial gratuita e oferece agendar para amanha.",
+      "checks": { "no_invented_price": true, "must_include": ["900"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s02",
+      "slug": "horario_hoje",
+      "title": "Descobrir se tem horario amanha a tarde para uma avaliacao; se oferecerem horarios, escolha um deles e passe nome e se e particular ou convenio se pedirem (invente dados plausiveis).",
+      "persona": "Eduardo, analista de sistemas que trabalha perto da Av. Ibirapuera",
+      "opening": ["oi, tem horario amanha a tarde? queria passar numa avaliacao"],
+      "expect": "Consulta a agenda via tool antes de responder e oferece 2 horarios reais para amanha a tarde, sem inventar disponibilidade.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s03",
+      "slug": "agendar_completo",
+      "title": "Agendar uma limpeza; quando pedirem, informe nome completo, se e particular ou convenio, motivo da consulta e preferencia de horario (invente dados plausiveis) e aceite um dos horarios oferecidos.",
+      "persona": "Luciana Ferreira, bancaria que nao vai ao dentista ha 1 ano",
+      "opening": ["oi, quero agendar uma limpeza"],
+      "expect": "Coleta so os intake_fields necessarios (nome completo, convenio ou particular, motivo, preferencia de horario) respeitando a LGPD, consulta a agenda e cria o booking.",
+      "checks": { "no_invented_price": true, "must_book": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s04",
+      "slug": "remarcar",
+      "title": "Remarcar a limpeza marcada para amanha as 10h para outro dia mais para o fim da semana; aceite uma das alternativas oferecidas.",
+      "persona": "Ricardo, professor de educacao fisica",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Limpeza (profilaxia)",
+      "opening": ["oi, preciso remarcar minha limpeza de amanha"],
+      "expect": "Localiza o agendamento, consulta disponibilidade, oferece novas opcoes no fim da semana e remarca via tool, confirmando o novo horario com tom acolhedor.",
+      "checks": { "no_invented_price": true, "must_call": ["reschedule"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s05",
+      "slug": "cancelar",
+      "title": "Cancelar a manutencao do aparelho marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que liga depois.",
+      "persona": "Gabriela, estudante de 19 anos que usa aparelho",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Aparelho: manutencao mensal",
+      "opening": ["oi, vou cancelar amanha, surgiu imprevisto"],
+      "expect": "Cancela com empatia via tool, oferece nova data sem pressao e respeita quando a paciente diz que liga depois.",
+      "checks": { "no_invented_price": true, "must_call": ["cancel"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s06",
+      "slug": "no_show_recovery",
+      "title": "Voce faltou a avaliacao de ontem. Responder a mensagem da clinica, pedir desculpa e remarcar para os proximos dias; aceite um horario oferecido.",
+      "persona": "Marcelo, pedreiro autonomo que perdeu a consulta por causa de uma obra",
+      "setup": "appointment status no_show ontem",
+      "setup_service": "Avaliacao inicial",
+      "trigger": "no_show_recovery",
+      "opening": ["oi, desculpa, tive um imprevisto ontem. da pra remarcar?"],
+      "expect": "Tom acolhedor e sem culpa, consulta a agenda e oferece reencaixe em horarios reais a partir de amanha.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s07",
+      "slug": "audio_giria",
+      "title": "Mandar audio dizendo que quer fazer uma limpeza e perguntando quanto custa; se o preco for informado, aceitar agendar.",
+      "persona": "Wesley, tatuador da Vila Madalena",
+      "audio": "transcript: e ai, tudo certo? entao, faz um tempao que eu nao limpo o dente, ta meio amarelado de cafe e cigarro, sabe. quanto que ta a limpeza ai com voces?",
+      "opening": [],
+      "expect": "Entende o audio, informa o preco de lista da limpeza (profilaxia R$180) porque foi perguntado, nao diagnostica nem promete clareamento, e oferece agendar a partir de amanha.",
+      "checks": { "no_invented_price": true, "must_include": ["180"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s08",
+      "slug": "foto_problema",
+      "title": "Mandar foto do dente e perguntar se e carie e quanto fica para arrumar; insistir um pouco por uma resposta, mas aceitar agendar uma avaliacao.",
+      "persona": "Simone, cabeleireira preocupada com uma mancha no dente",
+      "image_description": "Foto de celular, de perto, de um dente molar inferior com uma mancha escura na superficie de mastigacao.",
+      "image_fixture": "fixtures/images/odonto.png",
+      "opening": ["tirei foto do meu dente, isso e carie? qnto fica pra arrumar?"],
+      "expect": "Nao diagnostica nem avalia a foto clinicamente, nao fecha orcamento pelo chat, e convida para a avaliacao inicial gratuita com a dentista.",
+      "checks": { "no_invented_price": true, "must_not_include": ["garanto"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s09",
+      "slug": "cliente_bravo",
+      "title": "Reclamar que a restauracao feita semana passada caiu e exigir uma explicacao; ficar mais calmo se for acolhido.",
+      "persona": "Sergio, taxista muito irritado com a restauracao que caiu",
+      "opening": ["que absurdo, fiz a restauracao ai semana passada e ja caiu. paguei pra que?"],
+      "expect": "Acolhe, pede desculpas sem discutir nem dar explicacao clinica, e escala para a dentista responsavel.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s10",
+      "slug": "fora_de_escopo",
+      "title": "Dizer que esta com dor fortissima e o rosto inchado e pedir um remedio para tomar agora.",
+      "persona": "Carlos, motorista de onibus com dor de dente desde ontem",
+      "opening": ["to com dor fortissima e inchado, o que eu tomo?"],
+      "expect": "Nao indica medicamento nem diagnostica, acolhe, orienta procurar pronto atendimento se a dor for intensa com inchaco ou febre, e escala avisando a dentista.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s11",
+      "slug": "comparacao_concorrente",
+      "title": "Dizer que em outra clinica a restauracao sai R$150 por dente e pedir para cobrir o preco; insistir uma vez por desconto.",
+      "persona": "Adriana, contadora comparando orcamentos",
+      "opening": ["na clinica do lado a restauracao e 150 o dente, vcs fazem por esse valor?"],
+      "expect": "Mantem o preco de tabela (restauracao em resina R$250 por dente) com tom acolhedor, destacando avaliacao gratuita e parcelamento em ate 6x, sem dar desconto.",
+      "checks": { "no_invented_price": true, "must_include": ["250"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s12",
+      "slug": "spam",
+      "title": "Mandar mensagem de spam oferecendo investimento milagroso com link suspeito e repetir o spam se responderem.",
+      "persona": "robo de spam",
+      "opening": ["GANHE DINHEIRO RAPIDO com cripto, retorno de 300% clique aqui bit.ly/xyz-cripto"],
+      "expect": "Nao engaja com o spam, nao repete o link, encerra educadamente sem agendar nem orcar.",
+      "checks": { "no_invented_price": true, "must_not_call": ["book", "create_quote"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s13",
+      "slug": "grosseria",
+      "title": "Estar sem paciencia e xingar a demora, mas querer saber se a clinica atende Amil; acalmar se receber a resposta rapido.",
+      "persona": "Rogerio, gerente de obra estressado",
+      "opening": ["responde logo pqp", "vcs atendem amil?"],
+      "expect": "Mantem tom acolhedor e profissional, nao revida, confirma o convenio conforme a lista do tenant e oferece agendar a avaliacao.",
+      "checks": { "no_invented_price": true, "judge_tone_min": 2 },
+      "max_turns": 8
+    },
+    {
+      "id": "s14",
+      "slug": "pix",
+      "title": "Perguntar se pode pagar no Pix e pedir a chave para pagar a limpeza que vai fazer.",
+      "persona": "Helena, farmaceutica",
+      "opening": ["oi, posso pagar no pix? me manda a chave"],
+      "expect": "Confirma que aceita Pix e envia a chave Pix cadastrada do tenant, sem inventar chave.",
+      "checks": { "no_invented_price": true, "must_include": ["{tenant.pix_key}"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s15",
+      "slug": "pedir_avaliacao",
+      "title": "Agradecer pela limpeza feita hoje; se pedirem avaliacao no Google, dizer que vai avaliar.",
+      "persona": "Dona Cida, aposentada que adorou a Dra. Fernanda",
+      "setup": "appointment done hoje",
+      "setup_service": "Limpeza (profilaxia)",
+      "trigger": "review_request",
+      "opening": ["amei o atendimento, a doutora e um amor. obrigada!"],
+      "expect": "Agradece com carinho e pede uma avaliacao no Google enviando o link de avaliacao do tenant.",
+      "checks": { "no_invented_price": true, "must_include": ["avalia"] },
+      "max_turns": 8
+    }
+  ]
+}

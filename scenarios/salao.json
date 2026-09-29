@@ -1,0 +1,169 @@
+{
+  "pack": "salao",
+  "scenarios": [
+    {
+      "id": "s01",
+      "slug": "preco_madrugada",
+      "title": "Saber o preco do corte feminino. Se oferecerem agendar para amanha, diga que vai pensar e agradeca.",
+      "persona": "cliente pesquisando preco as 22h depois de ver o salao no Instagram",
+      "clock": "22:00",
+      "opening": ["boa noite, qnto ta o corte feminino?"],
+      "expect": "Responde o preco exato da lista (corte feminino R$90), sem inventar valores, e oferece agendar para amanha com 2 opcoes de horario.",
+      "checks": { "no_invented_price": true, "must_include": ["90"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s02",
+      "slug": "horario_hoje",
+      "title": "Descobrir se tem horario hoje a tarde para fazer a unha (manicure); se oferecerem horarios, escolha um deles e passe seu nome se pedirem.",
+      "persona": "Aline, recepcionista de consultorio que sai no horario de almoco",
+      "opening": ["oii tem horario hj a tarde pra fazer a unha?"],
+      "expect": "Consulta a agenda via tool antes de responder e oferece 2 horarios reais de manicure hoje a tarde, chamando a cliente pelo nome quando souber.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s03",
+      "slug": "agendar_completo",
+      "title": "Agendar um corte masculino com barba; quando pedirem, informe nome, profissional de preferencia (pode ser qualquer um) e melhor periodo (invente dados plausiveis) e aceite um dos horarios oferecidos.",
+      "persona": "Vinicius, estudante de engenharia da USP",
+      "opening": ["salve, quero agendar corte e barba"],
+      "expect": "Coleta os intake_fields (nome, servico, profissional de preferencia, melhor periodo), consulta a agenda, oferece 2 horarios e cria o booking.",
+      "checks": { "no_invented_price": true, "must_book": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s04",
+      "slug": "remarcar",
+      "title": "Remarcar o corte feminino marcado para amanha as 10h para outro dia mais para o fim da semana; aceite uma das alternativas oferecidas.",
+      "persona": "Camila, advogada com agenda corrida",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Corte feminino",
+      "opening": ["oi, preciso remarcar meu corte de amanha"],
+      "expect": "Localiza o agendamento, consulta disponibilidade, oferece 2 opcoes no fim da semana e remarca via tool, confirmando o novo horario.",
+      "checks": { "no_invented_price": true, "must_call": ["reschedule"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s05",
+      "slug": "cancelar",
+      "title": "Cancelar a manicure marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que chama depois.",
+      "persona": "Dona Sonia, dona de casa que faz a unha toda semana",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Manicure",
+      "opening": ["oi querida, vou cancelar amanha, surgiu imprevisto"],
+      "expect": "Cancela com empatia via tool, oferece nova data sem insistir e respeita quando a cliente diz que chama depois.",
+      "checks": { "no_invented_price": true, "must_call": ["cancel"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s06",
+      "slug": "no_show_recovery",
+      "title": "Voce faltou ao corte masculino de ontem. Responder a mensagem do salao, pedir desculpa e remarcar para os proximos dias; aceite um horario oferecido.",
+      "persona": "Felipe, barista que trabalha em escala",
+      "setup": "appointment status no_show ontem",
+      "setup_service": "Corte masculino",
+      "trigger": "no_show_recovery",
+      "opening": ["opa, foi mal, tive um imprevisto ontem. da pra remarcar?"],
+      "expect": "Tom leve e sem culpa, nao da sermao, consulta a agenda e oferece reencaixe em 2 horarios reais.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s07",
+      "slug": "audio_giria",
+      "title": "Mandar audio dizendo que quer fazer luzes e perguntando quanto custa; se o preco for informado, aceitar ver horarios com a colorista.",
+      "persona": "Bianca, influenciadora de bairro da zona leste",
+      "audio": "transcript: amiga, to querendo fazer umas luzes pra dar uma iluminada no cabelo, sabe? tipo aquele loiro mel. quanto que ta ai? e quem faz?",
+      "opening": [],
+      "expect": "Entende o audio, informa o preco de lista de luzes/mechas (R$320) sem garantir o resultado da quimica, pode avisar que cabelos muito longos podem variar apos avaliacao, e oferece horarios com a colorista.",
+      "checks": { "no_invented_price": true, "must_include": ["320"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s08",
+      "slug": "foto_problema",
+      "title": "Mandar foto do cabelo estragado e perguntar quanto fica para arrumar e se da para resolver; insistir um pouco por um valor fechado, mas aceitar agendar uma avaliacao presencial.",
+      "persona": "Larissa, universitaria que descoloriu o cabelo em casa",
+      "image_description": "Foto do cabelo com luzes amareladas e manchadas, pontas ressecadas e com aspecto elastico depois de descoloracao caseira.",
+      "image_fixture": "fixtures/images/salao.png",
+      "opening": ["olha isso, fiz em casa e ficou horrivel. qnto fica pra arrumar?"],
+      "expect": "Nao diagnostica o fio nem fecha valor pela foto, nao garante resultado de quimica, acolhe e convida para avaliacao presencial gratuita com a colorista.",
+      "checks": { "no_invented_price": true, "must_not_include": ["garanto"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s09",
+      "slug": "cliente_bravo",
+      "title": "Reclamar que o corte feito semana passada ficou torto e bem mais curto do que pediu e exigir uma solucao; ficar mais calma se for acolhida.",
+      "persona": "Renata, gerente de loja, muito irritada com o resultado do corte",
+      "opening": ["voces acabaram com meu cabelo, pedi so pra tirar as pontas e cortaram tudo torto"],
+      "expect": "Acolhe, pede desculpas sem discutir nem culpar a cliente, e escala para a equipe do salao resolver.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s10",
+      "slug": "fora_de_escopo",
+      "title": "Contar que esta gravida de 4 meses e perguntar se pode fazer progressiva; querer uma resposta de sim ou nao.",
+      "persona": "Tatiane, gravida do primeiro filho",
+      "opening": ["to gravida, posso fazer progressiva?"],
+      "expect": "Nao recomenda quimica para gestante nem da resposta tecnica, orienta procurar liberacao medica e avaliacao presencial, e escala para a equipe.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s11",
+      "slug": "comparacao_concorrente",
+      "title": "Dizer que em outro salao a progressiva sai R$250 e pedir para cobrir o preco; insistir uma vez por desconto.",
+      "persona": "Priscila, vendedora de loja de shopping",
+      "opening": ["no salao perto de casa a progressiva e 250, vcs fazem por esse preco?"],
+      "expect": "Mantem o preco de lista (progressiva R$350) destacando o valor agregado (profissional especializada, avaliacao do fio), sem dar desconto.",
+      "checks": { "no_invented_price": true, "must_include": ["350"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s12",
+      "slug": "spam",
+      "title": "Mandar mensagem de spam oferecendo renda extra com link suspeito e repetir o spam se responderem.",
+      "persona": "robo de spam",
+      "opening": ["GANHE DINHEIRO RAPIDO trabalhando de casa!!! clique aqui bit.ly/xyz-renda"],
+      "expect": "Nao engaja com o spam, nao repete o link, encerra educadamente sem agendar nem orcar.",
+      "checks": { "no_invented_price": true, "must_not_call": ["book", "create_quote"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s13",
+      "slug": "grosseria",
+      "title": "Estar sem paciencia e xingar a demora, mas querer saber o preco do corte masculino; acalmar se receber a resposta rapido.",
+      "persona": "Gustavo, motoboy com pressa",
+      "opening": ["responde logo pqp", "qnto ta o corte masculino"],
+      "expect": "Mantem tom profissional e leve, nao revida, responde o preco de lista do corte masculino e oferece 2 horarios.",
+      "checks": { "no_invented_price": true, "judge_tone_min": 2 },
+      "max_turns": 8
+    },
+    {
+      "id": "s14",
+      "slug": "pix",
+      "title": "Perguntar se pode pagar no Pix e pedir a chave para pagar o servico que vai fazer.",
+      "persona": "Marina, designer freelancer",
+      "opening": ["posso pagar no pix? me manda a chave pf"],
+      "expect": "Confirma que aceita Pix e envia a chave Pix cadastrada do tenant, sem inventar chave.",
+      "checks": { "no_invented_price": true, "must_include": ["{tenant.pix_key}"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s15",
+      "slug": "pedir_avaliacao",
+      "title": "Agradecer pelas luzes feitas hoje; se pedirem avaliacao no Google, dizer que vai avaliar.",
+      "persona": "Isabela, cliente encantada com o resultado das luzes",
+      "setup": "appointment done hoje",
+      "setup_service": "Luzes/mechas",
+      "trigger": "review_request",
+      "opening": ["amei o atendimento, obrigada! a ju arrasou"],
+      "expect": "Agradece com carinho, chama pelo nome e pede uma avaliacao no Google enviando o link de avaliacao do tenant.",
+      "checks": { "no_invented_price": true, "must_include": ["avalia"] },
+      "max_turns": 8
+    }
+  ]
+}

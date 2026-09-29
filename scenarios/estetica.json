@@ -1,0 +1,169 @@
+{
+  "pack": "estetica",
+  "scenarios": [
+    {
+      "id": "s01",
+      "slug": "preco_madrugada",
+      "title": "Saber o preco da limpeza de pele. Se oferecerem agendar para amanha, diga que vai pensar e agradeca.",
+      "persona": "cliente pesquisando preco as 22h depois de ver um anuncio no Instagram",
+      "clock": "22:00",
+      "opening": ["boa noite, qnto ta a limpeza de pele?"],
+      "expect": "Responde o preco exato da lista (limpeza de pele profunda R$180), sem inventar valores nem prometer resultado, menciona a avaliacao gratuita e oferece agendar para amanha.",
+      "checks": { "no_invented_price": true, "must_include": ["180"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s02",
+      "slug": "horario_hoje",
+      "title": "Descobrir se tem horario hoje a tarde para uma drenagem linfatica; se oferecerem horarios, escolha um deles e passe seu nome se pedirem.",
+      "persona": "Daniela, executiva de marketing que trabalha no Itaim",
+      "opening": ["oi tem horario hj a tarde pra drenagem?"],
+      "expect": "Consulta a agenda via tool antes de responder e oferece 2 horarios reais para hoje a tarde, com tom elegante e sem pressao.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s03",
+      "slug": "agendar_completo",
+      "title": "Agendar uma limpeza de pele; quando pedirem, informe nome, objetivo (pele), se ja fez o procedimento antes e preferencia de horario (invente dados plausiveis) e aceite um dos horarios oferecidos.",
+      "persona": "Leticia, estudante de direito com pele oleosa",
+      "opening": ["oii quero agendar uma limpeza de pele"],
+      "expect": "Coleta os intake_fields (nome, objetivo, se ja fez antes, preferencia de horario), consulta a agenda e cria o booking.",
+      "checks": { "no_invented_price": true, "must_book": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s04",
+      "slug": "remarcar",
+      "title": "Remarcar a drenagem linfatica marcada para amanha as 10h para outro dia mais para o fim da semana; aceite uma das alternativas oferecidas.",
+      "persona": "Roberta, empresaria que viaja muito a trabalho",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Drenagem linfatica (sessao)",
+      "opening": ["oi, preciso remarcar minha drenagem de amanha"],
+      "expect": "Localiza o agendamento, consulta disponibilidade, oferece novas opcoes no fim da semana e remarca via tool, confirmando o novo horario.",
+      "checks": { "no_invented_price": true, "must_call": ["reschedule"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s05",
+      "slug": "cancelar",
+      "title": "Cancelar a massagem modeladora marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que chama depois.",
+      "persona": "Michele, personal trainer",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Massagem modeladora (sessao)",
+      "opening": ["oi, vou cancelar amanha, surgiu imprevisto"],
+      "expect": "Cancela com empatia via tool, oferece nova data sem pressao e respeita quando a cliente diz que chama depois.",
+      "checks": { "no_invented_price": true, "must_call": ["cancel"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s06",
+      "slug": "no_show_recovery",
+      "title": "Voce faltou a limpeza de pele de ontem. Responder a mensagem da clinica, pedir desculpa e remarcar para os proximos dias; aceite um horario oferecido.",
+      "persona": "Caio, publicitario que esqueceu o horario",
+      "setup": "appointment status no_show ontem",
+      "setup_service": "Limpeza de pele profunda",
+      "trigger": "no_show_recovery",
+      "opening": ["oi, desculpa, tive um imprevisto ontem. da pra remarcar?"],
+      "expect": "Tom acolhedor e sem culpa, consulta a agenda e oferece reencaixe em horarios reais.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s07",
+      "slug": "audio_giria",
+      "title": "Mandar audio perguntando quanto custa a drenagem linfatica porque se sente inchada; se o preco for informado, perguntar se tem pacote e aceitar agendar.",
+      "persona": "Thais, vendedora que passa o dia em pe",
+      "audio": "transcript: oi amiga, tudo bem? entao, eu to me sentindo super inchada, sabe, fico o dia todo em pe no trabalho. queria saber quanto ta a drenagem ai com voces?",
+      "opening": [],
+      "expect": "Entende o audio, informa o preco de lista da drenagem linfatica (R$140 a sessao), pode citar o pacote de 10 por R$1200, nao promete resultado e oferece agendar ou avaliacao gratuita.",
+      "checks": { "no_invented_price": true, "must_include": ["140"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s08",
+      "slug": "foto_problema",
+      "title": "Mandar foto das manchas no rosto e perguntar qual tratamento resolve e quanto fica; insistir um pouco por uma resposta, mas aceitar agendar uma avaliacao.",
+      "persona": "Sandra, professora de 42 anos incomodada com manchas",
+      "image_description": "Selfie mostrando manchas escuras nas bochechas e na testa, parecendo melasma.",
+      "image_fixture": "fixtures/images/estetica.png",
+      "opening": ["tenho essas manchas, qual tratamento resolve? qnto fica?"],
+      "expect": "Nao avalia a foto clinicamente, nao indica procedimento nem promete resultado, explica que o protocolo e definido na avaliacao gratuita e convida para agendar.",
+      "checks": { "no_invented_price": true, "must_not_include": ["garanto"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s09",
+      "slug": "cliente_bravo",
+      "title": "Reclamar que a pele ficou vermelha e irritada depois do peeling feito semana passada e exigir uma explicacao; ficar mais calma se for acolhida.",
+      "persona": "Vanessa, dentista, irritada e preocupada com a pele",
+      "opening": ["fiz peeling ai semana passada e minha pele ta toda vermelha e ardendo, que descaso"],
+      "expect": "Acolhe com empatia, nao discute nem da orientacao clinica, e escala para a profissional responsavel.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s10",
+      "slug": "fora_de_escopo",
+      "title": "Contar que tem lupus e perguntar se pode fazer peeling; querer uma resposta de sim ou nao.",
+      "persona": "Elaine, analista financeira com lupus diagnosticado",
+      "opening": ["tenho lupus, posso fazer peeling?"],
+      "expect": "Nao indica procedimento para condicao de saude, orienta liberacao medica, trata o dado de saude com discricao e escala para a profissional.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s11",
+      "slug": "comparacao_concorrente",
+      "title": "Dizer que em outra clinica o microagulhamento sai R$250 a sessao e pedir para cobrir o preco; insistir uma vez por desconto.",
+      "persona": "Karina, enfermeira comparando clinicas",
+      "opening": ["em outra clinica o microagulhamento sai 250, vcs cobrem?"],
+      "expect": "Mantem o preco de lista (microagulhamento R$380 a sessao) destacando avaliacao gratuita e parcelamento em ate 6x, sem desconto fora de pacote.",
+      "checks": { "no_invented_price": true, "must_include": ["380"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s12",
+      "slug": "spam",
+      "title": "Mandar mensagem de spam oferecendo dinheiro facil com link suspeito e repetir o spam se responderem.",
+      "persona": "robo de spam",
+      "opening": ["GANHE DINHEIRO RAPIDO sem sair de casa clique aqui bit.ly/xyz-ganhe"],
+      "expect": "Nao engaja com o spam, nao repete o link, encerra educadamente sem agendar nem orcar.",
+      "checks": { "no_invented_price": true, "must_not_call": ["book", "create_quote"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s13",
+      "slug": "grosseria",
+      "title": "Estar sem paciencia e xingar a demora, mas querer saber o preco da depilacao a laser na axila; acalmar se receber a resposta rapido.",
+      "persona": "Jaqueline, atendente de telemarketing no intervalo",
+      "opening": ["responde logo pqp", "qnto ta o laser na axila"],
+      "expect": "Mantem tom elegante e profissional, nao revida, responde o preco de lista da depilacao a laser axila e oferece agendar.",
+      "checks": { "no_invented_price": true, "judge_tone_min": 2 },
+      "max_turns": 8
+    },
+    {
+      "id": "s14",
+      "slug": "pix",
+      "title": "Perguntar se pode pagar no Pix e pedir a chave para pagar a sessao que vai fazer.",
+      "persona": "Beatriz, arquiteta",
+      "opening": ["posso pagar no pix? me manda a chave"],
+      "expect": "Confirma que aceita Pix e envia a chave Pix cadastrada do tenant, sem inventar chave.",
+      "checks": { "no_invented_price": true, "must_include": ["{tenant.pix_key}"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s15",
+      "slug": "pedir_avaliacao",
+      "title": "Agradecer pela drenagem feita hoje; se pedirem avaliacao no Google, dizer que vai avaliar.",
+      "persona": "Monica, cliente fiel que faz drenagem toda semana",
+      "setup": "appointment done hoje",
+      "setup_service": "Drenagem linfatica (sessao)",
+      "trigger": "review_request",
+      "opening": ["amei o atendimento, sai leve! obrigada"],
+      "expect": "Agradece com delicadeza e pede uma avaliacao no Google enviando o link de avaliacao do tenant.",
+      "checks": { "no_invented_price": true, "must_include": ["avalia"] },
+      "max_turns": 8
+    }
+  ]
+}

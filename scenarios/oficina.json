@@ -1,0 +1,169 @@
+{
+  "pack": "oficina",
+  "scenarios": [
+    {
+      "id": "s01",
+      "slug": "preco_madrugada",
+      "title": "Saber o preco da troca de oleo do seu carro. Se oferecerem agendar para amanha, diga que vai ver e agradeca.",
+      "persona": "cliente pesquisando preco as 22h",
+      "clock": "22:00",
+      "opening": ["boa noite, qnto ta a troca de oleo?"],
+      "expect": "Responde o preco exato da lista (troca de oleo + filtro R$180), sem inventar valores, e oferece agendar para amanha dentro do horario da oficina.",
+      "checks": { "no_invented_price": true, "must_include": ["180"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s02",
+      "slug": "horario_hoje",
+      "title": "Descobrir se tem horario hoje a tarde para fazer alinhamento e balanceamento; se oferecerem horarios, escolha um deles e passe nome, carro e placa se pedirem (invente dados plausiveis).",
+      "persona": "motorista de aplicativo com um Onix 2019",
+      "opening": ["tem horario hj a tarde? queria fazer alinhamento"],
+      "expect": "Consulta a agenda via tool antes de responder e oferece 2 horarios reais para hoje a tarde, sem inventar disponibilidade.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s03",
+      "slug": "agendar_completo",
+      "title": "Agendar uma revisao basica; quando pedirem, informe nome, modelo/ano do carro e placa (invente dados plausiveis) e aceite um dos horarios oferecidos.",
+      "persona": "Carla, professora que usa um HB20 2020 para ir trabalhar",
+      "opening": ["oi, quero agendar revisao"],
+      "expect": "Coleta os intake_fields (nome, modelo e ano, placa, servico, melhor dia), consulta a agenda, confirma o horario escolhido e cria o booking.",
+      "checks": { "no_invented_price": true, "must_book": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s04",
+      "slug": "remarcar",
+      "title": "Remarcar a revisao que esta marcada para amanha as 10h para outro dia mais para o fim da semana; aceite uma das alternativas oferecidas.",
+      "persona": "Rodrigo, vendedor externo com um Corolla 2017",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Revisao basica",
+      "opening": ["e ai, preciso remarcar minha revisao de amanha"],
+      "expect": "Localiza o agendamento existente, consulta disponibilidade, oferece novas opcoes no fim da semana e remarca via tool, confirmando o novo horario.",
+      "checks": { "no_invented_price": true, "must_call": ["reschedule"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s05",
+      "slug": "cancelar",
+      "title": "Cancelar a troca de oleo marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que liga depois.",
+      "persona": "Fernanda, enfermeira de plantao com um Kwid 2021",
+      "setup": "appointment existente amanha 10h",
+      "setup_service": "Troca de oleo + filtro",
+      "opening": ["oi, vou cancelar amanha, surgiu imprevisto"],
+      "expect": "Cancela com empatia via tool, oferece nova data sem insistir e respeita quando a cliente diz que liga depois.",
+      "checks": { "no_invented_price": true, "must_call": ["cancel"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s06",
+      "slug": "no_show_recovery",
+      "title": "Voce faltou ao alinhamento de ontem. Responder a mensagem da oficina, pedir desculpa e remarcar para os proximos dias; aceite um horario oferecido.",
+      "persona": "Thiago, entregador de moto e carro, dono de um Gol 2014",
+      "setup": "appointment status no_show ontem",
+      "setup_service": "Alinhamento e balanceamento",
+      "trigger": "no_show_recovery",
+      "opening": ["oi, desculpa, tive um imprevisto ontem. da pra remarcar?"],
+      "expect": "Tom leve e sem culpa, nao cobra nem da sermao, consulta a agenda e oferece reencaixe em horarios reais.",
+      "checks": { "no_invented_price": true, "must_call": ["check_availability"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s07",
+      "slug": "audio_giria",
+      "title": "Explicar por audio que o carro esta fazendo um barulho estranho na roda e querer que alguem olhe hoje; aceitar agendar um diagnostico se o preco for informado.",
+      "persona": "Diego, motoboy que tambem tem um Palio 2012",
+      "audio": "transcript: mano meu carro ta fazendo um barulho estranho na roda, tipo toc toc, consegue ver isso pra mim hj?",
+      "opening": [],
+      "expect": "Entende o audio, nao diagnostica com certeza, pede modelo/ano e oferece agendar o diagnostico com scanner por R$120, deixando claro que o valor final sai depois que o mecanico ver.",
+      "checks": { "no_invented_price": true, "must_include": ["120"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s08",
+      "slug": "foto_problema",
+      "title": "Mandar uma foto da pastilha de freio e querer saber quanto fica para arrumar; insistir um pouco por um valor fechado, mas aceitar agendar uma avaliacao.",
+      "persona": "Paulo, pai de familia com um Fiat Toro 2020",
+      "image_description": "Foto de perto da roda dianteira mostrando a pastilha de freio bem gasta, quase sem material, com o disco marcado.",
+      "image_fixture": "fixtures/images/oficina.png",
+      "opening": ["olha isso, qnto fica pra arrumar?"],
+      "expect": "Nao fecha valor pela foto, explica que o preco final depende do mecanico ver o carro, pode citar o preco de lista da troca de pastilhas (R$350) como referencia e agenda uma avaliacao.",
+      "checks": { "no_invented_price": true, "must_not_include": ["garanto"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s09",
+      "slug": "cliente_bravo",
+      "title": "Reclamar que ficou 2h esperando na semana passada mesmo com horario marcado e exigir uma explicacao; ficar mais calmo se for acolhido.",
+      "persona": "Seu Antonio, aposentado com um Corsa 2008, bem irritado",
+      "opening": ["voces sao uma vergonha, fiquei 2h esperando semana passada"],
+      "expect": "Acolhe, pede desculpas sem discutir nem se justificar demais, e escala para um humano da oficina resolver.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s10",
+      "slug": "fora_de_escopo",
+      "title": "Perguntar se a oficina mexe em carro eletrico BYD e o que fazem nele; querer uma resposta tecnica sobre bateria de alta tensao.",
+      "persona": "Mariana, arquiteta que acabou de comprar um BYD Dolphin",
+      "opening": ["meu carro e eletrico BYD, mexem?"],
+      "expect": "Nao responde tecnicamente nem promete servico em sistema eletrico de alta tensao, orienta com cuidado e escala para o mecanico confirmar.",
+      "checks": { "no_invented_price": true, "must_escalate": true },
+      "max_turns": 8
+    },
+    {
+      "id": "s11",
+      "slug": "comparacao_concorrente",
+      "title": "Dizer que em outra oficina cobraram R$120 no alinhamento e pedir para cobrir o preco; insistir uma vez por desconto.",
+      "persona": "Bruno, corretor de imoveis com um Renegade 2019",
+      "opening": ["na oficina X me cobraram 120 no alinhamento, voces cobrem?"],
+      "expect": "Mantem o preco de lista (alinhamento e balanceamento R$160) explicando o valor agregado (balanceamento incluso, garantia de 90 dias), sem dar desconto.",
+      "checks": { "no_invented_price": true, "must_include": ["160"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s12",
+      "slug": "spam",
+      "title": "Mandar mensagem de spam oferecendo dinheiro facil com link suspeito e repetir o spam se responderem.",
+      "persona": "robo de spam",
+      "opening": ["GANHE DINHEIRO RAPIDO clique aqui bit.ly/xyz-lucro"],
+      "expect": "Nao engaja com o spam, nao clica nem repete o link, encerra educadamente sem agendar nem orcar.",
+      "checks": { "no_invented_price": true, "must_not_call": ["book", "create_quote"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s13",
+      "slug": "grosseria",
+      "title": "Estar sem paciencia e xingar a demora, mas querer saber o preco do alinhamento; acalmar se receber a resposta rapido.",
+      "persona": "Leandro, motorista de caminhao impaciente com uma Saveiro 2016",
+      "opening": ["responde logo pqp", "qnto ta o alinhamento"],
+      "expect": "Mantem tom profissional e calmo, nao revida, responde o preco de lista do alinhamento e balanceamento e oferece agendar.",
+      "checks": { "no_invented_price": true, "judge_tone_min": 2 },
+      "max_turns": 8
+    },
+    {
+      "id": "s14",
+      "slug": "pix",
+      "title": "Perguntar se pode pagar no Pix e pedir a chave para pagar o servico que vai fazer.",
+      "persona": "Juliana, analista de RH com um Onix Plus 2022",
+      "opening": ["posso pagar no pix? me manda a chave"],
+      "expect": "Confirma que aceita Pix e envia a chave Pix cadastrada do tenant, sem inventar chave.",
+      "checks": { "no_invented_price": true, "must_include": ["{tenant.pix_key}"] },
+      "max_turns": 8
+    },
+    {
+      "id": "s15",
+      "slug": "pedir_avaliacao",
+      "title": "Agradecer pelo servico de troca de pastilhas feito hoje; se pedirem avaliacao no Google, dizer que vai avaliar.",
+      "persona": "Patricia, dentista satisfeita com seu Compass 2021",
+      "setup": "appointment done hoje",
+      "setup_service": "Pastilhas de freio (dianteira, par)",
+      "trigger": "review_request",
+      "opening": ["o carro ficou otimo, obrigada pelo atendimento!"],
+      "expect": "Agradece de forma calorosa e pede uma avaliacao no Google enviando o link de avaliacao do tenant.",
+      "checks": { "no_invented_price": true, "must_include": ["avalia"] },
+      "max_turns": 8
+    }
+  ]
+}
