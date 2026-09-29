@@ -330,7 +330,23 @@ function createReminders(ctx: Pick<ToolContext, 'repo' | 'clock'>, appt: Appoint
 
 // ---------------------------------------------------------------------------------------------
 
-export async function executeTool(ctx: ToolContext, name: string, args: Record<string, unknown>): Promise<ToolResult> {
+/**
+ * Models using the prompted JSON protocol sometimes wrap values the way the schema looks:
+ * {"service": {"value": "Escova"}} or {"service": {"type": "string", "description": "...", "value": "Escova"}}.
+ * Unwrap those so the tools see plain values.
+ */
+export function unwrapArgs(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(unwrapArgs);
+  if (v && typeof v === 'object') {
+    const o = v as Record<string, unknown>;
+    if ('value' in o && Object.keys(o).every((k) => ['value', 'type', 'description', 'enum'].includes(k))) return unwrapArgs(o.value);
+    return Object.fromEntries(Object.entries(o).map(([k, x]) => [k, unwrapArgs(x)]));
+  }
+  return v;
+}
+
+export async function executeTool(ctx: ToolContext, name: string, rawArgs: Record<string, unknown>): Promise<ToolResult> {
+  const args = unwrapArgs(rawArgs) as Record<string, unknown>;
   const { repo, tenant, pack, contact, conversation, clock } = ctx;
   const services = tenant.services;
   const logBase = { conversation_id: conversation.id, contact_id: contact.id };

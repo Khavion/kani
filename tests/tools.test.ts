@@ -107,3 +107,15 @@ test('tools: book during a reschedule conversation moves the existing appointmen
   assert.equal(active.length, 1);
   assert.equal(active[0].id, Number(first.appointment_id));
 });
+
+test('tools: schema-wrapped arguments from prompted-JSON models are unwrapped', async () => {
+  const k = testKani(new ScriptedLLM(reply('')));
+  const ctx = ctxFor(k, SALAO);
+  const res = await executeTool(ctx, 'book', {
+    contact: { name: { type: 'string', description: 'Nome', value: 'Luciana' } },
+    service: { value: 'Escova' },
+    slot: { type: 'string', value: '2026-10-07 10:00' },
+  });
+  assert.equal(res.ok, true, JSON.stringify(res));
+  assert.equal(k.repo.getContact(ctx.contact.id)!.profile.nome, 'Luciana');
+});
