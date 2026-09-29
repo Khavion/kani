@@ -92,3 +92,18 @@ test('tools: reschedule and cancel act on the contact appointment', async () => 
   assert.equal(k.repo.getAppointment(Number(booked.appointment_id))!.status, 'cancelled');
   assert.equal(k.repo.remindersForAppointment(Number(booked.appointment_id)).filter((r) => !r.sent).length, 0);
 });
+
+test('tools: book during a reschedule conversation moves the existing appointment instead of duplicating', async () => {
+  const k = testKani(new ScriptedLLM(reply('')));
+  const ctx = ctxFor(k, OFICINA);
+  const first = await executeTool(ctx, 'book', { service: 'Revisao basica', slot: '2026-10-07 08:00' });
+  const res = await executeTool({ ...ctx, recentCustomerText: 'preciso remarcar minha revisao' }, 'book', {
+    service: 'Revisao basica',
+    slot: '2026-10-08 13:00',
+  });
+  assert.equal(res.ok, true);
+  assert.equal(res.converted_from, 'book');
+  const active = k.repo.appointmentsForContact(ctx.contact.id).filter((a) => a.status === 'booked');
+  assert.equal(active.length, 1);
+  assert.equal(active[0].id, Number(first.appointment_id));
+});

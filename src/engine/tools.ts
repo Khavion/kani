@@ -151,6 +151,8 @@ export interface ToolContext {
   pack: Pack;
   contact: Contact;
   conversation: Conversation;
+  /** Recent customer text in this conversation (lets tools infer intent, e.g. rescheduling). */
+  recentCustomerText?: string;
   /** Called after an escalation row is created (engine pauses the bot and notifies the UI). */
   onEscalate?: (reason: string, escalationId: number) => void;
 }
@@ -363,6 +365,16 @@ export async function executeTool(ctx: ToolContext, name: string, args: Record<s
       if (!service) return { ok: false, error: 'servico nao encontrado na lista', servicos_validos: services.map((s) => s.n) };
       const start = typeof args.slot === 'string' ? parseLocalDateTime(args.slot) : null;
       if (!start) return { ok: false, error: 'slot invalido; use "YYYY-MM-DD HH:MM" retornado por check_availability' };
+      // Rescheduling intent + an existing future appointment for this service: move it instead of
+      // creating a second one (models sometimes call book when they mean reschedule).
+      const wantsMove = /remarc|mudar|trocar|adiar|outro dia|outro horario|reagend/.test(norm(ctx.recentCustomerText ?? ''));
+      const existing = repo
+        .appointmentsForContact(contact.id)
+        .find((a) => a.service === service.n && (a.status === 'booked' || a.status === 'confirmed') && a.startsAt > clock.now().toISOString());
+      if (wantsMove && existing && existing.startsAt !== start.toISOString()) {
+        const moved = await executeTool(ctx, 'reschedule', { appointment_id: existing.id, slot: args.slot });
+        return { ...moved, converted_from: 'book', nota_interna: 'o agendamento existente foi remarcado (nao foi criado outro)' };
+      }
       const contactArg = args.contact as { name?: string } | string | undefined;
       const name = typeof contactArg === 'string' ? contactArg : contactArg?.name;
       // Idempotency: same contact, same service, same start.

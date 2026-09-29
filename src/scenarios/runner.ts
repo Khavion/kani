@@ -286,7 +286,9 @@ async function runOne(k: Kani, opts: RunOptions, tenant: Tenant, s: Scenario, in
     booked,
     escalated: k.repo.escalationsForConversation(conv.id).length > 0,
     guardTriggers: assistantMsgs.filter((m) => m.meta.guard).length,
-    unbackedClaims: k.repo.events({ kind: 'claim_repair', conversationId: conv.id }).length,
+    unbackedClaims:
+      k.repo.events({ kind: 'claim_repair', conversationId: conv.id }).length +
+      k.repo.events({ kind: 'book_converted', conversationId: conv.id }).length,
     services: tenant.services,
     quoteTotals: k.repo.quotesForConversation(conv.id).map((q) => q.total),
     pixKey: tenant.pixKey,

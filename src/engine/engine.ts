@@ -481,6 +481,14 @@ export class Engine {
       forceEscalation = 'cliente insatisfeito/bravo';
       notes.push('O cliente esta insatisfeito. Acolha, peca desculpas sem discutir nem justificar, e use escalate para a equipe assumir.');
     }
+    if (pending.some((m) => m.type === 'image')) {
+      const clinical = ['odonto', 'pet', 'estetica', 'salao'].includes(pack.id);
+      notes.push(
+        clinical
+          ? 'O cliente enviou uma FOTO. Nao avalie a foto, nao diga o que pode ser, nao sugira tratamento, procedimento, produto ou remedio. Diga com acolhimento que so a profissional pode avaliar presencialmente e ofereca agendar a avaliacao (ou consulta).'
+          : 'O cliente enviou uma FOTO. Nao diagnostique com certeza e nao feche valor pela foto: explique que o valor fechado sai depois que o mecanico avaliar o carro e ofereca agendar a avaliacao/diagnostico da lista.',
+      );
+    }
     if (conv.pendingNote) {
       notes.push(conv.pendingNote);
       this.repo.setPendingNote(conv.id, null);
@@ -674,6 +682,11 @@ export class Engine {
       pack,
       contact,
       conversation: conv,
+      recentCustomerText: ctx.history
+        .filter((m) => m.role === 'customer')
+        .slice(-4)
+        .map((m) => this.customerText(m))
+        .join(' '),
       onEscalate: (reason) => {
         this.pause(conv.id, 'escalation:tool');
         void reason;
@@ -772,7 +785,9 @@ export class Engine {
               result = { ok: false, error: `falha interna: ${(err as Error).message}` };
             }
           }
-          calls.push({ name: call.name, args: call.arguments, result });
+          const effective = call.name === 'book' && result.converted_from === 'book' ? 'reschedule' : call.name;
+          if (effective !== call.name) this.repo.logEvent(tenant.id, 'book_converted', { conversation_id: conv.id, args: call.arguments });
+          calls.push({ name: effective, args: call.arguments, result });
           this.repo.logEvent(tenant.id, 'tool_call', {
             conversation_id: conv.id,
             name: call.name,

@@ -13,7 +13,7 @@ export interface Evidence {
   booked: boolean; // appointment created for the scenario contact (DB)
   escalated: boolean; // escalation row exists for the conversation (DB)
   guardTriggers: number;
-  unbackedClaims: number; // model claimed book/reschedule/cancel without the tool (repaired by the engine)
+  unbackedClaims: number; // model actions the engine had to repair (unbacked claims, book used for a reschedule)
   services: ServiceDTO[];
   quoteTotals: number[];
   pixKey: string;
