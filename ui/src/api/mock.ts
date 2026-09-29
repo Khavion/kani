@@ -1,5 +1,7 @@
 // In-memory fake backend used when the page URL has ?mock=1.
 // Mirrors the real API contract closely enough to demo every screen offline.
+// Tenant data comes straight from seed/tenants.json and packs/*.json: the mock never invents
+// prices, staff, hours, addresses or Pix keys. Canned messages read prices from the pack list.
 import type { KaniApi, SimSendInput } from './types.ts';
 import type {
   AppointmentDTO,
@@ -12,10 +14,18 @@ import type {
   ReportLinkDTO,
   Role,
   ServerEvent,
+  ServiceDTO,
+  StaffDTO,
   TenantDTO,
   WeeklyMetricsDTO,
   HoursMap,
 } from '../../../src/shared/api.ts';
+import seedJson from '../../../seed/tenants.json';
+import oficinaPack from '../../../packs/oficina.json';
+import salaoPack from '../../../packs/salao.json';
+import odontoPack from '../../../packs/odonto.json';
+import petPack from '../../../packs/pet.json';
+import esteticaPack from '../../../packs/estetica.json';
 
 interface ConvRec {
   conv: ConversationDTO;
@@ -25,142 +35,116 @@ interface ConvRec {
   demo: boolean;
 }
 
-const HOURS_SHOP: HoursMap = {
-  seg: ['08:00', '18:00'],
-  ter: ['08:00', '18:00'],
-  qua: ['08:00', '18:00'],
-  qui: ['08:00', '18:00'],
-  sex: ['08:00', '18:00'],
-  sab: ['08:00', '13:00'],
-  dom: null,
-};
-const HOURS_SALON: HoursMap = {
-  seg: null,
-  ter: ['09:00', '20:00'],
-  qua: ['09:00', '20:00'],
-  qui: ['09:00', '20:00'],
-  sex: ['09:00', '20:00'],
-  sab: ['09:00', '18:00'],
-  dom: null,
+interface SeedTenant {
+  id: string;
+  name: string;
+  pack_id: string;
+  phone: string;
+  address: string;
+  hours: HoursMap;
+  staff: StaffDTO[];
+  pix_key: string;
+  google_review_link: string;
+  settings: { avatar_color?: string; emoji?: string; convenios?: string[]; [k: string]: unknown };
+}
+interface PackJson {
+  id: string;
+  name: string;
+  services: ServiceDTO[];
+}
+
+const SEED = (seedJson as unknown as { tenants: SeedTenant[] }).tenants;
+const PACKS: Record<string, PackJson> = Object.fromEntries(
+  ([oficinaPack, salaoPack, odontoPack, petPack, esteticaPack] as unknown as PackJson[]).map((p) => [p.id, p]),
+);
+
+function packOf(id: string): PackJson {
+  const p = PACKS[id];
+  if (!p) throw new Error(`unknown pack ${id}`);
+  return p;
+}
+
+const TENANTS: TenantDTO[] = SEED.map((s) => {
+  const pack = packOf(s.pack_id);
+  return {
+    id: s.id,
+    name: s.name,
+    packId: s.pack_id,
+    packName: pack.name,
+    phone: s.phone,
+    address: s.address,
+    hours: s.hours,
+    staff: s.staff,
+    services: pack.services,
+    pixKey: s.pix_key,
+    googleReviewLink: s.google_review_link,
+    avatarColor: s.settings.avatar_color ?? '#00a884',
+    emoji: s.settings.emoji ?? '💬',
+  };
+});
+
+function tenantByPack(packId: string): TenantDTO {
+  const t = TENANTS.find((x) => x.packId === packId);
+  if (!t) throw new Error(`no seed tenant for pack ${packId}`);
+  return t;
+}
+
+/** Look up a service by its exact pack name; throws so a renamed pack service fails loudly in dev. */
+function svc(t: TenantDTO, name: string): ServiceDTO {
+  const s = t.services.find((x) => x.n === name);
+  if (!s) throw new Error(`service "${name}" not in ${t.id} pack`);
+  return s;
+}
+
+/** Formats BRL like "R$ 180,00" or "R$ 1.200,00". */
+function brl(p: number): string {
+  const [int, cents] = p.toFixed(2).split('.');
+  return `R$ ${int!.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${cents}`;
+}
+
+/** Price of a pack service, formatted. */
+function price(t: TenantDTO, name: string): string {
+  return brl(svc(t, name).p);
+}
+
+/** Staff member by index from the seed (0 = first listed). */
+function staff(t: TenantDTO, i: number): string {
+  const s = t.staff[i];
+  if (!s) throw new Error(`${t.id} has no staff #${i}`);
+  return s.name;
+}
+
+const DAY_KEYS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'] as const;
+type DayKey = (typeof DAY_KEYS)[number];
+const DAY_LABEL: Record<DayKey, string> = { dom: 'dom', seg: 'seg', ter: 'ter', qua: 'qua', qui: 'qui', sex: 'sex', sab: 'sáb' };
+const DAY_PHRASE: Record<DayKey, string> = {
+  dom: 'no domingo',
+  seg: 'na segunda',
+  ter: 'na terça',
+  qua: 'na quarta',
+  qui: 'na quinta',
+  sex: 'na sexta',
+  sab: 'no sábado',
 };
 
-const TENANTS: TenantDTO[] = [
-  {
-    id: 'auto-center-vila-mariana',
-    name: 'Auto Center Vila Mariana',
-    packId: 'oficina',
-    packName: 'Oficina mecânica',
-    phone: '+55 11 3456-7890',
-    address: 'Rua Domingos de Morais, 1200, Vila Mariana, São Paulo',
-    hours: HOURS_SHOP,
-    staff: [
-      { name: 'Carlos', role: 'Mecânico chefe' },
-      { name: 'Diego', role: 'Eletricista automotivo' },
-    ],
-    services: [
-      { n: 'Troca de óleo sintético', p: 189, min: 40 },
-      { n: 'Alinhamento e balanceamento', p: 120, min: 60 },
-      { n: 'Revisão completa', p: 450, min: 180 },
-      { n: 'Pastilha de freio (par)', p: 280, min: 90 },
-      { n: 'Diagnóstico eletrônico', p: 0, min: 30 },
-    ],
-    pixKey: 'autocentervm@pix.com.br',
-    googleReviewLink: 'https://g.page/r/auto-center-vila-mariana/review',
-    avatarColor: '#3b6fb6',
-    emoji: '🔧',
-  },
-  {
-    id: 'studio-bela-pinheiros',
-    name: 'Studio Bela Pinheiros',
-    packId: 'salao',
-    packName: 'Salão de beleza',
-    phone: '+55 11 3222-1100',
-    address: 'Rua dos Pinheiros, 870, Pinheiros, São Paulo',
-    hours: HOURS_SALON,
-    staff: [
-      { name: 'Bruna', role: 'Cabeleireira' },
-      { name: 'Camila', role: 'Colorista' },
-    ],
-    services: [
-      { n: 'Corte feminino', p: 95, min: 60 },
-      { n: 'Corte + escova', p: 150, min: 90 },
-      { n: 'Coloração', p: 260, min: 150 },
-      { n: 'Manicure', p: 45, min: 45 },
-    ],
-    pixKey: '12.345.678/0001-90',
-    googleReviewLink: 'https://g.page/r/studio-bela-pinheiros/review',
-    avatarColor: '#c2528b',
-    emoji: '💇',
-  },
-  {
-    id: 'clinica-sorriso-moema',
-    name: 'Clinica Sorriso Moema',
-    packId: 'odonto',
-    packName: 'Clínica odontológica',
-    phone: '+55 11 5051-3030',
-    address: 'Av. Ibirapuera, 2100, Moema, São Paulo',
-    hours: HOURS_SHOP,
-    staff: [
-      { name: 'Dra. Paula', role: 'Clínica geral' },
-      { name: 'Dr. Renato', role: 'Ortodontista' },
-    ],
-    services: [
-      { n: 'Limpeza (profilaxia)', p: 180, min: 40 },
-      { n: 'Clareamento', p: 890, min: 60 },
-      { n: 'Avaliação', p: 0, min: 30 },
-      { n: 'Restauração', p: 250, min: 50 },
-    ],
-    pixKey: 'financeiro@sorrisomoema.com.br',
-    googleReviewLink: 'https://g.page/r/clinica-sorriso-moema/review',
-    avatarColor: '#1f9d8f',
-    emoji: '🦷',
-  },
-  {
-    id: 'pet-care-perdizes',
-    name: 'Pet Care Perdizes',
-    packId: 'pet',
-    packName: 'Pet shop',
-    phone: '+55 11 3862-4455',
-    address: 'Rua Monte Alegre, 510, Perdizes, São Paulo',
-    hours: HOURS_SHOP,
-    staff: [
-      { name: 'Lucas', role: 'Banhista e tosador' },
-      { name: 'Dra. Marina', role: 'Veterinária' },
-    ],
-    services: [
-      { n: 'Banho (porte pequeno)', p: 70, min: 60 },
-      { n: 'Banho e tosa', p: 120, min: 90 },
-      { n: 'Consulta veterinária', p: 180, min: 30 },
-      { n: 'Leva e traz', p: 0, min: 0 },
-    ],
-    pixKey: '+5511938624455',
-    googleReviewLink: 'https://g.page/r/pet-care-perdizes/review',
-    avatarColor: '#d9822b',
-    emoji: '🐶',
-  },
-  {
-    id: 'essenza-estetica-itaim',
-    name: 'Essenza Estetica Itaim',
-    packId: 'estetica',
-    packName: 'Clínica de estética',
-    phone: '+55 11 3078-9900',
-    address: 'Rua João Cachoeira, 300, Itaim Bibi, São Paulo',
-    hours: HOURS_SALON,
-    staff: [
-      { name: 'Juliana', role: 'Esteticista' },
-      { name: 'Patrícia', role: 'Fisioterapeuta dermatofuncional' },
-    ],
-    services: [
-      { n: 'Drenagem linfática', p: 160, min: 60 },
-      { n: 'Limpeza de pele', p: 220, min: 90 },
-      { n: 'Massagem relaxante', p: 180, min: 60 },
-    ],
-    pixKey: 'contato@essenzaitaim.com.br',
-    googleReviewLink: 'https://g.page/r/essenza-estetica-itaim/review',
-    avatarColor: '#8a63d2',
-    emoji: '✨',
-  },
-];
+/** Compact pt-BR summary of a HoursMap, e.g. "seg a sex 08:00 às 18:00, sáb 08:00 às 12:00". */
+function hoursPt(h: HoursMap): string {
+  const order: DayKey[] = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'];
+  const groups: { from: DayKey; to: DayKey; range: [string, string] }[] = [];
+  for (const d of order) {
+    const r = h[d];
+    if (!r) continue;
+    const last = groups[groups.length - 1];
+    const prevIdx = order.indexOf(d) - 1;
+    if (last && last.to === order[prevIdx] && last.range[0] === r[0] && last.range[1] === r[1]) last.to = d;
+    else groups.push({ from: d, to: d, range: r });
+  }
+  return groups
+    .map((g) => `${g.from === g.to ? DAY_LABEL[g.from] : `${DAY_LABEL[g.from]} a ${DAY_LABEL[g.to]}`} ${g.range[0]} às ${g.range[1]}`)
+    .join(', ');
+}
+
+const toHour = (hhmm: string) => Number(hhmm.slice(0, 2)) + Number(hhmm.slice(3, 5)) / 60;
 
 function wavUrl(seconds: number): string {
   const rate = 8000;
@@ -224,6 +208,19 @@ export function createMockApi(): KaniApi {
   const at = (daysAgo: number, hh: number, mm: number) =>
     new Date(`${spDay(daysAgo)}T${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:00-03:00`).toISOString();
   const inDays = (days: number, hh: number) => at(-days, hh, 0);
+  const weekdayKey = (daysAhead: number): DayKey => DAY_KEYS[new Date(`${spDay(-daysAhead)}T12:00:00-03:00`).getUTCDay()]!;
+  /** First day (>= minDays ahead) the tenant is open from fromH until toH, per the seed hours. */
+  const nextOpen = (t: TenantDTO, minDays: number, fromH: number, toH: number): { d: number; phrase: string } => {
+    for (let d = minDays; d < minDays + 8; d++) {
+      const key = weekdayKey(d);
+      const r = t.hours[key];
+      if (r && toHour(r[0]) <= fromH && toHour(r[1]) >= toH) {
+        return { d, phrase: d === 0 ? 'hoje' : d === 1 ? 'amanhã' : DAY_PHRASE[key] };
+      }
+    }
+    return { d: minDays, phrase: 'amanhã' };
+  };
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
   function emit(e: ServerEvent): void {
     window.setTimeout(() => listeners.forEach((l) => l(e)), 0);
@@ -288,17 +285,19 @@ export function createMockApi(): KaniApi {
     const c = rec.conv.contact;
     switch (t.packId) {
       case 'oficina': {
+        const mech = staff(t, 0);
+        const slot = nextOpen(t, 1, 9, 11);
         add(rec, 'customer', 'Oi, bom dia! Vocês fazem troca de óleo?', at(1, 9, 12));
-        add(rec, 'assistant', 'Bom dia! Fazemos sim 😊\nA troca de óleo sintético sai por *R$ 189,00* com filtro incluso. Quer agendar?', at(1, 9, 12), {
+        add(rec, 'assistant', `Bom dia! Fazemos sim 😊\nA troca de óleo + filtro sai por *${price(t, 'Troca de oleo + filtro')}*. Quer agendar?`, at(1, 9, 12), {
           meta: { tools: ['search_services'] },
         });
         add(rec, 'customer', null, ago(38), {
           type: 'audio',
           mediaUrl: wavUrl(7),
-          transcript: 'Queria saber se amanhã de manhã tem horário pra revisão do meu Onix, ele tá fazendo um barulho no freio.',
+          transcript: 'Queria saber quando tem horário pra revisão do meu Onix, ele tá fazendo um barulho no freio.',
           meta: { durationS: 7, simulatedAudio: true },
         });
-        add(rec, 'assistant', 'Tenho horário amanhã às 9h ou às 10h30 com o Carlos. Qual prefere?', ago(37), {
+        add(rec, 'assistant', `Tenho ${slot.phrase} às 9h ou às 10h30 com o ${mech}. Qual prefere?`, ago(37), {
           meta: { tools: ['check_availability'] },
         });
         add(rec, 'customer', 'O barulho vem daqui', ago(35), {
@@ -309,37 +308,39 @@ export function createMockApi(): KaniApi {
         add(
           rec,
           'assistant',
-          'Pela foto parece desgaste na pastilha de freio. Posso incluir uma avaliação gratuita na revisão. Fica às 9h então?',
+          `Pela foto parece desgaste na pastilha de freio, mas o valor fechado só sai depois que o ${mech} olhar o carro. As pastilhas de freio dianteiras (par) saem por ${price(t, 'Pastilhas de freio (dianteira, par)')} e a revisão básica por ${price(t, 'Revisao basica')}. Fica às 9h então?`,
           ago(34),
-          { meta: { tools: ['describe_image'] } },
+          { meta: { tools: ['describe_image', 'search_services'] } },
         );
         add(rec, 'customer', 'Pode ser às 9h!', ago(33));
         add(
           rec,
           'assistant',
-          'Agendado! ✅\n*Revisão completa* (Onix)\nAmanhã, 09:00 com o Carlos\nRua Domingos de Morais, 1200\n\nSe precisar remarcar é só avisar por aqui.',
+          `Agendado! ✅\n*Revisão básica* (Onix)\n${cap(slot.phrase)}, 09:00 com o ${mech}\n${t.address}\n\nSe precisar remarcar é só avisar por aqui.`,
           ago(33),
-          { meta: { tools: ['check_availability', 'book'] } },
+          { meta: { tools: ['check_availability', 'book', 'create_quote'] } },
         );
+        const revisao = svc(t, 'Revisao basica');
+        const pastilhas = svc(t, 'Pastilhas de freio (dianteira, par)');
         rec.appointments.push({
           id: nextId++,
           tenantId: t.id,
           contactId: c.id,
-          service: 'Revisão completa',
-          staff: 'Carlos',
-          startsAt: inDays(1, 9),
+          service: revisao.n,
+          staff: mech,
+          startsAt: inDays(slot.d, 9),
           status: 'booked',
-          price: 450,
+          price: revisao.p,
         });
         rec.quotes.push({
           id: nextId++,
           tenantId: t.id,
           contactId: c.id,
           items: [
-            { service: 'Revisão completa', qty: 1, price: 450 },
-            { service: 'Pastilha de freio (par)', qty: 1, price: 280 },
+            { service: revisao.n, qty: 1, price: revisao.p },
+            { service: pastilhas.n, qty: 1, price: pastilhas.p },
           ],
-          total: 730,
+          total: revisao.p + pastilhas.p,
           status: 'sent',
           approvalMessageId: null,
           createdAt: ago(33),
@@ -349,81 +350,106 @@ export function createMockApi(): KaniApi {
         break;
       }
       case 'salao': {
+        const rafael = staff(t, 0);
+        const juliana = staff(t, 1);
         add(rec, 'customer', 'Oi! Tem horário para corte e escova sábado?', at(2, 18, 40));
         add(
           rec,
           'assistant',
-          'Oi! Sábado tenho às 10h com a Bruna ou às 14h com a Camila. Corte + escova fica R$ 150,00 ✂️',
+          `Oi! Sábado tenho às 10h com o ${rafael} ou às 14h com a ${juliana}. O corte feminino é ${price(t, 'Corte feminino')} e a escova ${price(t, 'Escova')} ✂️`,
           at(2, 18, 41),
-          { meta: { tools: ['check_availability'] } },
+          { meta: { tools: ['search_services', 'check_availability'] } },
         );
-        add(rec, 'customer', '10h com a Bruna', at(2, 18, 43));
-        add(rec, 'assistant', 'Prontinho, agendado! Sábado às 10h com a Bruna 💖', at(2, 18, 43), { meta: { tools: ['book'] } });
+        add(rec, 'customer', `10h com o ${rafael}`, at(2, 18, 43));
+        add(rec, 'assistant', `Prontinho, agendado! Sábado às 10h com o ${rafael} 💖`, at(2, 18, 43), { meta: { tools: ['book'] } });
         add(
           rec,
           'assistant',
-          `Oi! Obrigada pela visita ao Studio Bela 💖 Se puder, deixe sua avaliação, ajuda muito a gente:\n${t.googleReviewLink}`,
+          `Oi! Obrigada pela visita ao ${t.name} 💖 Se puder, deixe sua avaliação, ajuda muito a gente:\n${t.googleReviewLink}`,
           at(1, 17, 5),
           { meta: { kind: 'review_request' } },
         );
         break;
       }
       case 'odonto': {
+        const dra = staff(t, 0);
+        const limpeza = svc(t, 'Limpeza (profilaxia)');
+        const slot = nextOpen(t, 1, 14, 15);
         add(rec, 'customer', 'Boa tarde, quanto custa uma limpeza?', at(3, 15, 2));
         add(
           rec,
           'assistant',
-          'Boa tarde! A limpeza (profilaxia) custa R$ 180,00 e dura cerca de 40 minutos. Quer agendar com a Dra. Paula?',
+          `Boa tarde! A limpeza (profilaxia) custa ${brl(limpeza.p)} e dura cerca de ${limpeza.min} minutos. Quer agendar com a ${dra}?`,
           at(3, 15, 2),
           { meta: { tools: ['search_services'] } },
         );
         add(rec, 'customer', 'Quero sim, pode ser às 14h?', at(3, 15, 6));
-        add(rec, 'assistant', 'Agendado ✅ Limpeza às 14h com a Dra. Paula.', at(3, 15, 6), { meta: { tools: ['check_availability', 'book'] } });
+        add(rec, 'assistant', `Agendado ✅ Limpeza ${slot.phrase} às 14h com a ${dra}.`, at(3, 15, 6), {
+          meta: { tools: ['check_availability', 'book'] },
+        });
         add(
           rec,
           'assistant',
-          'Lembrete 🦷 Sua limpeza é amanhã às 14h com a Dra. Paula.\nResponda *1* para confirmar ou *2* para remarcar.',
+          `Lembrete 🦷 Sua limpeza é ${slot.phrase} às 14h com a ${dra}.\nResponda *1* para confirmar ou *2* para remarcar.`,
           ago(95),
           { meta: { kind: 'reminder' } },
         );
         add(rec, 'customer', '1', ago(80));
-        add(rec, 'assistant', 'Confirmado! Até amanhã 😊', ago(80), { meta: { tools: ['confirm_appointment'] } });
+        add(rec, 'assistant', 'Confirmado! Até lá 😊', ago(80), { meta: { tools: ['confirm_appointment'] } });
         rec.appointments.push({
           id: nextId++,
           tenantId: t.id,
           contactId: c.id,
-          service: 'Limpeza (profilaxia)',
-          staff: 'Dra. Paula',
-          startsAt: inDays(1, 14),
+          service: limpeza.n,
+          staff: dra,
+          startsAt: inDays(slot.d, 14),
           status: 'confirmed',
-          price: 180,
+          price: limpeza.p,
         });
         break;
       }
       case 'pet': {
         add(rec, 'customer', 'Vocês buscam o cachorro em casa?', at(6, 11, 20));
-        add(rec, 'assistant', 'Buscamos sim! O leva e traz em Perdizes é gratuito para banho e tosa 🐶', at(6, 11, 21));
-        break;
-      }
-      case 'estetica': {
-        add(rec, 'customer', 'Quero saber o valor do pacote de 10 sessões de drenagem', ago(160));
         add(
           rec,
           'assistant',
-          'Para pacotes com desconto quem passa o valor é a nossa equipe. Já pedi para uma especialista te responder por aqui, tudo bem?',
+          `Ainda não temos leva e traz 🐶 Mas atendemos com hora marcada certinha. O banho sai ${price(t, 'Banho (porte pequeno)')} (pequeno), ${price(t, 'Banho (porte medio)')} (médio) ou ${price(t, 'Banho (porte grande)')} (grande). Qual o porte do seu pet?`,
+          at(6, 11, 21),
+          { meta: { tools: ['search_services'] } },
+        );
+        break;
+      }
+      case 'estetica': {
+        const patricia = staff(t, 0);
+        const carla = staff(t, 1);
+        add(rec, 'customer', 'Quanto fica um pacote de 5 sessões de microagulhamento?', ago(160));
+        add(
+          rec,
+          'assistant',
+          'Esse pacote não está na nossa tabela, então quem passa o valor é a nossa equipe. Já pedi para uma especialista te responder por aqui, tudo bem?',
           ago(159),
           { meta: { guard: true, kind: 'handoff' } },
         );
         escalate(rec, 'Price not in catalog', ago(159));
         rec.conv.status = 'human';
-        add(rec, 'owner', 'Oi! Aqui é a Juliana da Essenza 🌿 O pacote de 10 sessões sai por R$ 1.200,00 à vista ou 3x sem juros.', ago(140));
+        add(
+          rec,
+          'owner',
+          `Oi! Aqui é a ${patricia} da Essenza 🌿 O protocolo de microagulhamento a ${carla} define na avaliação estética, que é gratuita. A sessão avulsa sai por ${price(t, 'Microagulhamento (sessao)')}, e parcelamos em até 6x no cartão.`,
+          ago(140),
+        );
         break;
       }
     }
   }
 
   function seedOthers(): void {
-    const auto = TENANTS[0]!;
+    const auto = tenantByPack('oficina');
+    const salao = tenantByPack('salao');
+    const odonto = tenantByPack('odonto');
+    const pet = tenantByPack('pet');
+    const estetica = tenantByPack('estetica');
+
     const roberto = newRec(auto.id, newContact('Roberto Lima', '+55 11 98765-4321', { profile: { carro: 'VW Gol 2016' } }), false);
     add(roberto, 'customer', 'O barulho voltou depois da revisão de semana passada. Estou bem chateado.', ago(26));
     add(roberto, 'assistant', 'Sinto muito pelo transtorno, Roberto. Já chamei o responsável da oficina para falar com você.', ago(25), {
@@ -433,26 +459,55 @@ export function createMockApi(): KaniApi {
     roberto.conv.status = 'human';
 
     const fer = newRec(auto.id, newContact('Fernanda Alves', '+55 11 97654-1122'), false);
+    const ferSlot = nextOpen(auto, 0, 16, 17);
     add(fer, 'customer', 'Quanto fica o alinhamento e balanceamento?', ago(70));
-    add(fer, 'assistant', 'O alinhamento com balanceamento sai por R$ 120,00. Tenho horário hoje às 16h, quer reservar?', ago(69), {
-      meta: { tools: ['search_services', 'check_availability'] },
-    });
+    add(
+      fer,
+      'assistant',
+      `O alinhamento e balanceamento sai por ${price(auto, 'Alinhamento e balanceamento')}. Tenho horário ${ferSlot.phrase} às 16h, quer reservar?`,
+      ago(69),
+      { meta: { tools: ['search_services', 'check_availability'] } },
+    );
 
-    const marcos = newRec(auto.id, newContact('Marcos Tanaka', '+55 11 99111-2233'), false);
-    add(marcos, 'assistant', `Oi Marcos! Obrigado por escolher o Auto Center 🔧 Pode avaliar nosso serviço? ${auto.googleReviewLink}`, at(1, 16, 30), {
+    const thiago = newRec(auto.id, newContact('Thiago Tanaka', '+55 11 99111-2233'), false);
+    add(thiago, 'assistant', `Oi Thiago! Obrigado por escolher o ${auto.name} 🔧 Pode avaliar nosso serviço? ${auto.googleReviewLink}`, at(1, 16, 30), {
       meta: { kind: 'review_request' },
     });
-    add(marcos, 'customer', 'Avaliado! Serviço excelente 👏', at(1, 17, 2));
-    marcos.conv.status = 'closed';
+    add(thiago, 'customer', 'Avaliado! Serviço excelente 👏', at(1, 17, 2));
+    thiago.conv.status = 'closed';
 
-    const generic: [number, string, string, string][] = [
-      [1, 'Juliana Rocha', 'Vocês fazem mechas?', 'Fazemos sim! Mechas começam em R$ 320,00. Quer agendar uma avaliação com a Camila?'],
-      [2, 'Pedro Henrique', 'Aceitam convênio?', 'No momento atendemos apenas particular, mas parcelamos em até 6x no cartão 😊'],
-      [3, 'Ana Beatriz', 'Qual o horário de sábado?', 'Aos sábados funcionamos das 08:00 às 13:00. Quer marcar um banho para a Mel?'],
-      [4, 'Carla Mendes', 'Tem horário para limpeza de pele amanhã?', 'Tenho amanhã às 15h com a Juliana. Posso reservar?'],
+    const convenios = ((SEED.find((s) => s.id === odonto.id)?.settings.convenios as string[] | undefined) ?? []).join(', ');
+    const sab = pet.hours.sab;
+    const esteticaSlot = nextOpen(estetica, 1, 15, 17);
+    const generic: [TenantDTO, string, string, string][] = [
+      [
+        salao,
+        'Larissa Rocha',
+        'Vocês fazem mechas?',
+        `Fazemos sim! Luzes/mechas saem por ${price(salao, 'Luzes/mechas')}. A ${staff(salao, 1)} é nossa colorista, quer ver horários com ela?`,
+      ],
+      [
+        odonto,
+        'Pedro Henrique',
+        'Aceitam convênio?',
+        convenios
+          ? `Atendemos particular e os convênios ${convenios}. A avaliação inicial é gratuita, quer agendar?`
+          : 'Atendemos particular. A avaliação inicial é gratuita, quer agendar?',
+      ],
+      [
+        pet,
+        'Ana Beatriz',
+        'Qual o horário de sábado?',
+        sab ? `Aos sábados funcionamos das ${sab[0]} às ${sab[1]}. Quer marcar um banho para a Mel?` : 'Aos sábados não abrimos. Quer marcar um banho para a Mel durante a semana?',
+      ],
+      [
+        estetica,
+        'Camila Mendes',
+        'Tem horário para limpeza de pele essa semana?',
+        `Tenho ${esteticaSlot.phrase} às 15h com a ${staff(estetica, 0)}. A limpeza de pele profunda sai por ${price(estetica, 'Limpeza de pele profunda')}. Posso reservar?`,
+      ],
     ];
-    generic.forEach(([ti, name, q, a], i) => {
-      const t = TENANTS[ti]!;
+    generic.forEach(([t, name, q, a], i) => {
       const r = newRec(t.id, newContact(name, `+55 11 9${8000 + i * 111}-${4000 + i * 77}`), false);
       add(r, 'customer', q, ago(200 + i * 45));
       add(r, 'assistant', a, ago(199 + i * 45), { meta: { tools: ['check_availability'] } });
@@ -483,27 +538,29 @@ export function createMockApi(): KaniApi {
   }
 
   function cannedReply(t: TenantDTO, input: SimSendInput): { text: string; meta: MessageMeta } {
+    const slot = nextOpen(t, 1, 10, 16);
+    const slotsText = `Tenho horários ${slot.phrase} às 10h, 11h e 15h. Qual fica melhor para você?`;
     if (input.type === 'audio') {
-      return {
-        text: 'Recebi seu áudio 👍 Tenho horários amanhã às 9h, 11h e 15h. Qual fica melhor para você?',
-        meta: { tools: ['check_availability'] },
-      };
+      return { text: `Recebi seu áudio 👍 ${slotsText}`, meta: { tools: ['check_availability'] } };
     }
     if (input.type === 'image') {
       return { text: 'Recebi a foto, obrigado! Já vou encaminhar para a equipe avaliar e te retorno por aqui.', meta: { tools: ['describe_image'] } };
     }
     const q = (input.text ?? '').toLowerCase();
     if (/(pre[cç]o|quanto|valor)/.test(q)) {
-      const lines = t.services.slice(0, 3).map((s) => `• ${s.n}: ${s.p ? `R$ ${s.p.toFixed(2).replace('.', ',')}` : 'sob avaliação'}`);
+      const lines = t.services.slice(0, 3).map((s) => `• ${s.n}: ${s.p ? brl(s.p) : 'sob avaliação'}`);
       return { text: `Claro! Alguns valores:\n${lines.join('\n')}\n\nQuer agendar algum desses?`, meta: { tools: ['search_services'] } };
     }
     if (/(endere|onde|local)/.test(q)) {
       return { text: `Estamos na ${t.address} 📍`, meta: {} };
     }
+    if (/pix/.test(q)) {
+      return { text: `Nossa chave Pix é ${t.pixKey}`, meta: {} };
+    }
     const options = [
-      { text: 'Tenho horários amanhã às 9h, 11h e 15h. Qual fica melhor para você?', meta: { tools: ['check_availability'] } },
+      { text: slotsText, meta: { tools: ['check_availability'] } },
       { text: 'Perfeito! Posso te ajudar com mais alguma coisa? 😊', meta: {} },
-      { text: `Nosso atendimento é de segunda a sábado. Se quiser, já deixo seu horário reservado.`, meta: {} },
+      { text: `Nosso horário: ${hoursPt(t.hours)}. Se quiser, já deixo seu horário reservado.`, meta: {} },
     ];
     return options[replyRotation++ % options.length]!;
   }
@@ -544,12 +601,17 @@ export function createMockApi(): KaniApi {
   function schedulePush(): void {
     // A proactive reminder from another business so the unread badge can be demoed.
     window.setTimeout(() => {
-      const pet = TENANTS[3]!;
+      const pet = tenantByPack('pet');
       const rec = recs.find((r) => r.demo && r.conv.tenantId === pet.id);
       if (!rec) return;
-      const m = add(rec, 'assistant', 'Oi! 🐾 Já faz 30 dias do último banho. Que tal agendar para esta semana? Tenho quinta às 10h com o Lucas.', new Date(now()).toISOString(), {
-        meta: { kind: 'reactivation' },
-      });
+      const slot = nextOpen(pet, 2, 10, 12);
+      const m = add(
+        rec,
+        'assistant',
+        `Oi! 🐾 Já faz 30 dias do último banho. Que tal agendar? Tenho ${slot.phrase} às 10h com o ${staff(pet, 1)}.`,
+        new Date(now()).toISOString(),
+        { meta: { kind: 'reactivation' } },
+      );
       emitMessage(rec, m);
     }, 6000);
   }
