@@ -64,3 +64,20 @@ export function optIn(): string {
 export function lgpdWiped(t: Tenant): string {
   return `Pronto! Apaguei seus dados e o histórico desta conversa na ${t.name}, conforme a LGPD. Se precisar de algo no futuro, é só chamar.`;
 }
+
+/** Safe, pre-approved replies for sensitive topics (health, pregnancy, emergencies, out of scope).
+ * Deterministic on purpose: no clinical or technical advice can leak from the model. */
+export function sensitiveReply(packId: string, t: Tenant): string {
+  switch (packId) {
+    case 'odonto':
+      return 'Sinto muito que você esteja passando por isso! Se a dor estiver muito forte, com inchaço, febre ou sangramento, procure um pronto atendimento agora. Já avisei a nossa equipe para te retornar o quanto antes.';
+    case 'pet':
+      return `Sinto muito! Por aqui eu não posso indicar remédio, alimento ou dose. Se ele estiver com sintomas, procure um veterinário 24h agora. ${t.settings.vet_24h_partner ? 'A nossa equipe te passa o contato do hospital parceiro. ' : ''}Já avisei a equipe para te ajudar.`;
+    case 'estetica':
+      return 'Obrigada por me contar! Nessa situação, qualquer procedimento só pode ser indicado depois de avaliação e liberação profissional, com todo o cuidado. Já chamei alguém da nossa equipe para te orientar.';
+    case 'salao':
+      return 'Que bom que você perguntou antes! Em casos como esse, a gente não indica química sem uma avaliação presencial e liberação profissional. Já chamei alguém da equipe para te orientar direitinho.';
+    default:
+      return 'Entendi! Esse caso precisa de uma avaliação da nossa equipe técnica. Já chamei alguém para continuar o atendimento com você.';
+  }
+}

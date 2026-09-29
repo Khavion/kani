@@ -63,9 +63,12 @@ test('engine: TAKE OVER pauses the bot; RESUME re-enables it', async () => {
   assert.ok(roles.includes('owner'));
 });
 
-test('engine: sensitive topic gets one safe reply and then auto-pauses', async () => {
-  const k = testKani(new ScriptedLLM(reply('Sinto muito! Se a dor estiver muito forte com inchaco, procure um pronto atendimento.')));
+test('engine: sensitive topic gets one safe templated reply (no LLM) and then auto-pauses', async () => {
+  const llm = new ScriptedLLM(reply('A progressiva e possivel sim!'));
+  const k = testKani(llm);
   const { turn } = await say(k, ODONTO, 'to com dor fortissima e inchado');
+  assert.equal(llm.requests.length, 0);
+  assert.match(turn.reply!.text!, /pronto atendimento/);
   assert.equal(turn.escalated, true);
   assert.equal(k.repo.getConversation(turn.conversationId)!.status, 'human');
 });
@@ -184,4 +187,37 @@ test('engine: disclosure replaces a model-written self introduction instead of s
   assert.equal(b, 'Boa noite, Carla! Eu sou a consultora virtual da Essenza Estetica Itaim. A drenagem custa R$140.');
   const c = k.engine.ensureDisclosure('A drenagem custa R$140.', conv, pack, tenant);
   assert.equal(c, 'Oi! Eu sou a consultora virtual da Essenza Estetica Itaim. A drenagem custa R$140.');
+});
+
+test('policy: anger detection ignores ordinary "nunca mais" and catches churn threats', async () => {
+  const { isAngry } = await import('../src/engine/policy.ts');
+  assert.equal(isAngry('nunca mais vou conseguir hoje, preciso de outro dia'), false);
+  assert.equal(isAngry('nunca mais volto nessa oficina'), true);
+  assert.equal(isAngry('voces sao uma vergonha'), true);
+  assert.equal(isAngry('responde logo pqp'), false);
+});
+
+test('cleanReply: repairs a price glued to a duration', async () => {
+  const { cleanReply } = await import('../src/engine/engine.ts');
+  assert.equal(cleanReply('A vacina antirrabica custa R$90,15 min.'), 'A vacina antirrabica custa R$90 (15 min).');
+  assert.equal(cleanReply('Sai R$ 99,90 no total'), 'Sai R$ 99,90 no total');
+});
+
+test('engine: a promised handoff always creates a real escalation; complaints are caught', async () => {
+  const { isComplaint, promisesHandoff } = await import('../src/engine/policy.ts');
+  assert.equal(isComplaint('voces acabaram com meu cabelo, cortaram tudo torto'), true);
+  assert.equal(isComplaint('quero agendar um corte'), false);
+  assert.equal(promisesHandoff('Vou chamar alguem da equipe pra te ajudar.'), true);
+  assert.equal(promisesHandoff('Posso ver um horario pra voce?'), false);
+  const k = testKani(new ScriptedLLM(reply('Entendi! Vou passar pra equipe verificar isso.')));
+  const { turn } = await say(k, SALAO, 'voces cobram taxa de cancelamento?');
+  assert.equal(turn.escalated, true);
+  assert.match(k.repo.escalationsForConversation(turn.conversationId)[0].reason, /prometeu/);
+});
+
+test('cleanReply: strips invented assistant names', async () => {
+  const { cleanReply } = await import('../src/engine/engine.ts');
+  assert.equal(cleanReply('Olá! Sou a Bela, assistente virtual do Studio.'), 'Olá! Sou a assistente virtual do Studio.');
+  assert.equal(cleanReply('Oi! Sou a Ana, sua recepcionista virtual.'), 'Oi! Sou a recepcionista virtual.');
+  assert.equal(cleanReply('Sou a assistente virtual.'), 'Sou a assistente virtual.');
 });

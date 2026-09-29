@@ -13,6 +13,8 @@ import { TOOL_NAMES, TOOL_SPECS, executeTool, type ToolCallRecord, type ToolCont
 import { GUARD_REPLY, asksAboutPrice, checkPrices, stripPriceSentences, type GuardContext } from './guard.ts';
 import {
   isAngry,
+  isComplaint,
+  promisesHandoff,
   isHumanRequest,
   isLgpdErase,
   isOptIn,
@@ -467,10 +469,14 @@ export class Engine {
     // --- sensitive topics and angry customers: always hand over after one safe reply
     const topic = sensitiveTopic(pack.id, text);
     if (topic) {
-      forceEscalation = `tema sensivel: ${topic}`;
-      notes.push(
-        `ATENCAO: tema sensivel detectado ("${topic}"). Nao de orientacao clinica, tecnica ou de saude. Acolha, oriente de forma geral (em emergencia: procurar pronto atendimento / veterinario 24h) e use escalate para a equipe assumir.`,
-      );
+      // Deterministic safe reply: no clinical/technical advice can come from the model here.
+      const { msg, latency } = await send(templates.sensitiveReply(pack.id, tenant), { kind: 'sensitive_handoff', topic });
+      this.escalate(conv, `tema sensivel: ${topic}`, 'policy');
+      return { ...base, reply: msg, latencyMs: latency, escalated: true, skipped: 'sensitive' };
+    }
+    if (isComplaint(text)) {
+      forceEscalation = 'reclamacao de servico';
+      notes.push('O cliente esta reclamando de um servico. Acolha, peca desculpas sem discutir nem justificar, nao faca perguntas de investigacao, e use escalate para a equipe assumir.');
     } else if (isAngry(text)) {
       forceEscalation = 'cliente insatisfeito/bravo';
       notes.push('O cliente esta insatisfeito. Acolha, peca desculpas sem discutir nem justificar, e use escalate para a equipe assumir.');
@@ -550,6 +556,9 @@ export class Engine {
     if (guardTriggered && !escalated) {
       this.escalate(conv, `valor fora da lista: ${guard.offending.map((v) => formatBRL(v)).join(', ')}`, 'guard');
       escalated = true;
+    }
+    if (!forceEscalation && !escalated && promisesHandoff(reply)) {
+      forceEscalation = 'assistente prometeu passar para a equipe';
     }
     if (forceEscalation && !escalated) {
       this.escalate(conv, forceEscalation, 'policy');
@@ -640,6 +649,21 @@ export class Engine {
     const ctx = this.buildPromptContext(conv, tenant, pack, contact, notes);
     const offered = ctx.offered ?? null;
     const lastCustomer = [...ctx.history].reverse().find((m) => m.role === 'customer');
+    // The customer just picked one of the slots we offered: tell the model exactly how to book it.
+    if (offered && lastCustomer) {
+      const picked = matchOfferedSlot([this.customerText(lastCustomer)], offered);
+      const alreadyBooked = this.repo
+        .appointmentsForContact(contact.id)
+        .some((a) => (a.status === 'booked' || a.status === 'confirmed') && formatSlotPt(new Date(a.startsAt)) === picked?.label);
+      if (picked && !alreadyBooked) {
+        ctx.notes = [
+          ...ctx.notes,
+          `O cliente acabou de escolher ${picked.label}. Se nao faltar nenhuma informacao essencial, chame agora ${
+            this.repo.appointmentsForContact(contact.id).some((a) => a.status === 'booked' || a.status === 'confirmed') ? 'reschedule' : 'book'
+          } com slot="${picked.slot}" (servico "${offered.service}"), sem consultar a agenda de novo.`,
+        ];
+      }
+    }
     if (!native) ctx.promptedTools = TOOL_SPECS;
     const messages: ChatMessage[] = composeMessages(ctx);
     if (extraUserTurn) messages.push({ role: 'user', content: extraUserTurn });
@@ -982,9 +1006,11 @@ export function cleanReply(s: string): string {
   let t = stripThink(s);
   t = t.replace(/<\/?tool_call>/g, '');
   t = t.replace(/^\s*(assistente|assistant|resposta)\s*:\s*/i, '');
-  t = t.replace(/\b(sou|aqui (?:é|e))\s+(a|o)\s+[A-ZÀ-Ý][a-zà-ÿ]+,?\s+(?:sua|seu|a|o)\s+/gi, '$1 $2 ');
+  t = t.replace(/\b([Ss]ou|[Aa]qui (?:é|e))\s+(a|o)\s+[A-ZÀ-Ý][a-zà-ÿ]+(?:,\s+(?:(?:sua|seu|a|o)\s+)?|\s+(?:sua|seu)\s+)/g, '$1 $2 ');
   t = t.replace(/\b(me chamo|meu nome (?:é|e))\s+[A-ZÀ-Ý][a-zà-ÿ]+[,.!]?\s*/gi, '');
   t = t.replace(/\n{3,}/g, '\n\n');
+  // Repair a price glued to a duration: "R$90,15 min" -> "R$90 (15 min)".
+  t = t.replace(/(R\$\s?\d+(?:\.\d{3})*),(\d{1,3})\s?(min|minutos)\b/gi, '$1 ($2 $3)');
   t = stripDashes(t).trim();
   return t.charAt(0).toUpperCase() + t.slice(1);
 }

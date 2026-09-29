@@ -54,7 +54,7 @@ export function packSection(pack: Pack, tenant: Tenant): string {
   lines.push('');
   lines.push('SERVICOS E PRECOS (unica fonte de verdade; nunca cite outro valor):');
   for (const s of tenant.services) {
-    lines.push(`- ${s.n}: ${priceLabel(s.p)}${s.min ? ` (${s.min} min)` : ''}`);
+    lines.push(`- ${s.n}: ${priceLabel(s.p)}${s.min ? ` | duracao ${s.min} min` : ''}`);
   }
   lines.push('');
   lines.push(`DADOS PARA COLETAR (um por vez, so o necessario): ${pack.intake_fields.join(', ')}`);
@@ -68,7 +68,13 @@ export function packSection(pack: Pack, tenant: Tenant): string {
   lines.push(`NOTAS REGULATORIAS: ${pack.regulatory_notes.join('; ')}`);
   if (pack.id === 'oficina') {
     lines.push(
-      'REGRA OFICINA: orcamento so e aprovado quando o cliente responder com aprovacao clara ("aprovo", "pode fazer"). Nunca execute ou confirme servico sem essa autorizacao.',
+      'REGRA OFICINA: orcamento so e aprovado quando o cliente responder com aprovacao clara ("aprovo", "pode fazer"). Nunca execute ou confirme servico sem essa autorizacao. ' +
+        'Para sintoma sem causa clara (barulho, luz no painel, falha), nao diagnostique: ofereca o servico de diagnostico da lista informando o valor, e agende.',
+    );
+  }
+  if (pack.id === 'salao') {
+    lines.push(
+      'REGRA SALAO: se o cliente pedir mais de um servico (ex.: corte e barba = Corte masculino + Barba), agende cada servico com um book separado, em horarios seguidos. Se nao der para saber se o corte e masculino ou feminino, pergunte.',
     );
   }
   if (pack.id === 'odonto') {
