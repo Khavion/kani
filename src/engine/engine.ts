@@ -797,6 +797,19 @@ export class Engine {
             });
             continue;
           }
+          const wantsBooking =
+            !!lastCustomer && /\b(agendar|agenda|marcar|marca|horario|vaga|encaixe|remarcar)\b/.test(norm(this.customerText(lastCustomer)));
+          const offersTimes = /\b\d{1,2}(:\d{2}|h)/.test(content);
+          if (wantsBooking && !checked && !didAction && !offersTimes && !claim && !nudged && allowTools && round < this.opts.maxToolRounds - 1) {
+            nudged = true;
+            messages.push({ role: 'assistant', content });
+            messages.push({
+              role: 'user',
+              content:
+                '(Sistema) O cliente quer agendar. Chame check_availability agora para o servico pedido (se ele nao disse o servico, use o mais provavel da conversa) e responda com 2 horarios reais.',
+            });
+            continue;
+          }
           if (claim && !didAction && !this.claimBackedByDb(contact.id, claim, content)) {
             if (!claimRetried && allowTools && round < this.opts.maxToolRounds - 1) {
               claimRetried = true;
