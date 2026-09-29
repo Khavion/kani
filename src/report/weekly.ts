@@ -73,7 +73,7 @@ export function computeWeeklyMetrics(repo: Repo, opts: { tenantId?: string | 'al
     `SELECT r.kind, r.response, a.status AS appt_status FROM reminders r LEFT JOIN appointments a ON a.id = r.appointment_id
      WHERE r.tenant_id IN ${inT} AND r.sent = 1 AND r.sent_at BETWEEN ? AND ? AND r.kind IN ('confirm_24h','confirm_2h')`,
     ...tIds, s, e,
-  ).filter((r) => r.response !== 'skipped_inactive' && r.response !== 'error');
+  ).filter((r) => !String(r.response ?? '').startsWith('skipped') && r.response !== 'error');
   const remindersSent = reminders.length;
   const confirmedCount = reminders.filter((r) => r.response === '1').length;
   const reminderConfirmationRate = remindersSent ? Math.round((confirmedCount / remindersSent) * 1000) / 10 : 0;

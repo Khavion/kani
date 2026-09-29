@@ -191,7 +191,8 @@ function seedTenantHistory(repo: Repo, tenant: Tenant, now: Date): void {
     const d = openDay(1 + i * 2);
     const afterHours = i === 1;
     const t0 = afterHours ? at(d, 21, 40) : at(d, openHour(d), 5);
-    const apptDay = i === 2 ? futureOpenDay(2) : Math.max(0, d - 1);
+    // Past visits are done/confirmed; anything still "booked" is in the future (never a stale booking).
+    const apptDay = i === 2 ? futureOpenDay(2) : d - 1 > 0 ? d - 1 : futureOpenDay(1);
     const hour = 10 + i * 2;
     say(conv.id, 'customer', `queria marcar ${s.n.toLowerCase()}, tem horario?`, t0, null, afterHours ? { afterHours: true } : {});
     const slotA = at(apptDay, hour);
@@ -274,7 +275,7 @@ function seedTenantHistory(repo: Repo, tenant: Tenant, now: Date): void {
     const d = openDay(0);
     const t0 = at(d, Math.max(9, openHour(d)), 20);
     say(conv.id, 'customer', 'voces fazem pacote com desconto pra 3 servicos juntos?', t0);
-    say(conv.id, 'assistant', 'vou confirmar esse valor certinho e já te retorno', addMinutes(t0, 0.2), lat(), { guard: true });
+    say(conv.id, 'assistant', `${intro} Vou confirmar esse valor certinho e já te retorno`, addMinutes(t0, 0.2), lat(), { guard: true });
     const esc = repo.insertEscalation(conv.id, 'valor fora da lista');
     db.prepare('UPDATE escalations SET created_at = ? WHERE id = ?').run(addMinutes(t0, 0.3).toISOString(), esc.id);
     repo.setConversationStatus(conv.id, 'human');

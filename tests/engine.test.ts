@@ -131,6 +131,12 @@ test('engine: spam is closed politely without tools', async () => {
   assert.equal(turn.skipped, 'spam');
   assert.equal(llm.requests.length, 0);
   assert.equal(k.repo.getConversation(turn.conversationId)!.status, 'closed');
+  const again = await say(k, OFICINA, 'GANHE DINHEIRO RAPIDO clique aqui bit.ly/abc');
+  assert.equal(again.turn.skipped, 'spam-closed');
+  // A real question afterwards must not be swallowed by the earlier ignored spam.
+  const real = await say(k, OFICINA, 'oi, quanto custa o alinhamento?');
+  assert.equal(real.turn.skipped, undefined);
+  assert.ok(real.turn.reply);
 });
 
 test('engine: an unbacked "agendado" claim is repaired into a confirmation question', async () => {
@@ -218,6 +224,7 @@ test('policy: anger detection ignores ordinary "nunca mais" and catches churn th
   assert.equal(isAngry('nunca mais volto nessa oficina'), true);
   assert.equal(isAngry('voces sao uma vergonha'), true);
   assert.equal(isAngry('responde logo pqp'), false);
+  assert.equal(isAngry('fiz luzes em casa e ficou horrivel, quanto fica pra arrumar?'), false);
 });
 
 test('cleanReply: repairs a price glued to a duration', async () => {
@@ -299,4 +306,37 @@ test('policy: clinical treatment recommendations are stripped in health packs', 
   assert.equal(r.text, 'Entendo! A avaliacao e gratuita, quer agendar?');
   const ok = stripClinicalAdvice('A limpeza de pele profunda custa R$180. Quer agendar?', names);
   assert.equal(ok.removed, false);
+});
+
+test('asksPriceOfService: price questions yes, payment-method questions no', async () => {
+  const { asksPriceOfService } = await import('../src/engine/engine.ts');
+  assert.equal(asksPriceOfService('posso pagar no pix? me manda a chave'), false);
+  assert.equal(asksPriceOfService('aceita cartao?'), false);
+  assert.equal(asksPriceOfService('quanto ta o banho?'), true);
+  assert.equal(asksPriceOfService('qual o valor no pix?'), true);
+});
+
+test('engine: a message arriving while the previous reply is generated is still answered', async () => {
+  const slow = {
+    requests: [] as string[],
+    async supportsTools() {
+      return true;
+    },
+    async chat(req: { messages: { role: string; content: string }[] }) {
+      this.requests.push(req.messages.filter((m) => m.role === 'user').map((m) => m.content).join(' | '));
+      await new Promise((r) => setTimeout(r, 60));
+      return { content: `resposta ${this.requests.length}`, toolCalls: [], evalCount: 0, promptEvalCount: 0, durationMs: 60 };
+    },
+  };
+  const k = testKani(slow as never);
+  const first = await k.engine.handleInbound({ tenantId: 'pet-perdizes', phone: '+55 11 95555-0000', name: 'Race', type: 'text', text: 'oi' });
+  await new Promise((r) => setTimeout(r, 20)); // first reply is being generated now
+  const second = await k.engine.handleInbound({ tenantId: 'pet-perdizes', phone: '+55 11 95555-0000', name: 'Race', type: 'text', text: 'quanto ta o banho?' });
+  await first.done;
+  const t2 = await second.done;
+  assert.ok(t2.reply, 'second message got its own reply');
+  assert.deepEqual(t2.customerMessageIds, [second.message.id]);
+  assert.match(slow.requests.at(-1)!, /quanto ta o banho/);
+  const bot = k.repo.listMessages(first.conversation.id).filter((m) => m.role === 'assistant');
+  assert.equal(bot.length, 2);
 });

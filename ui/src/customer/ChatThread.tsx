@@ -2,7 +2,7 @@ import { Fragment, useCallback, useLayoutEffect, useRef, useState } from 'react'
 import type { TenantDTO } from '../api/types.ts';
 import type { CustomerIdentity } from '../lib/storage.ts';
 import { TenantAvatar } from '../components/Avatar.tsx';
-import { IconBot, IconKebab, IconSearch } from '../components/Icons.tsx';
+import { IconBot, IconKebab, IconSearch, IconBack } from '../components/Icons.tsx';
 import { Menu } from '../components/Menu.tsx';
 import { Lightbox } from '../components/Lightbox.tsx';
 import { dayKey, fmtDayChip } from '../lib/format.ts';
@@ -19,6 +19,7 @@ export function ChatThread(props: {
   customer: CustomerIdentity;
   onSend: (p: OutgoingPayload) => void;
   onReset: () => void;
+  onBack?: () => void;
 }) {
   const { tenant, chat, typing } = props;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -50,6 +51,11 @@ export function ChatThread(props: {
     <div className="thread-wrap">
       <div className="thread">
         <header className="thread-header">
+          {props.onBack ? (
+            <button type="button" className="icon-btn mobile-back" aria-label="Voltar" data-testid="mobile-back" onClick={props.onBack}>
+              <IconBack />
+            </button>
+          ) : null}
           <button type="button" className="thread-header-who" onClick={() => setInfoOpen(true)} aria-label="Dados do contato">
             <TenantAvatar tenant={tenant} size={40} />
             <span className="thread-header-text">

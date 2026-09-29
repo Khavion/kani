@@ -66,6 +66,8 @@ export function promisesHandoff(reply: string): boolean {
 }
 
 export function isAngry(text: string): boolean {
+  // Unhappy with their own/someone else's work ("fiz em casa e ficou horrivel") is a sales lead, not anger at us.
+  if (/\b(em casa|eu mesm[oa]|sozinh[oa]|outro salao|outra oficina|outra clinica|outro lugar)\b/.test(norm(text))) return false;
   return /\b(vergonha|absurdo|pessim|palhacada|ridicul|procon|reclame aqui|nunca mais (volto|piso|venho|compro|faco|levo|trago|indico)|descaso|lixo|horrivel|indignad|revoltad|to puto|estou puto|falta de respeito|desrespeito|enganad|golpe|vou processar|advogado|estragaram|estragou|pior (atendimento|servico))/.test(
     norm(text),
   );

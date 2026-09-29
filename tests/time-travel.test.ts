@@ -85,3 +85,64 @@ test('reactivation respects opt-out', async () => {
   assert.equal(k.repo.remindersForContact(active.id).filter((r) => r.kind === 'reactivation' && r.sent).length, 1);
   assert.equal(k.repo.remindersForContact(opted.id).filter((r) => r.kind === 'reactivation').length, 0);
 });
+
+test('stale reminders for appointments that already started are skipped, not sent', async () => {
+  const k = testKani(new ScriptedLLM(reply('ok')));
+  const c = k.repo.upsertContact(OFICINA, '+55 11 94444-0000', 'Late');
+  const start = new Date(k.clock.now().getTime() - 3_600_000);
+  const appt = k.repo.insertAppointment({
+    tenantId: OFICINA, contactId: c.id, service: 'Revisao basica', staff: 'Marcos',
+    startsAt: start.toISOString(), endsAt: new Date(start.getTime() + 3_600_000).toISOString(), status: 'booked', price: 420,
+  });
+  const rem = k.repo.insertReminder({ appointmentId: appt.id, tenantId: OFICINA, contactId: c.id, fireAt: new Date(start.getTime() - 86_400_000).toISOString(), kind: 'confirm_24h' });
+  await k.scheduler.tick();
+  assert.equal(k.repo.getReminder(rem.id)!.response, 'skipped_stale');
+  assert.equal(k.repo.listMessages(k.repo.getOrCreateConversation(OFICINA, c.id).id).length, 0);
+});
+
+test('http: only published reports are served; internals are not', async () => {
+  const k = testKani(new ScriptedLLM(reply('ok')));
+  const app = await buildServer(k);
+  const { readdirSync } = await import('node:fs');
+  const html = readdirSync(k.cfg.reportsDir).find((f) => f.endsWith('.html'));
+  if (html) assert.equal((await app.inject({ url: `/reports/${html}` })).statusCode, 200);
+  assert.notEqual((await app.inject({ url: '/reports/tmp/anything.db' })).statusCode, 200);
+  assert.notEqual((await app.inject({ url: '/reports/qa/results.json' })).statusCode, 200);
+  await app.close();
+});
+
+test('http: UI assets added after startup are served (rebuild without restart); missing assets 404', async () => {
+  const { mkdtempSync, writeFileSync, mkdirSync } = await import('node:fs');
+  const os = await import('node:os');
+  const pathMod = await import('node:path');
+  const dist = mkdtempSync(pathMod.join(os.tmpdir(), 'kani-ui-'));
+  writeFileSync(pathMod.join(dist, 'index.html'), '<!doctype html><title>Kani</title><script type="module" src="/assets/a.js"></script>');
+  mkdirSync(pathMod.join(dist, 'assets'));
+  const k = testKani(new ScriptedLLM(reply('ok')));
+  k.cfg.uiDist = dist;
+  const app = await buildServer(k);
+  writeFileSync(pathMod.join(dist, 'assets', 'new-hash.js'), 'console.log(1)');
+  const js = await app.inject({ url: '/assets/new-hash.js' });
+  assert.equal(js.statusCode, 200);
+  assert.match(String(js.headers['content-type']), /javascript/);
+  assert.equal((await app.inject({ url: '/assets/gone.js' })).statusCode, 404);
+  const spa = await app.inject({ url: '/admin' });
+  assert.equal(spa.statusCode, 200);
+  assert.match(String(spa.headers['content-type']), /html/);
+  assert.equal(spa.headers['cache-control'], 'no-cache');
+  await app.close();
+});
+
+test('http: the root URL serves the app shell', async () => {
+  const k = testKani(new ScriptedLLM(reply('ok')));
+  const app = await buildServer(k);
+  const root = await app.inject({ url: '/' });
+  if (root.statusCode !== 200 || !/html/.test(String(root.headers['content-type']))) {
+    // ui/dist may be absent in a fresh checkout; then the server explains how to build it.
+    assert.match(root.body, /Kani/);
+  } else {
+    assert.match(root.body, /<title>Kani/);
+  }
+  assert.notEqual(root.statusCode, 403);
+  await app.close();
+});

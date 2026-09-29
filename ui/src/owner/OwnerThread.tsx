@@ -3,7 +3,7 @@ import { api } from '../api/client.ts';
 import type { ConversationDetailDTO, MessageDTO, TenantDTO } from '../api/types.ts';
 import { PersonAvatar } from '../components/Avatar.tsx';
 import { AudioPlayer } from '../components/AudioPlayer.tsx';
-import { IconAlert, IconBot, IconSend, IconShield, IconSidebar, IconUser } from '../components/Icons.tsx';
+import { IconAlert, IconBot, IconSend, IconShield, IconSidebar, IconUser, IconBack } from '../components/Icons.tsx';
 import { Lightbox } from '../components/Lightbox.tsx';
 import { dayKey, fmtDayChipEn, fmtRelative, fmtTime } from '../lib/format.ts';
 import { RichText } from '../lib/richtext.tsx';
@@ -123,10 +123,11 @@ export function OwnerThread(props: {
   typing: boolean;
   onChanged: () => void;
   onDetail: (d: ConversationDetailDTO) => void;
+  onBack?: () => void;
 }) {
   const { detail, typing } = props;
   const conv = detail.conversation;
-  const [infoOpen, setInfoOpen] = useState(true);
+  const [infoOpen, setInfoOpen] = useState(() => !window.matchMedia('(max-width: 760px)').matches);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [lightbox, setLightbox] = useState<{ src: string; caption: string | null } | null>(null);
@@ -180,6 +181,11 @@ export function OwnerThread(props: {
     <div className="thread-wrap">
       <div className="thread">
         <header className="thread-header owner-thread-header">
+          {props.onBack ? (
+            <button type="button" className="icon-btn mobile-back" aria-label="Back" data-testid="mobile-back" onClick={props.onBack}>
+              <IconBack />
+            </button>
+          ) : null}
           <div className="thread-header-who static">
             <PersonAvatar name={name} size={40} />
             <span className="thread-header-text">

@@ -684,3 +684,51 @@ button:disabled {
   margin: 6px 0 22px;
   line-height: 1.45;
 }
+
+/* Phone layout: one pane at a time (list or conversation), like the phone app. */
+.mobile-back {
+  display: none;
+}
+@media (max-width: 760px) {
+  .rail {
+    width: 52px;
+    flex-basis: 52px;
+  }
+  .customer-view .side-panel,
+  .owner-view .side-panel {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    flex: 1 1 auto;
+    border-right: 0;
+  }
+  .customer-view:not(.mobile-thread) > .chat-panel,
+  .owner-view:not(.mobile-thread) > .chat-panel {
+    display: none;
+  }
+  .mobile-thread > .side-panel {
+    display: none;
+  }
+  .mobile-thread > .chat-panel {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  /* Inside a conversation the phone shows only the conversation (the back arrow returns to the list). */
+  .app:has(.mobile-thread) > .rail {
+    display: none;
+  }
+  .mobile-back {
+    display: inline-flex;
+    margin-right: 2px;
+  }
+  .info-panel {
+    position: fixed;
+    inset: 0;
+    width: 100% !important;
+    max-width: none !important;
+    z-index: 40;
+  }
+  .thread-actions .icon-btn[aria-label='Pesquisar'] {
+    display: none;
+  }
+}

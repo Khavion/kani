@@ -9,6 +9,7 @@ import { ChatThread } from './ChatThread.tsx';
 import { upsertMessage, type Chat, type OutgoingPayload, type UIMessage } from './types.ts';
 import { installWallpaper } from './wallpaper.ts';
 import { KaniLogo } from '../components/KaniLogo.tsx';
+import { useIsMobile } from '../lib/mobile.ts';
 
 installWallpaper();
 
@@ -220,14 +221,19 @@ export function CustomerView(props: {
   const { chats, unreadByTenant, isTyping, send, reset } = store;
   const selected = tenants.find((t) => t.id === tenantId) ?? null;
   const selectedChat = selected ? chats[selected.id] : undefined;
+  const mobile = useIsMobile();
+  const [threadOpen, setThreadOpen] = useState(false);
 
   return (
-    <div className="customer-view">
+    <div className={`customer-view${mobile && threadOpen ? ' mobile-thread' : ''}`}>
       <ChatList
         tenants={tenants}
         chats={chats}
         selectedId={tenantId}
-        onSelect={props.onSelectTenant}
+        onSelect={(id) => {
+          props.onSelectTenant(id);
+          setThreadOpen(true);
+        }}
         unread={unreadByTenant}
         isTyping={isTyping}
         customer={customer}
@@ -243,6 +249,7 @@ export function CustomerView(props: {
             customer={customer}
             onSend={(p) => void send(selected, p)}
             onReset={() => void reset(selected)}
+            onBack={() => setThreadOpen(false)}
           />
         ) : (
           <div className="chat-empty">

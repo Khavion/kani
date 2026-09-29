@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useIsMobile } from '../lib/mobile.ts';
 import { api } from '../api/client.ts';
 import type { ConversationDTO, ConversationDetailDTO, ServerEvent, TenantDTO } from '../api/types.ts';
 import { PersonAvatar, TenantAvatar } from '../components/Avatar.tsx';
@@ -50,6 +51,8 @@ export function OwnerView(props: { tenants: TenantDTO[]; tenantId: string | null
   const [convs, setConvs] = useState<ConversationDTO[]>([]);
   const [listError, setListError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const mobile = useIsMobile();
+  const [threadOpen, setThreadOpen] = useState(false);
   const [detail, setDetail] = useState<ConversationDetailDTO | null>(null);
   const [typing, setTyping] = useState<Record<number, boolean>>({});
   const [filter, setFilter] = useState('');
@@ -146,7 +149,7 @@ export function OwnerView(props: { tenants: TenantDTO[]; tenantId: string | null
   });
 
   return (
-    <div className="owner-view" lang="en">
+    <div className={`owner-view${mobile && threadOpen ? ' mobile-thread' : ''}`} lang="en">
       <aside className="side-panel owner-side">
         <header className="side-header owner-side-header">
           <div className="owner-tenant">
@@ -196,7 +199,10 @@ export function OwnerView(props: { tenants: TenantDTO[]; tenantId: string | null
                 key={c.id}
                 className={`chat-row${c.id === selectedId ? ' selected' : ''}`}
                 data-testid={`owner-conversation-${c.id}`}
-                onClick={() => setSelectedId(c.id)}
+                onClick={() => {
+                  setSelectedId(c.id);
+                  setThreadOpen(true);
+                }}
               >
                 <span className="chat-row-avatar">
                   <PersonAvatar name={name} size={49} />
@@ -220,7 +226,7 @@ export function OwnerView(props: { tenants: TenantDTO[]; tenantId: string | null
       </aside>
       <main className="chat-panel owner-panel">
         {detail && tenant ? (
-          <OwnerThread key={detail.conversation.id} detail={detail} tenant={tenant} typing={!!typing[detail.conversation.id]} onChanged={refreshAll} onDetail={setDetail} />
+          <OwnerThread key={detail.conversation.id} detail={detail} tenant={tenant} typing={!!typing[detail.conversation.id]} onChanged={refreshAll} onDetail={setDetail} onBack={() => setThreadOpen(false)} />
         ) : (
           <div className="chat-empty">
             <p>{selectedId === null ? 'Select a conversation' : 'Loading conversation...'}</p>

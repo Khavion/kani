@@ -114,14 +114,14 @@ if [ ! -f ui/dist/index.html ] || [ -n "$(find ui/src ui/index.html ui/vite.conf
 fi
 ok "ui built"
 
-# 7. Database: migrate + seed (idempotent)
-if [ "$RESET" = 1 ]; then node src/seed/seed-cli.ts --reset; else node src/seed/seed-cli.ts; fi
-ok "database $DB_PATH"
-
-# 8. Port
+# 7. Port (checked before touching the database)
 if lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
   die "port $PORT is already in use (another Kani?). Stop it or run PORT=3001 ./start.sh"
 fi
+
+# 8. Database: migrate + seed (idempotent)
+if [ "$RESET" = 1 ]; then node src/seed/seed-cli.ts --reset; else node src/seed/seed-cli.ts; fi
+ok "database $DB_PATH"
 
 bold "Starting Kani on http://localhost:$PORT"
 node src/main.ts &

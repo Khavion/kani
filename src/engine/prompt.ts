@@ -153,10 +153,10 @@ export function contextSection(ctx: PromptContext): string {
   const days: string[] = [];
   for (let i = 0; i < 7; i++) {
     const d = toLocal(addDays(now, i));
-    const label = i === 0 ? 'hoje' : i === 1 ? 'amanha' : WEEKDAY_LONG[d.weekday];
+    const label = i === 0 ? 'hoje' : i === 1 ? 'amanha' : i === 2 ? `depois de amanha (${WEEKDAY_LONG[d.weekday]})` : WEEKDAY_LONG[d.weekday];
     days.push(`${label}=${d.dateKey} (${d.weekday})`);
   }
-  lines.push(`CALENDARIO: ${days.join('; ')}`);
+  lines.push(`CALENDARIO: ${days.join('; ')}. Periodos: manha ate 12h, tarde 12h-18h, noite depois das 18h.`);
   lines.push('');
   const isPlaceholderName = /^\+?\d[\d\s-]+$/.test(contact.waName);
   lines.push(`CLIENTE: ${isPlaceholderName ? '(nome ainda nao informado)' : contact.waName} | WhatsApp ${contact.phone}`);

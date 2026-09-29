@@ -78,6 +78,15 @@ function openSource(): void {
   if (polling || source || sseListeners.size === 0) return;
   const es = new EventSource('/api/events');
   source = es;
+  // Remember where the event log was when we connected, so a later fallback to polling
+  // replays everything that happened in between (nothing is lost while we wait for the stream).
+  if (pollSeq < 0) {
+    void request<{ seq: number }>('/api/events/poll?since=-1')
+      .then((r) => {
+        if (pollSeq < 0) pollSeq = r.seq;
+      })
+      .catch(() => undefined);
+  }
   window.setTimeout(() => {
     if (!sseAlive) startPolling();
   }, 4000);

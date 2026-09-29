@@ -4,7 +4,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { randomUUID } from 'node:crypto';
-import { createWriteStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { createWriteStream, existsSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import path from 'node:path';
 import type { Kani } from '../app.ts';
@@ -102,15 +102,29 @@ export async function buildServer(k: Kani): Promise<FastifyInstance> {
   app.post<{ Querystring: { wait?: string } }>('/api/sim/messages', async (req, reply) => {
     const fields: Record<string, string> = {};
     let mediaPath: string | null = null;
+    let mediaMime = '';
+    const discard = () => {
+      if (mediaPath) rmSync(path.join(cfg.mediaDir, mediaPath), { force: true });
+    };
+    const fail = (code: number, error: string) => {
+      discard();
+      return reply.code(code).send({ error });
+    };
     if (req.isMultipart()) {
-      for await (const part of req.parts()) {
-        if (part.type === 'file') {
-          const name = `${randomUUID()}${extFor(part.mimetype, part.filename)}`;
-          await pipeline(part.file, createWriteStream(path.join(cfg.mediaDir, name)));
-          mediaPath = name;
-        } else {
-          fields[part.fieldname] = String(part.value ?? '');
+      try {
+        for await (const part of req.parts()) {
+          if (part.type === 'file') {
+            const name = `${randomUUID()}${extFor(part.mimetype, part.filename)}`;
+            await pipeline(part.file, createWriteStream(path.join(cfg.mediaDir, name)));
+            mediaPath = name;
+            mediaMime = part.mimetype;
+            if (part.file.truncated) return fail(413, 'file too large (max 25 MB)');
+          } else {
+            fields[part.fieldname] = String(part.value ?? '');
+          }
         }
+      } catch (err) {
+        return fail(413, (err as Error).message.includes('limit') ? 'file too large (max 25 MB)' : 'invalid upload');
       }
     } else {
       Object.assign(fields, (req.body as Record<string, string>) ?? {});
@@ -118,10 +132,23 @@ export async function buildServer(k: Kani): Promise<FastifyInstance> {
     const tenantId = fields.tenantId;
     const phone = fields.phone;
     const type = (fields.type || 'text') as MsgType;
-    if (!tenantId || !phone || !repo.getTenant(tenantId)) return reply.code(400).send({ error: 'tenantId and phone required' });
-    if (!['text', 'audio', 'image'].includes(type)) return reply.code(400).send({ error: 'invalid type' });
-    if (type === 'text' && !fields.text?.trim()) return reply.code(400).send({ error: 'text required' });
-    if (type !== 'text' && !mediaPath) return reply.code(400).send({ error: 'file required' });
+    if (!tenantId || !phone || !repo.getTenant(tenantId)) return fail(400, 'tenantId and phone required');
+    if (!['text', 'audio', 'image'].includes(type)) return fail(400, 'invalid type');
+    if (type === 'text' && !fields.text?.trim()) return fail(400, 'text required');
+    if (type !== 'text' && !mediaPath) return fail(400, 'file required');
+    if (type === 'text' && mediaPath) discard();
+    // The file must match the declared message type (browsers record voice notes as audio/webm or video/webm).
+    const ext = mediaPath ? path.extname(mediaPath).toLowerCase() : '';
+    if (type === 'image' && !(mediaMime.startsWith('image/') || ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.heic'].includes(ext))) {
+      return fail(415, 'image file required');
+    }
+    if (
+      type === 'audio' &&
+      !(mediaMime.startsWith('audio/') || mediaMime === 'video/webm' || mediaMime === 'video/mp4' || ['.m4a', '.ogg', '.oga', '.opus', '.mp3', '.wav', '.webm', '.aac'].includes(ext))
+    ) {
+      return fail(415, 'audio file required');
+    }
+    if (type === 'text') mediaPath = null;
     let durationS = fields.durationS ? Number(fields.durationS) : null;
     if (type === 'audio' && mediaPath && (!durationS || !Number.isFinite(durationS))) {
       durationS = k.media ? await k.media.probeDuration(path.join(cfg.mediaDir, mediaPath)) : null;
@@ -288,14 +315,36 @@ export async function buildServer(k: Kani): Promise<FastifyInstance> {
 
   // ---------------------------------------------------------------- static: media, reports, UI
   await app.register(fastifyStatic, { root: cfg.mediaDir, prefix: '/media/', decorateReply: false });
-  await app.register(fastifyStatic, { root: cfg.reportsDir, prefix: '/reports/', decorateReply: false });
+  // Only published artifacts are public: HTML reports and screenshots (never tmp DBs, traces or raw JSON).
+  await app.register(fastifyStatic, {
+    root: cfg.reportsDir,
+    prefix: '/reports/',
+    decorateReply: false,
+    allowedPath: (p) => /^\/?[\w.-]+\.html$/.test(p) || /^\/?screenshots\/[\w.-]+\.png$/.test(p),
+  });
   const uiReady = existsSync(path.join(cfg.uiDist, 'index.html'));
-  if (uiReady) {
-    await app.register(fastifyStatic, { root: cfg.uiDist, prefix: '/', wildcard: false });
+  void uiReady;
+  if (uiReady || existsSync(cfg.uiDist)) {
+    // wildcard: true serves whatever is on disk now, so a UI rebuild (new hashed assets) needs no restart.
+    await app.register(fastifyStatic, {
+      root: cfg.uiDist,
+      prefix: '/',
+      wildcard: true,
+      index: ['index.html'],
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) res.header('cache-control', 'no-cache');
+        else if (filePath.includes(`${path.sep}assets${path.sep}`)) res.header('cache-control', 'public, max-age=31536000, immutable');
+      },
+    });
   }
   app.setNotFoundHandler((req, reply) => {
-    if (req.url.startsWith('/api/') || req.method !== 'GET') return reply.code(404).send({ error: 'not found' });
-    if (uiReady) return reply.type('text/html').send(readFileSync(path.join(cfg.uiDist, 'index.html')));
+    // Never answer a missing asset or API path with the HTML shell (browsers would try to run HTML as JS).
+    if (/^\/(api|reports|media|webhooks|assets)(\/|$)/.test(req.url) || /\.[a-z0-9]{2,5}(\?|$)/i.test(req.url) || req.method !== 'GET') {
+      return reply.code(404).send({ error: 'not found' });
+    }
+    if (existsSync(path.join(cfg.uiDist, 'index.html'))) {
+      return reply.type('text/html').header('cache-control', 'no-cache').send(readFileSync(path.join(cfg.uiDist, 'index.html')));
+    }
     return reply
       .type('text/html')
       .send('<p style="font-family:sans-serif">Kani UI is not built yet. Run <code>npm run build:ui</code> or <code>./start.sh</code>.</p>');

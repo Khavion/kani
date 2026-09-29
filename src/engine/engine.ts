@@ -222,14 +222,17 @@ export class Engine {
     };
     if (!conv0) return { ...empty, skipped: 'gone' };
     const recent = this.repo.recentMessages(convId, 40);
-    let lastOther = -1;
-    for (let i = recent.length - 1; i >= 0; i--) {
-      if (recent[i].role !== 'customer') {
-        lastOther = i;
-        break;
-      }
+    // Cursor = last customer message already answered. A bot reply records the customer message it
+    // answered (meta.replyTo): a message that arrived while the previous reply was being generated has
+    // a smaller id than that reply but is still pending. Owner and proactive messages close everything before them.
+    let cursor = 0;
+    for (const m of recent) {
+      if (m.role === 'customer') continue;
+      const replyTo = typeof m.meta.replyTo === 'number' ? m.meta.replyTo : m.id;
+      cursor = Math.max(cursor, replyTo);
     }
-    let pending = recent.slice(lastOther + 1).filter((m) => m.role === 'customer');
+    // Messages deliberately ignored earlier (spam in a closed thread) are not pending anymore.
+    let pending = recent.filter((m) => m.role === 'customer' && m.id > cursor && !m.meta.ignored);
     if (pending.length === 0) return { ...empty, skipped: 'nothing-pending' };
     const { tenant, pack } = this.tenantAndPack(conv0.tenantId);
     const contact = this.repo.getContact(conv0.contactId)!;
@@ -374,13 +377,16 @@ export class Engine {
     };
     const send = async (reply: string, meta: Record<string, unknown> = {}) => {
       const latency = this.latencyFor(pending);
-      const msg = await this.sendAssistant(conv, reply, meta, latency);
+      const msg = await this.sendAssistant(conv, reply, { ...meta, replyTo: ids[ids.length - 1] }, latency);
       return { msg, latency };
     };
 
     // --- closed (spam) conversations
     if (conv.status === 'closed') {
-      if (isSpam(text)) return { ...base, skipped: 'spam-closed' };
+      if (isSpam(text)) {
+        for (const m of pending) this.repo.updateMessage(m.id, { meta: { ignored: true } });
+        return { ...base, skipped: 'spam-closed' };
+      }
       this.repo.setConversationStatus(conv.id, 'bot');
     }
 
@@ -427,6 +433,11 @@ export class Engine {
 
     const notes: string[] = [];
     let forceEscalation: string | null = null;
+    if (pending.length > 1) {
+      notes.push(
+        `O cliente mandou ${pending.length} mensagens seguidas: ${pending.map((m) => `"${this.customerText(m).slice(0, 120)}"`).join(', ')}. Responda a TODAS numa unica mensagem, principalmente a pergunta mais recente (nao responda so ao cumprimento).`,
+      );
+    }
 
     // --- reminder answers (1 confirms, 2 reschedules)
     const waiting = this.repo.awaitingConfirmReminder(contact.id);
@@ -850,7 +861,7 @@ export class Engine {
           const lastText = lastCustomer ? norm(this.customerText(lastCustomer)) : '';
           // The customer asked a price and the reply states none: answer from the list first.
           if (
-            !priceRetried && allowTools && round < this.opts.maxToolRounds - 1 && lastCustomer && asksAboutPrice(lastText) &&
+            !priceRetried && allowTools && round < this.opts.maxToolRounds - 1 && lastCustomer && asksPriceOfService(lastText) &&
             !/r\$\s?\d|\b\d{2,4}\s?reais\b|sem custo|gratuit/.test(norm(content)) && !checked
           ) {
             priceRetried = true;
@@ -973,6 +984,12 @@ export class Engine {
     if (rem.kind !== 'reactivation' && (!appt || appt.status === 'cancelled' || appt.status === 'done')) {
       this.repo.markReminderSent(rem.id);
       this.repo.setReminderResponse(rem.id, 'skipped_inactive');
+      return null;
+    }
+    // Overdue reminder (e.g. the server was down): never remind about an appointment that already started.
+    if (rem.kind !== 'reactivation' && appt && new Date(appt.startsAt).getTime() <= this.clock.now().getTime()) {
+      this.repo.markReminderSent(rem.id);
+      this.repo.setReminderResponse(rem.id, 'skipped_stale');
       return null;
     }
     const conv = this.convFor(tenant.id, contact.id);
@@ -1160,6 +1177,12 @@ export function wantsToCancel(text: string): boolean {
   if (/\b(remarc|reagend|mudar|trocar|adiar)/.test(t)) return false;
   if (/\bse (nao|eu nao)\b.*\bcancel/.test(t)) return false;
   return /\b(vou|quero|preciso|pode|vou ter que|tenho que) (cancelar|desmarcar)\b|^(cancela|cancelar|desmarca)\b|\bcancela (pra mim|por favor|o horario|meu horario)/.test(t);
+}
+
+/** Direct question about how much something costs (not payment methods like Pix or cards). */
+export function asksPriceOfService(normalized: string): boolean {
+  if (/\b(pix|chave|cartao|dinheiro|boleto|forma de pagamento|formas de pagamento)\b/.test(normalized) && !/\b(quanto|qnto|qto|valor|preco)\b/.test(normalized)) return false;
+  return /\b(quanto|qnto|qto|preco|precos|valor|valores|custa|custam|sai por|fica quanto|tabela)\b/.test(normalized);
 }
 
 export function promisesToCheck(text: string): boolean {
