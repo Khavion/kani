@@ -11,9 +11,9 @@ export function norm(s: string): string {
 /** Remove em/en dashes from generated copy (product rule: never use travessao). */
 export function stripDashes(s: string): string {
   return s
-    .replace(/\s*[—―]\s*/g, ', ')
-    .replace(/(\d)\s*–\s*(\d)/g, '$1-$2')
-    .replace(/\s*–\s*/g, ', ')
+    .replace(/\s*[\u2014\u2015]\s*/g, ', ')
+    .replace(/(\d)\s*\u2013\s*(\d)/g, '$1-$2')
+    .replace(/\s*\u2013\s*/g, ', ')
     .replace(/,\s*,/g, ',')
     .replace(/^,\s*/gm, '');
 }

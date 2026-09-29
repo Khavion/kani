@@ -146,10 +146,20 @@ export class Engine {
   ensureDisclosure(text: string, conv: Conversation, pack: Pack, tenant: Tenant): string {
     if (conv.disclosed || /\bvirtual\b/i.test(text)) return text;
     const intro = this.introFor(pack, tenant);
-    const g = text.match(/^((?:oi|olá|ola|opa|bom dia|boa tarde|boa noite|e a[ií])[^.!?\n]{0,24}[!.,]?\s*)/i);
     const cap = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
-    if (g) return `${g[1].trim()} ${intro} ${cap(text.slice(g[1].length).trim())}`.trim();
-    return `Oi! ${intro} ${cap(text)}`.trim();
+    // Greeting word(s) plus an optional capitalized name: "Oi!", "Boa noite, Carla!"
+    const GREET = /^((?:[Oo]i|[Oo]l\u00e1|[Oo]la|[Oo]pa|[Bb]om dia|[Bb]oa tarde|[Bb]oa noite|[Ee] a[i\u00ed])(?:,?\s+[A-Z\u00c0-\u00dd][a-z\u00e0-\u00ff]+)?\s*[!.,]?)\s*/;
+    let greeting = 'Oi!';
+    let rest = text.trim();
+    const g = rest.match(GREET);
+    if (g) {
+      greeting = g[1].trim().replace(/[,.]$/, '') + (/[!]$/.test(g[1].trim()) ? '' : '!');
+      rest = rest.slice(g[0].length);
+    }
+    // Replace a model-written self introduction ("sou a Essenza...") with the canonical one.
+    const first = rest.match(/^[^.!?\n]*[.!?]?\s*/)?.[0] ?? '';
+    if (/\b(sou|aqui (?:\u00e9|e)|me chamo|falo d[ao])\b/i.test(first)) rest = rest.slice(first.length);
+    return `${greeting} ${intro} ${cap(rest.trim())}`.trim();
   }
 
   // ------------------------------------------------------------------ inbound

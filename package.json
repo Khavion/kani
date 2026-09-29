@@ -15,7 +15,7 @@
     "migrate": "node src/db/migrate-cli.ts",
     "seed": "node src/seed/seed-cli.ts",
     "test": "node --test --test-concurrency=1 \"tests/**/*.test.ts\"",
-    "typecheck": "tsc -p tsconfig.json && tsc -p ui/tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json && tsc -p ui/tsconfig.json && tsc -p e2e/tsconfig.json",
     "scenarios": "node src/scenarios/cli.ts",
     "e2e": "playwright test -c e2e/playwright.config.ts",
     "lint:dashes": "node scripts/check-dashes.ts"

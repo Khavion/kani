@@ -147,6 +147,6 @@ export class LocalMediaService implements MediaService {
         },
       ],
     });
-    return res.content.replace(/\s+/g, ' ').replace(/[–—]/g, ',').trim();
+    return res.content.replace(/\s+/g, ' ').replace(/[\u2013\u2014]/g, ',').trim();
   }
 }

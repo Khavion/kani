@@ -79,13 +79,13 @@ test('engine: two consecutive low-confidence turns pause the bot', async () => {
 });
 
 test('engine: first contact discloses the virtual assistant once; no em-dashes reach the customer', async () => {
-  const k = testKani(new ScriptedLLM(reply('Boa noite! A troca de oleo + filtro sai R$180 — quer agendar?')));
+  const k = testKani(new ScriptedLLM(reply('Boa noite! A troca de oleo + filtro sai R$180 \u2014 quer agendar?')));
   const first = await say(k, OFICINA, 'qnto ta a troca?');
   assert.match(first.turn.reply!.text!, /assistente virtual do Auto Center Vila Mariana/);
-  assert.doesNotMatch(first.turn.reply!.text!, /[–—]/);
+  assert.doesNotMatch(first.turn.reply!.text!, /[\u2013\u2014]/);
   const second = await say(k, OFICINA, 'e o alinhamento?');
   assert.doesNotMatch(second.turn.reply!.text!, /assistente virtual/);
-  assert.equal(stripDashes('a — b'), 'a, b');
+  assert.equal(stripDashes('a \u2014 b'), 'a, b');
 });
 
 test('engine: LGPD "esquecer meus dados" wipes the contact', async () => {
@@ -171,4 +171,17 @@ test('engine: models without native tools use the prompted JSON protocol', async
   assert.equal(llm.requests[0].tools, undefined);
   assert.match(llm.requests[0].messages[0].content, /PROTOCOLO: para usar uma ferramenta/);
   assert.match(llm.requests[1].messages.at(-1)!.content, /RESULTADO DA FERRAMENTA check_availability/);
+});
+
+test('engine: disclosure replaces a model-written self introduction instead of splicing into it', () => {
+  const k = testKani(new ScriptedLLM(reply('')));
+  const tenant = k.repo.getTenant('estetica-itaim')!;
+  const pack = getPack('estetica');
+  const conv = { disclosed: false } as never;
+  const a = k.engine.ensureDisclosure('Oi, sou a Essenza Estetica Itaim. A drenagem custa R$140.', conv, pack, tenant);
+  assert.equal(a, 'Oi! Eu sou a consultora virtual da Essenza Estetica Itaim. A drenagem custa R$140.');
+  const b = k.engine.ensureDisclosure('Boa noite, Carla! A drenagem custa R$140.', conv, pack, tenant);
+  assert.equal(b, 'Boa noite, Carla! Eu sou a consultora virtual da Essenza Estetica Itaim. A drenagem custa R$140.');
+  const c = k.engine.ensureDisclosure('A drenagem custa R$140.', conv, pack, tenant);
+  assert.equal(c, 'Oi! Eu sou a consultora virtual da Essenza Estetica Itaim. A drenagem custa R$140.');
 });
