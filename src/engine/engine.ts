@@ -473,6 +473,27 @@ export class Engine {
     const run = await this.runAssistant(conv, tenant, pack, contact, notes);
     let reply = run.text;
     const meta: Record<string, unknown> = { tools: run.calls.map((c) => c.name) };
+    if (run.unverifiedClaim) {
+      // Never tell the customer something was booked/cancelled when no tool did it.
+      const offered = this.offeredSlots(conv.id);
+      const slot = matchOfferedSlot([reply, text], offered);
+      meta.claimRepaired = true;
+      meta.rawText = reply;
+      this.repo.logEvent(tenant.id, 'claim_repair', { conversation_id: conv.id, claim: run.unverifiedClaim, raw: reply });
+      if (run.unverifiedClaim === 'cancel') {
+        reply = 'Só pra confirmar: posso cancelar o seu agendamento?';
+        this.repo.setPendingNote(conv.id, 'Se o cliente confirmar o cancelamento, chame cancel imediatamente.');
+      } else if (slot && offered) {
+        const verb = run.unverifiedClaim === 'reschedule' ? 'remarcar para' : `agendar ${offered.service} para`;
+        reply = `Só pra confirmar: posso ${verb} ${slot.label}?`;
+        this.repo.setPendingNote(
+          conv.id,
+          `Se o cliente confirmar, chame ${run.unverifiedClaim === 'reschedule' ? 'reschedule' : 'book'} imediatamente com slot="${slot.slot}"${run.unverifiedClaim === 'book' ? ` e service="${offered.service}"` : ''}.`,
+        );
+      } else {
+        reply = 'Só pra eu confirmar certinho: qual dia e horário você prefere?';
+      }
+    }
     let escalated = run.calls.some((c) => c.name === 'escalate' && c.result.ok);
     let lowConfidence = !!run.error || run.exhausted;
 
@@ -555,7 +576,36 @@ export class Engine {
       quotes: this.repo.quotesForContact(contact.id),
       now: this.clock.now(),
       notes,
+      offered: this.offeredSlots(conv.id),
     };
+  }
+
+  /** A claim is fine when the DB already reflects it (e.g. "seu horario esta confirmado" after an earlier book). */
+  claimBackedByDb(contactId: number, claim: ClaimKind, text: string): boolean {
+    const appts = this.repo.appointmentsForContact(contactId);
+    if (claim === 'cancel') return appts.some((a) => a.status === 'cancelled');
+    const active = appts.filter((a) => a.status === 'booked' || a.status === 'confirmed');
+    if (active.length === 0) return false;
+    const t = norm(text);
+    const mentionsTime = /\b\d{1,2}(:\d{2}|h\d{0,2})\b/.test(t);
+    if (!mentionsTime) return true;
+    return active.some((a) => {
+      const hhmm = formatSlotPt(new Date(a.startsAt)).slice(-5);
+      const [h, m] = hhmm.split(':');
+      return [hhmm, `${Number(h)}:${m}`, `${Number(h)}h${m === '00' ? '' : m}`, `${h}h${m === '00' ? '' : m}`].some((v) => t.includes(v));
+    });
+  }
+
+  /** Slots returned by the most recent successful check_availability in this conversation. */
+  offeredSlots(convId: number): OfferedSlots | null {
+    const evs = this.repo.events({ kind: 'tool_call', conversationId: convId });
+    for (let i = evs.length - 1; i >= 0; i--) {
+      const p = evs[i].payload as { name?: string; ok?: boolean; result?: { service?: string; slots?: OfferedSlots['slots'] } };
+      if (p.name === 'check_availability' && p.ok && p.result?.slots?.length) {
+        return { service: p.result.service ?? '', slots: p.result.slots.slice(0, 8) };
+      }
+    }
+    return null;
   }
 
   /** The tool-call loop: at most `maxToolRounds` rounds of tool execution, then a final answer. */
@@ -566,10 +616,19 @@ export class Engine {
     contact: Contact,
     notes: string[],
     extraUserTurn?: string,
-  ): Promise<{ text: string; calls: ToolCallRecord[]; rounds: number; exhausted: boolean; error?: string }> {
+  ): Promise<{
+    text: string;
+    calls: ToolCallRecord[];
+    rounds: number;
+    exhausted: boolean;
+    unverifiedClaim?: ClaimKind;
+    error?: string;
+  }> {
     const model = this.opts.model;
     const native = await this.llm.supportsTools(model);
     const ctx = this.buildPromptContext(conv, tenant, pack, contact, notes);
+    const offered = ctx.offered ?? null;
+    const lastCustomer = [...ctx.history].reverse().find((m) => m.role === 'customer');
     if (!native) ctx.promptedTools = TOOL_SPECS;
     const messages: ChatMessage[] = composeMessages(ctx);
     if (extraUserTurn) messages.push({ role: 'user', content: extraUserTurn });
@@ -588,6 +647,7 @@ export class Engine {
     const known = new Set<string>(TOOL_NAMES);
     const calls: ToolCallRecord[] = [];
     let claimRetried = false;
+    let nudged = false;
     let lastText = '';
     try {
       for (let round = 0; round <= this.opts.maxToolRounds; round++) {
@@ -619,20 +679,39 @@ export class Engine {
         if (toolCalls.length === 0 || !allowTools) {
           // Guard against claiming an action that never happened (once per turn).
           const didAction = calls.some((c) => ['book', 'reschedule', 'cancel'].includes(c.name) && c.result.ok);
-          const claims = content
-            .split(/(?<=[.!?\n])\s+/)
-            .filter((s) => !s.trim().endsWith('?'))
-            .some((s) => ACTION_CLAIM.test(norm(s)));
-          if (claims && !didAction && !claimRetried && allowTools && round < this.opts.maxToolRounds - 1) {
-            claimRetried = true;
+          const claim = claimKind(content);
+          const checked = calls.some((c) => c.name === 'check_availability');
+          if (!claim && !checked && !nudged && allowTools && round < this.opts.maxToolRounds - 1 && promisesToCheck(content)) {
+            nudged = true;
             messages.push({ role: 'assistant', content });
             messages.push({
               role: 'user',
-              content:
-                '(Sistema) Sua resposta afirma que algo foi agendado, remarcado ou cancelado, mas nenhuma ferramenta foi executada com sucesso. ' +
-                'Execute agora a ferramenta correspondente (book, reschedule ou cancel) ou reescreva a resposta sem afirmar a acao.',
+              content: '(Sistema) Voce disse que ia verificar a agenda: chame check_availability agora e responda ja com 2 opcoes reais.',
             });
             continue;
+          }
+          if (claim && !didAction && !this.claimBackedByDb(contact.id, claim, content)) {
+            if (!claimRetried && allowTools && round < this.opts.maxToolRounds - 1) {
+              claimRetried = true;
+              const slot = matchOfferedSlot([content, lastCustomer ? this.customerText(lastCustomer) : ''], offered);
+              const tool = claim === 'cancel' ? 'cancel' : claim === 'reschedule' ? 'reschedule' : 'book';
+              const exact =
+                tool === 'cancel'
+                  ? 'Chame agora cancel.'
+                  : slot
+                    ? `Chame agora ${tool} com ${JSON.stringify(tool === 'book' ? { service: offered!.service, slot: slot.slot } : { slot: slot.slot })}.`
+                    : `Chame agora ${tool} com o slot "YYYY-MM-DD HH:MM" escolhido pelo cliente.`;
+              this.repo.logEvent(tenant.id, 'claim_retry', { conversation_id: conv.id, claim, text: content });
+              messages.push({ role: 'assistant', content });
+              messages.push({
+                role: 'user',
+                content:
+                  `(Sistema) Sua resposta afirma uma acao (${claim}) mas a ferramenta nao foi executada, entao NADA foi registrado. ${exact} ` +
+                  'Se o cliente ainda nao escolheu, reescreva a resposta sem afirmar a acao.',
+              });
+              continue;
+            }
+            return { text: cleanReply(content), calls, rounds: round, exhausted: !allowTools, unverifiedClaim: claim };
           }
           return { text: cleanReply(content), calls, rounds: round, exhausted: !allowTools };
         }
@@ -847,11 +926,53 @@ export class Engine {
   }
 }
 
+export type ClaimKind = 'book' | 'reschedule' | 'cancel';
+
+export interface OfferedSlots {
+  service: string;
+  slots: { slot: string; label: string; staff?: string }[];
+}
+
+/** Detects a statement (not a question) that an appointment was booked/rescheduled/cancelled. */
+export function claimKind(text: string): ClaimKind | null {
+  const sentences = text.split(/(?<=[.!?\n])\s+/).filter((x) => x.trim() && !x.trim().endsWith('?'));
+  for (const sRaw of sentences) {
+    const s = norm(sRaw);
+    if (!ACTION_CLAIM.test(s)) continue;
+    if (/\b(se quiser|posso|quer que|gostaria|prefere|podemos|vamos)\b/.test(s)) continue;
+    if (/cancelad/.test(s)) return 'cancel';
+    if (/remarcad/.test(s)) return 'reschedule';
+    return 'book';
+  }
+  return null;
+}
+
+export function promisesToCheck(text: string): boolean {
+  return /\b(vou|vamos|deixa eu|deixe-me|deixe eu|ja vou|irei)\s+(verificar|consultar|checar|ver|olhar)\b/.test(norm(text));
+}
+
+/** Find which offered slot the texts refer to (time HH:MM, preferring a matching dd/mm). */
+export function matchOfferedSlot(texts: string[], offered: OfferedSlots | null): OfferedSlots['slots'][number] | null {
+  if (!offered) return null;
+  const joined = norm(texts.join(' '));
+  const hits = offered.slots.filter((s) => {
+    const hhmm = s.slot.slice(11, 16);
+    const [h, m] = hhmm.split(':');
+    const variants = [hhmm, `${Number(h)}:${m}`, `${Number(h)}h${m}`, m === '00' ? `${Number(h)}h` : `${Number(h)}h${m}`];
+    return variants.some((v) => new RegExp(`(^|[^\\d])${v.replace(':', '\\:')}(?![\\d])`).test(joined));
+  });
+  if (hits.length === 0) return null;
+  const withDate = hits.find((s) => joined.includes(`${s.slot.slice(8, 10)}/${s.slot.slice(5, 7)}`));
+  return withDate ?? hits[0];
+}
+
 /** Final cleanup of model text before it reaches guards and the customer. */
 export function cleanReply(s: string): string {
   let t = stripThink(s);
   t = t.replace(/<\/?tool_call>/g, '');
   t = t.replace(/^\s*(assistente|assistant|resposta)\s*:\s*/i, '');
+  t = t.replace(/\b(sou|aqui (?:é|e))\s+(a|o)\s+[A-ZÀ-Ý][a-zà-ÿ]+,?\s+(?:sua|seu|a|o)\s+/gi, '$1 $2 ');
+  t = t.replace(/\b(me chamo|meu nome (?:é|e))\s+[A-ZÀ-Ý][a-zà-ÿ]+[,.!]?\s*/gi, '');
   t = t.replace(/\n{3,}/g, '\n\n');
   t = stripDashes(t).trim();
   return t.charAt(0).toUpperCase() + t.slice(1);

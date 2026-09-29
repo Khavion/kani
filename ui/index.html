@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#00a884" />
+    <title>Kani</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%2300a884'/%3E%3Cellipse cx='32' cy='38' rx='14' ry='9.5' fill='%23fff'/%3E%3Ccircle cx='26' cy='22' r='4' fill='%23fff'/%3E%3Ccircle cx='38' cy='22' r='4' fill='%23fff'/%3E%3Cpath d='M17 33 C9 31 8 20 14 17 L17 23 L21 19 C23 26 21 31 17 33Z M47 33 C55 31 56 20 50 17 L47 23 L43 19 C41 26 43 31 47 33Z' fill='%23fff'/%3E%3C/svg%3E" />
+    <script>
+      (function () {
+        var mode = 'auto';
+        try { mode = localStorage.getItem('kani.theme') || 'auto'; } catch (e) {}
+        var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

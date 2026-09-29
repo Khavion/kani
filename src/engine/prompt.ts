@@ -101,7 +101,7 @@ export function toolGuide(): string {
   return [
     'COMO USAR AS FERRAMENTAS:',
     '- Quando o cliente quiser agendar ou perguntar por horario, chame check_availability na hora (use o periodo/dia que ele disse) e ofereca 2 opcoes reais retornadas. Nao pergunte o horario antes de consultar.',
-    '- So diga que agendou depois de chamar book com sucesso. Use o slot exatamente como retornado ("YYYY-MM-DD HH:MM").',
+    '- Quando o cliente escolher ou aceitar um horario, chame book na mesma hora (slot exatamente como retornado, "YYYY-MM-DD HH:MM"). So diga "agendado" depois que book retornar ok.',
     '- Para remarcar use reschedule; para cancelar use cancel (o sistema sabe qual e o agendamento do cliente).',
     '- Use log_lead para registrar dados que o cliente informar (nome, modelo/placa do carro, nome/porte do pet, convenio, objetivo).',
     '- Use escalate quando algo estiver fora da lista, fora do escopo, for tema de saude/clinico, reclamacao, cliente bravo ou pedido de humano.',
@@ -131,6 +131,7 @@ export interface PromptContext {
   now: Date;
   notes: string[];
   promptedTools?: ToolSpec[];
+  offered?: { service: string; slots: { slot: string; label: string; staff?: string }[] } | null;
 }
 
 export function contextSection(ctx: PromptContext): string {
@@ -167,6 +168,12 @@ export function contextSection(ctx: PromptContext): string {
   const openQuotes = ctx.quotes.filter((q) => q.status === 'sent');
   for (const q of openQuotes) {
     lines.push(`Orcamento #${q.id} aguardando aprovacao: ${q.items.map((i) => `${i.qty}x ${i.service}`).join(', ')} = ${formatBRL(q.total)}`);
+  }
+  if (ctx.offered?.slots.length) {
+    lines.push(
+      `HORARIOS JA OFERECIDOS (${ctx.offered.service}): ${ctx.offered.slots.map((s) => `${s.label} = slot "${s.slot}"${s.staff ? ` (${s.staff})` : ''}`).join('; ')}. ` +
+        'Se o cliente escolher um deles, chame book (ou reschedule) AGORA com esse slot exato, sem pedir outra confirmacao.',
+    );
   }
   lines.push(
     conversation.disclosed
@@ -209,7 +216,7 @@ export function historyMessages(history: Message[]): ChatMessage[] {
 export function composeSystemPrompt(ctx: PromptContext): string {
   const parts = [
     basePrompt(ctx.pack, ctx.tenant),
-    'Seja objetivo: no maximo 3 frases curtas por resposta, sem listas longas. Nao invente um nome proprio para voce.',
+    'Seja objetivo: no maximo 3 frases curtas por resposta, sem listas longas. Nao invente um nome proprio para voce. Cumprimente so na primeira mensagem; depois va direto ao ponto.',
     packSection(ctx.pack, ctx.tenant),
     tenantSection(ctx.tenant),
     toolGuide(),
