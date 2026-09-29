@@ -103,3 +103,14 @@ test('WhatsAppCloudChannel stub: webhook verification, 24h window and template s
   const last = ch.calls[ch.calls.length - 1];
   assert.equal((last.body as { type: string }).type, 'template');
 });
+
+test('EventHub: polling returns buffered events after a sequence number', () => {
+  const hub = new EventHub();
+  const start = hub.since(-1);
+  assert.deepEqual(start.events, []);
+  hub.emit({ type: 'clock', now: 'a', offsetHours: 0 });
+  hub.emit({ type: 'clock', now: 'b', offsetHours: 0 });
+  const next = hub.since(start.seq);
+  assert.equal(next.events.length, 2);
+  assert.equal(hub.since(next.seq).events.length, 0);
+});

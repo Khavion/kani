@@ -256,21 +256,25 @@ export async function buildServer(k: Kani): Promise<FastifyInstance> {
     reply.hijack();
     const res = reply.raw;
     res.writeHead(200, {
-      'content-type': 'text/event-stream; charset=utf-8',
+      'content-type': 'text/event-stream',
       'cache-control': 'no-cache, no-transform',
-      connection: 'keep-alive',
       'x-accel-buffering': 'no',
     });
-    res.write(`: connected\n\n`);
+    // Padding pushes the stream past proxy/tunnel buffers (e.g. Cloudflare) so events flow immediately.
+    res.write(`: connected${' '.repeat(2048)}\n\n`);
+    res.write(`data: ${JSON.stringify({ type: 'clock', now: clock.nowIso(), offsetHours: clock.offsetHours })}\n\n`);
     const unsubscribe = hub.subscribe((e) => {
       res.write(`data: ${JSON.stringify(e)}\n\n`);
     });
-    const ping = setInterval(() => res.write(': ping\n\n'), 20_000);
+    const ping = setInterval(() => res.write(': ping\n\n'), 10_000);
     req.raw.on('close', () => {
       clearInterval(ping);
       unsubscribe();
     });
   });
+
+  // Polling fallback for clients whose proxy buffers the SSE stream.
+  app.get<{ Querystring: { since?: string } }>('/api/events/poll', async (req) => hub.since(Number(req.query.since ?? -1)));
 
   // ---------------------------------------------------------------- WhatsApp Cloud webhook seam (stub)
   app.get<{ Querystring: Record<string, string> }>('/webhooks/whatsapp', async (req, reply) => {

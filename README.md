@@ -60,6 +60,19 @@ inside the repo.
 - Try `esquecer meus dados` (LGPD erasure), `quero falar com um atendente` (handoff),
   `SAIR` (opt out of reminders), or reply `1` / `2` to a reminder.
 
+## Sharing a public demo link
+
+With Kani running (`./start.sh`), `make share` downloads the official `cloudflared` binary into
+`.local/bin` (first time only) and prints a public `https://<random>.trycloudflare.com` URL. No account
+needed. Notes:
+
+- The link only works while this Mac is awake with Ollama and Kani running; it changes every time the
+  tunnel restarts.
+- There is no authentication: anyone with the link can use every screen (customer, owner, /admin, time
+  travel) and your local models. Share it only with people you trust, and stop it with Ctrl+C.
+- Cloudflare quick tunnels buffer server-sent events, so the UI automatically falls back to polling
+  `/api/events/poll` (about 1s); chat, typing and ticks still update live.
+
 ## Commands
 
 | Command | Purpose |

@@ -7,7 +7,7 @@ MODEL ?= $(or $(shell grep -E '^MODEL=' .env 2>/dev/null | cut -d= -f2-),qwen3:8
 ALT_MODEL ?= $(or $(shell grep -E '^ALT_MODEL=' .env 2>/dev/null | cut -d= -f2-),gemma3:12b)
 ARGS ?=
 
-.PHONY: help start dev seed test typecheck lint run-scenarios run-scenarios-ab compare pull-alt e2e fixtures check
+.PHONY: help start dev seed test typecheck lint run-scenarios run-scenarios-ab compare pull-alt e2e fixtures check share
 
 help:
 	@echo "make start             one-command startup (same as ./start.sh)"
@@ -21,6 +21,7 @@ help:
 	@echo "make pull-alt          ollama pull the alternative model ($(ALT_MODEL))"
 	@echo "make e2e               Playwright E2E + screenshots (needs Ollama + models)"
 	@echo "make fixtures          regenerate voice-note and image fixtures"
+	@echo "make share             public https link to a running Kani (Cloudflare quick tunnel, no account)"
 
 start:
 	./start.sh
@@ -61,3 +62,8 @@ e2e:
 
 fixtures:
 	node scripts/make-fixtures.ts
+
+share:
+	@test -x .local/bin/cloudflared || (mkdir -p .local/bin && curl -sSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-darwin-arm64.tgz | tar -xz -C .local/bin)
+	@curl -sf localhost:$${PORT:-3000}/api/health >/dev/null || (echo "Start Kani first: ./start.sh" && exit 1)
+	.local/bin/cloudflared tunnel --no-autoupdate --url http://localhost:$${PORT:-3000}

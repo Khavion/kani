@@ -29,29 +29,67 @@ function postJson<T>(url: string, body?: unknown): Promise<T> {
 }
 
 // One shared EventSource for the whole page, with manual reconnect when the
-// browser gives up (readyState CLOSED).
+// browser gives up (readyState CLOSED). If the stream delivers nothing within a few
+// seconds (some proxies, e.g. Cloudflare quick tunnels, buffer SSE), fall back to
+// polling /api/events/poll, which returns the same events.
 const sseListeners = new Set<(e: ServerEvent) => void>();
 let source: EventSource | null = null;
 let reconnectTimer: number | null = null;
+let sseAlive = false;
+let polling = false;
+let pollSeq = -1;
+
+function dispatch(parsed: ServerEvent): void {
+  sseListeners.forEach((l) => {
+    try {
+      l(parsed);
+    } catch (err) {
+      console.error('[kani] event listener failed', err);
+    }
+  });
+}
+
+function startPolling(): void {
+  if (polling) return;
+  polling = true;
+  if (source) {
+    source.close();
+    source = null;
+  }
+  const tick = async () => {
+    if (sseListeners.size === 0) {
+      polling = false;
+      return;
+    }
+    try {
+      const res = await request<{ seq: number; events: ServerEvent[] }>(`/api/events/poll?since=${pollSeq}`);
+      const first = pollSeq < 0;
+      pollSeq = res.seq;
+      if (!first) res.events.forEach(dispatch);
+    } catch {
+      /* retry on next tick */
+    }
+    window.setTimeout(tick, 1000);
+  };
+  void tick();
+}
 
 function openSource(): void {
-  if (source || sseListeners.size === 0) return;
+  if (polling || source || sseListeners.size === 0) return;
   const es = new EventSource('/api/events');
   source = es;
+  window.setTimeout(() => {
+    if (!sseAlive) startPolling();
+  }, 4000);
   es.onmessage = (ev) => {
+    sseAlive = true;
     let parsed: ServerEvent;
     try {
       parsed = JSON.parse(ev.data as string) as ServerEvent;
     } catch {
       return;
     }
-    sseListeners.forEach((l) => {
-      try {
-        l(parsed);
-      } catch (err) {
-        console.error('[kani] event listener failed', err);
-      }
-    });
+    dispatch(parsed);
   };
   es.onerror = () => {
     if (es.readyState === EventSource.CLOSED) {
