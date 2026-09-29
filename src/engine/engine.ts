@@ -489,7 +489,29 @@ export class Engine {
           : 'O cliente enviou uma FOTO. Nao diagnostique com certeza e nao feche valor pela foto: explique que o valor fechado sai depois que o mecanico avaliar o carro e ofereca agendar a avaliacao/diagnostico da lista.',
       );
     }
-    if (conv.pendingNote) {
+    if (conv.pendingNote?.startsWith(PENDING_PREFIX)) {
+      const action = JSON.parse(conv.pendingNote.slice(PENDING_PREFIX.length)) as PendingAction;
+      this.repo.setPendingNote(conv.id, null);
+      if (isAffirmative(text)) {
+        // The system asked a yes/no confirmation; "yes" executes it (no model in the loop).
+        const result = await executeTool(
+          { repo: this.repo, clock: this.clock, tenant, pack, contact, conversation: conv },
+          action.tool,
+          action.args,
+        );
+        this.repo.logEvent(tenant.id, 'tool_call', { conversation_id: conv.id, name: action.tool, args: action.args, ok: result.ok, result, source: 'confirmation' });
+        const calls = [{ name: action.tool, args: action.args, result }];
+        if (result.ok) {
+          const done =
+            action.tool === 'cancel'
+              ? 'Pronto, seu agendamento foi cancelado. Quando quiser remarcar, é só chamar!'
+              : `Pronto! ${action.tool === 'reschedule' ? 'Remarcado' : 'Agendado'}: ${String(result.service ?? action.args.service ?? '')}, ${String(result.when ?? action.label)}${result.staff ? ` com ${String(result.staff)}` : ''}. Te mando um lembrete antes.`;
+          const { msg, latency } = await send(done, { tools: [action.tool], kind: 'confirmation' });
+          return { ...base, reply: msg, latencyMs: latency, toolCalls: calls as never, skipped: 'confirmed_action' };
+        }
+        notes.push(`A acao ${action.tool} falhou: ${String(result.error ?? '')}. Ofereca outras opcoes com check_availability.`);
+      }
+    } else if (conv.pendingNote) {
       notes.push(conv.pendingNote);
       this.repo.setPendingNote(conv.id, null);
     }
@@ -505,16 +527,20 @@ export class Engine {
       meta.claimRepaired = true;
       meta.rawText = reply;
       this.repo.logEvent(tenant.id, 'claim_repair', { conversation_id: conv.id, claim: run.unverifiedClaim, raw: reply });
+      const hasActive = this.repo
+        .appointmentsForContact(contact.id)
+        .some((a) => (a.status === 'booked' || a.status === 'confirmed') && a.startsAt > this.clock.nowIso());
+      const moving = run.unverifiedClaim === 'reschedule' || (hasActive && /remarc|mudar|trocar|adiar|reagend/.test(norm(text + ' ' + reply)));
       if (run.unverifiedClaim === 'cancel') {
         reply = 'Só pra confirmar: posso cancelar o seu agendamento?';
-        this.repo.setPendingNote(conv.id, 'Se o cliente confirmar o cancelamento, chame cancel imediatamente.');
+        this.setPendingAction(conv.id, { tool: 'cancel', args: {}, label: '' });
       } else if (slot && offered) {
-        const verb = run.unverifiedClaim === 'reschedule' ? 'remarcar para' : `agendar ${offered.service} para`;
-        reply = `Só pra confirmar: posso ${verb} ${slot.label}?`;
-        this.repo.setPendingNote(
-          conv.id,
-          `Se o cliente confirmar, chame ${run.unverifiedClaim === 'reschedule' ? 'reschedule' : 'book'} imediatamente com slot="${slot.slot}"${run.unverifiedClaim === 'book' ? ` e service="${offered.service}"` : ''}.`,
-        );
+        reply = moving ? `Só pra confirmar: posso remarcar para ${slot.label}?` : `Só pra confirmar: posso agendar ${offered.service} para ${slot.label}?`;
+        this.setPendingAction(conv.id, {
+          tool: moving ? 'reschedule' : 'book',
+          args: moving ? { slot: slot.slot } : { service: offered.service, slot: slot.slot, contact: { name: contact.profile.nome ?? contact.waName } },
+          label: slot.label,
+        });
       } else {
         reply = 'Só pra eu confirmar certinho: qual dia e horário você prefere?';
       }
@@ -615,6 +641,10 @@ export class Engine {
     };
   }
 
+  setPendingAction(convId: number, action: PendingAction): void {
+    this.repo.setPendingNote(convId, PENDING_PREFIX + JSON.stringify(action));
+  }
+
   /** A claim is fine when the DB already reflects it (e.g. "seu horario esta confirmado" after an earlier book). */
   claimBackedByDb(contactId: number, claim: ClaimKind, text: string): boolean {
     const appts = this.repo.appointmentsForContact(contactId);
@@ -703,6 +733,7 @@ export class Engine {
     const calls: ToolCallRecord[] = [];
     let claimRetried = false;
     let nudged = false;
+    let repeatRetried = false;
     let lastText = '';
     try {
       for (let round = 0; round <= this.opts.maxToolRounds; round++) {
@@ -733,6 +764,16 @@ export class Engine {
         lastText = content;
         if (toolCalls.length === 0 || !allowTools) {
           // Guard against claiming an action that never happened (once per turn).
+          const recentBot = ctx.history.filter((m) => m.role === 'assistant').slice(-3).map((m) => norm(m.text ?? ''));
+          if (!repeatRetried && allowTools && round < this.opts.maxToolRounds - 1 && content.trim() && recentBot.includes(norm(content))) {
+            repeatRetried = true;
+            messages.push({ role: 'assistant', content });
+            messages.push({
+              role: 'user',
+              content: '(Sistema) Voce repetiu uma mensagem anterior. Leia a ULTIMA mensagem do cliente e responda a ela (se ele escolheu um horario, use book ou reschedule).',
+            });
+            continue;
+          }
           const didAction = calls.some((c) => ['book', 'reschedule', 'cancel'].includes(c.name) && c.result.ok);
           const claim = claimKind(content);
           const checked = calls.some((c) => c.name === 'check_availability');
@@ -984,6 +1025,20 @@ export class Engine {
 }
 
 export type ClaimKind = 'book' | 'reschedule' | 'cancel';
+
+const PENDING_PREFIX = 'ACTION:';
+export interface PendingAction {
+  tool: 'book' | 'reschedule' | 'cancel';
+  args: Record<string, unknown>;
+  label: string;
+}
+
+/** Short affirmative answer to a yes/no confirmation question. */
+export function isAffirmative(text: string): boolean {
+  const t = norm(text).replace(/[!.,]+/g, ' ').trim();
+  if (/\bnao\b/.test(t)) return false;
+  return /^(sim|s|pode|pode sim|pode ser|pode agendar|pode marcar|pode remarcar|pode cancelar|confirmo|confirmado|confirma|isso|isso mesmo|blz|beleza|fechado|ok|okay|claro|perfeito|bora|show|com certeza|manda ver|quero|quero sim|certo|ta bom|tá bom|ta otimo|otimo)\b/.test(t);
+}
 
 export interface OfferedSlots {
   service: string;

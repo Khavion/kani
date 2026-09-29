@@ -143,7 +143,17 @@ test('engine: an unbacked "agendado" claim is repaired into a confirmation quest
   const k = testKani(llm);
   const { turn } = await say(k, SALAO, 'quero escova amanha as 9h');
   assert.match(turn.reply!.text!, /Só pra confirmar: posso agendar Escova para qua 07\/10 às 09:00\?/);
-  assert.equal(k.repo.appointmentsForContact(k.repo.getConversation(turn.conversationId)!.contactId).length, 0);
+  const contactId = k.repo.getConversation(turn.conversationId)!.contactId;
+  assert.equal(k.repo.appointmentsForContact(contactId).length, 0);
+  // "pode sim" executes the confirmed action deterministically.
+  const calls = llm.requests.length;
+  const yes = await say(k, SALAO, 'pode sim!');
+  assert.equal(yes.turn.skipped, 'confirmed_action');
+  assert.equal(llm.requests.length, calls, 'no model call needed');
+  const appts = k.repo.appointmentsForContact(contactId);
+  assert.equal(appts.length, 1);
+  assert.equal(appts[0].service, 'Escova');
+  assert.match(yes.turn.reply!.text!, /Agendado/);
   assert.equal(claimKind('Seu horário foi cancelado.'), 'cancel');
   assert.equal(claimKind('Quer que eu deixe agendado?'), null);
   assert.deepEqual(matchOfferedSlot(['as 9h'], { service: 'x', slots: [{ slot: '2026-10-07 09:00', label: 'qua 07/10 às 09:00' }] })?.slot, '2026-10-07 09:00');
@@ -222,4 +232,10 @@ test('cleanReply: strips invented assistant names', async () => {
   assert.equal(cleanReply('Olá! Sou a Bela, assistente virtual do Studio.'), 'Olá! Sou a assistente virtual do Studio.');
   assert.equal(cleanReply('Oi! Sou a Ana, sua recepcionista virtual.'), 'Oi! Sou a recepcionista virtual.');
   assert.equal(cleanReply('Sou a assistente virtual.'), 'Sou a assistente virtual.');
+});
+
+test('isAffirmative recognises short confirmations only', async () => {
+  const { isAffirmative } = await import('../src/engine/engine.ts');
+  for (const t of ['sim', 'pode sim, blz!', 'Confirmo', 'fechado', 'ok']) assert.equal(isAffirmative(t), true, t);
+  for (const t of ['nao, prefiro outro dia', 'qual o valor?', 'sim nao sei']) assert.equal(isAffirmative(t), false, t);
 });
