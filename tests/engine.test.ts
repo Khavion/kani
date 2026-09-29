@@ -159,6 +159,16 @@ test('engine: an unbacked "agendado" claim is repaired into a confirmation quest
   assert.equal(claimKind('Entendo, ja cancelei seu agendamento de amanha.'), 'cancel');
   assert.equal(claimKind('Pronto, remarquei para quinta.'), 'reschedule');
   assert.equal(claimKind('Agendei pra voce!'), 'book');
+  for (const t of [
+    'Combinado! Agendamento confirmado para o dia 8 de outubro, às 9h com a Patricia.',
+    'Garanti seu horario de quinta as 15h.',
+    'Pronto, ja te coloquei na agenda para amanha.',
+    'Ficou marcado para sexta!',
+    'Seu horário está confirmado.',
+  ])
+    assert.equal(claimKind(t), 'book', t);
+  for (const t of ['Posso confirmar para quinta as 15h?', 'Assim que confirmar, te aviso.', 'Confirmado o recebimento do Pix.', 'O pagamento fica garantido no cartao.'])
+    assert.equal(claimKind(t), null, t);
   assert.deepEqual(matchOfferedSlot(['as 9h'], { service: 'x', slots: [{ slot: '2026-10-07 09:00', label: 'qua 07/10 às 09:00' }] })?.slot, '2026-10-07 09:00');
 });
 

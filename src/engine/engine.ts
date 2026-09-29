@@ -1093,8 +1093,14 @@ export function claimKind(text: string): ClaimKind | null {
   const sentences = text.split(/(?<=[.!?\n])\s+/).filter((x) => x.trim() && !x.trim().endsWith('?'));
   for (const sRaw of sentences) {
     const s = norm(sRaw);
-    if (!ACTION_CLAIM.test(s)) continue;
-    if (/\b(se quiser|posso|quer que|gostaria|prefere|podemos|vamos)\b/.test(s)) continue;
+    if (/\b(se quiser|posso|quer que|gostaria|prefere|podemos|vamos|assim que|quando|depois que|para (agendar|marcar)|pra (agendar|marcar))\b/.test(s)) continue;
+    const hasWhen = /\b\d{1,2}(:\d{2}|h)|\b\d{1,2}\/\d{1,2}\b|\b(amanha|hoje|segunda|terca|quarta|quinta|sexta|sabado|domingo)\b/.test(s);
+    const apptNoun = /\b(agendamento|horario|consulta|avaliacao|sessao|reserva|visita|atendimento)\b/.test(s);
+    const strong = ACTION_CLAIM.test(s);
+    const weak =
+      /\b(confirmad[oa]s?|confirmei|garanti|garantid[oa]|ficou (marcad|agendad|reservad|para)|coloquei|anotei|encaixei|te encaixo|na agenda)\b/.test(s) &&
+      (hasWhen || apptNoun);
+    if (!strong && !weak) continue;
     if (/cancelad|cancelei|desmarquei/.test(s)) return 'cancel';
     if (/remarcad|remarquei|reagendei/.test(s)) return 'reschedule';
     return 'book';
