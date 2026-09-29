@@ -490,7 +490,14 @@ export async function executeTool(ctx: ToolContext, name: string, rawArgs: Recor
         const qty = typeof it === 'object' && it && Number((it as { qty?: number }).qty) > 0 ? Number((it as { qty?: number }).qty) : 1;
         const s = matchService(services, nameArg);
         if (!s) unknown.push(String(nameArg));
-        else items.push({ service: s.n, qty, price: s.p });
+        else if (qty > 1 && /\bpar\b|\bpacote\b/.test(norm(s.n))) {
+          // "(dianteira, par)" / "Pacote ..." already bundle the units: 2x would double-charge.
+          return {
+            ok: false,
+            error: `"${s.n}" ja inclui o conjunto completo pelo preco da lista; use qty 1`,
+            nota_interna: 'pecas ou itens fora da lista (ex.: disco) nao podem ser orcados: diga que vai confirmar com o mecanico e use escalate',
+          };
+        } else items.push({ service: s.n, qty, price: s.p });
       }
       if (unknown.length) {
         return {

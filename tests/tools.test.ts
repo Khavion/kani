@@ -119,3 +119,12 @@ test('tools: schema-wrapped arguments from prompted-JSON models are unwrapped', 
   assert.equal(res.ok, true, JSON.stringify(res));
   assert.equal(k.repo.getContact(ctx.contact.id)!.profile.nome, 'Luciana');
 });
+
+test('tools: create_quote refuses to multiply a service that is already a pair or a package', async () => {
+  const k = testKani(new ScriptedLLM(reply('')));
+  const ctx = ctxFor(k, OFICINA);
+  const res = await executeTool(ctx, 'create_quote', { items: [{ service: 'Pastilhas de freio (dianteira, par)', qty: 2 }] });
+  assert.equal(res.ok, false);
+  assert.match(String(res.error), /qty 1/);
+  assert.equal(k.repo.quotesForContact(ctx.contact.id).length, 0);
+});

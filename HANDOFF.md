@@ -8,6 +8,14 @@ This is the morning briefing: what is done, how good it is, what is still open, 
 same engine commit) qwen3:8b beats gemma3:12b **91.2 vs 88.8**, with 69/75 vs 52/75 passed; gemma3
 fails the 20s latency gate on 13 scenarios.
 
+## End-to-end QA pass (2026-09-29)
+
+A full QA pass is documented in [reports/qa/QA-REPORT.md](reports/qa/QA-REPORT.md): unit 61/61, QA flows
+25/25 and QA UI 16/16 with real models (`make qa`), original E2E 7/7, clean-clone start verified, benchmark
+after fixes 93.1 (73/75, p95 9.3s). It found and fixed 15 bugs, including a blank page after UI rebuilds,
+an unusable phone layout, a race that dropped customer messages, stale reminders and upload validation gaps.
+Public demo: `make share` (see README).
+
 ## Status per Definition-of-Done item
 
 | DoD item | Status | Evidence |
