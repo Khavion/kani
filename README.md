@@ -16,6 +16,12 @@ It serves three purposes:
 
 Customer-facing text is Brazilian Portuguese. Admin UI, code and reports are English.
 
+![Customer simulator](reports/screenshots/chat-light.png)
+
+| Owner view: voice transcript | Owner view: photo through vision | Admin |
+| --- | --- | --- |
+| ![](reports/screenshots/owner-voice-transcript-dark.png) | ![](reports/screenshots/owner-vision-light.png) | ![](reports/screenshots/admin-light.png) |
+
 ## Quick start
 
 ```bash
