@@ -428,6 +428,9 @@ export async function executeTool(ctx: ToolContext, name: string, args: Record<s
         const alternatives = findSlots(ctx, service, { limit: 4 });
         return { ok: false, error: 'informe o novo horario "YYYY-MM-DD HH:MM"', alternativas: alternatives };
       }
+      if (start.toISOString() === appt.startsAt) {
+        return { ok: false, error: 'o novo horario e igual ao atual; pergunte ao cliente se quer cancelar ou escolher outro horario' };
+      }
       const check = checkSlot(ctx, service, start, { staff: appt.staff, ignoreAppointmentId: appt.id });
       const check2 = check.ok ? check : checkSlot(ctx, service, start, { ignoreAppointmentId: appt.id });
       if (!check2.ok) {

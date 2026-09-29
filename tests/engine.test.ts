@@ -239,3 +239,8 @@ test('isAffirmative recognises short confirmations only', async () => {
   for (const t of ['sim', 'pode sim, blz!', 'Confirmo', 'fechado', 'ok']) assert.equal(isAffirmative(t), true, t);
   for (const t of ['nao, prefiro outro dia', 'qual o valor?', 'sim nao sei']) assert.equal(isAffirmative(t), false, t);
 });
+
+test('cleanReply strips leaked /no_think control tokens', async () => {
+  const { cleanReply } = await import('../src/engine/engine.ts');
+  assert.equal(cleanReply('Claro, posso ajudar /no_think'), 'Claro, posso ajudar');
+});

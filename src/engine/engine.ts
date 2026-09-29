@@ -481,6 +481,15 @@ export class Engine {
       forceEscalation = 'cliente insatisfeito/bravo';
       notes.push('O cliente esta insatisfeito. Acolha, peca desculpas sem discutir nem justificar, e use escalate para a equipe assumir.');
     }
+    const activeAppts = this.repo
+      .appointmentsForContact(contact.id)
+      .filter((a) => (a.status === 'booked' || a.status === 'confirmed') && a.startsAt > this.clock.nowIso());
+    if (activeAppts.length && /\b(cancelar|cancela|cancelo|desmarcar|desmarca|nao vou (mais )?(poder|conseguir) ir)\b/.test(norm(text)) && !/\bremarc/.test(norm(text))) {
+      const a = activeAppts[0];
+      notes.push(
+        `O cliente quer CANCELAR o agendamento #${a.id} (${a.service}, ${formatSlotPt(new Date(a.startsAt))}). Chame cancel agora, confirme com empatia e diga que pode remarcar quando ele quiser.`,
+      );
+    }
     if (pending.some((m) => m.type === 'image')) {
       const clinical = ['odonto', 'pet', 'estetica', 'salao'].includes(pack.id);
       notes.push(
@@ -765,7 +774,9 @@ export class Engine {
         if (toolCalls.length === 0 || !allowTools) {
           // Guard against claiming an action that never happened (once per turn).
           const recentBot = ctx.history.filter((m) => m.role === 'assistant').slice(-3).map((m) => norm(m.text ?? ''));
-          if (!repeatRetried && allowTools && round < this.opts.maxToolRounds - 1 && content.trim() && recentBot.includes(norm(content))) {
+          const lastCustomerNorm = lastCustomer ? norm(this.customerText(lastCustomer)) : '';
+          const echoes = !!lastCustomerNorm && lastCustomerNorm.length > 8 && norm(cleanReply(content)).includes(lastCustomerNorm);
+          if (!repeatRetried && allowTools && round < this.opts.maxToolRounds - 1 && content.trim() && (recentBot.includes(norm(content)) || echoes)) {
             repeatRetried = true;
             messages.push({ role: 'assistant', content });
             messages.push({
@@ -1081,7 +1092,7 @@ export function matchOfferedSlot(texts: string[], offered: OfferedSlots | null):
 /** Final cleanup of model text before it reaches guards and the customer. */
 export function cleanReply(s: string): string {
   let t = stripThink(s);
-  t = t.replace(/<\/?tool_call>/g, '');
+  t = t.replace(/<\/?tool_call>/g, '').replace(/\s*\/(no_)?think\b/g, '');
   t = t.replace(/^\s*(assistente|assistant|resposta)\s*:\s*/i, '');
   t = t.replace(/\b([Ss]ou|[Aa]qui (?:é|e))\s+(a|o)\s+[A-ZÀ-Ý][a-zà-ÿ]+(?:,\s+(?:(?:sua|seu|a|o)\s+)?|\s+(?:sua|seu)\s+)/g, '$1 $2 ');
   t = t.replace(/\b(me chamo|meu nome (?:é|e))\s+[A-ZÀ-Ý][a-zà-ÿ]+[,.!]?\s*/gi, '');
