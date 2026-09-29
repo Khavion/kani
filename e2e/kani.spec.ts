@@ -9,6 +9,8 @@ const SHOTS = path.join(ROOT, 'reports/screenshots');
 mkdirSync(SHOTS, { recursive: true });
 const OFICINA = 'oficina-vila-mariana';
 const SALAO = 'salao-pinheiros';
+// Conversation rows only (the list container's test id shares the prefix).
+const CONV_ITEM = '[data-testid^="owner-conversation-"]:not([data-testid="owner-conversation-list"])';
 
 async function asCustomer(page: Page, name: string, tenant = OFICINA): Promise<void> {
   const phone = `+55 11 95${String(Math.floor(Math.random() * 1e7)).padStart(7, '0')}`;
@@ -37,7 +39,7 @@ async function shoot(page: Page, name: string): Promise<void> {
 
 async function openOwnerConversation(page: Page, customerName: string): Promise<void> {
   await page.getByTestId('nav-owner').click();
-  const item = page.locator('[data-testid^="owner-conversation-"]', { hasText: customerName }).first();
+  const item = page.locator(CONV_ITEM, { hasText: customerName }).first();
   await expect(item).toBeVisible({ timeout: 30_000 });
   await item.click();
 }
@@ -107,7 +109,7 @@ test('owner TAKE OVER pauses the bot, owner reply reaches the customer, RESUME r
   await page.getByTestId('nav-customer').click();
   await expect(page.locator('[data-testid="message"]').last()).toContainText('Marcos');
   await page.getByTestId('nav-owner').click();
-  await page.locator('[data-testid^="owner-conversation-"]', { hasText: 'E2E Owner' }).first().click();
+  await page.locator(CONV_ITEM, { hasText: 'E2E Owner' }).first().click();
   await page.getByTestId('resume-button').click();
   await expect(page.getByTestId('owner-status')).toHaveText(/Bot/);
 });
