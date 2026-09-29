@@ -47,11 +47,15 @@ export function isSpam(text: string): boolean {
   return hits >= 2 || (hits >= 1 && upperRatio > 0.6 && letters.length > 12);
 }
 
-/** Complaint about a previous service result (always handed to a human). */
+/** Complaint about a previous service result from THIS business (always handed to a human). */
 export function isComplaint(text: string): boolean {
-  return /\b(acabaram com|estragaram|estragou|cortaram (tudo )?torto|ficou (horrivel|pessimo|uma merda|todo errado)|mal feito|malfeito|machucaram|machucou (ele|ela|meu|minha)|queimaram|queimou meu|voltou (machucad|com o mesmo|pior)|nao resolveu|quero (fazer uma )?reclama|reclamacao|meu dinheiro de volta|reembolso)/.test(
-    norm(text),
-  );
+  const t = norm(text);
+  if (/\b(em casa|eu mesm[oa]|sozinh[oa]|fiz sozinh|outro salao|outra oficina|outra clinica|outro lugar)\b/.test(t)) return false;
+  // Verbs in the 3rd person plural point at the business ("acabaram com", "estragaram").
+  if (/\b(acabaram com|estragaram|cortaram (tudo )?torto|machucaram|queimaram|arranharam|quebraram|esqueceram (de|o|a))/.test(t)) return true;
+  const aboutUs = /\b(voces|vcs|vc s|ai de voces|com voces|o servico de voces|o atendimento|a oficina|o salao|a clinica|o pet ?shop|o profissional|a profissional|o mecanico|a groomer|o groomer)\b/.test(t);
+  const bad = /\b(ficou (horrivel|pessimo|uma merda|todo errado|torto)|mal feito|malfeito|nao resolveu|voltou (machucad|com o mesmo|pior)|quero (fazer uma )?reclama|reclamacao|meu dinheiro de volta|reembolso|estragou)\b/.test(t);
+  return bad && (aboutUs || /reclama|reembolso|dinheiro de volta/.test(t));
 }
 
 /** The assistant told the customer a human will take over. */

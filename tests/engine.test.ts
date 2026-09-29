@@ -207,6 +207,8 @@ test('engine: a promised handoff always creates a real escalation; complaints ar
   const { isComplaint, promisesHandoff } = await import('../src/engine/policy.ts');
   assert.equal(isComplaint('voces acabaram com meu cabelo, cortaram tudo torto'), true);
   assert.equal(isComplaint('quero agendar um corte'), false);
+  assert.equal(isComplaint('olha isso, fiz em casa e ficou horrivel. qnto fica pra arrumar?'), false);
+  assert.equal(isComplaint('o corte que voces fizeram ficou horrivel'), true);
   assert.equal(promisesHandoff('Vou chamar alguem da equipe pra te ajudar.'), true);
   assert.equal(promisesHandoff('Posso ver um horario pra voce?'), false);
   const k = testKani(new ScriptedLLM(reply('Entendi! Vou passar pra equipe verificar isso.')));
