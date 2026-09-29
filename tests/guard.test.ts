@@ -55,3 +55,13 @@ test('odonto: prices are stripped unless the customer asked about price', async 
   const { turn: t2 } = await say(k2, ODONTO, 'quanto custa a limpeza?');
   assert.match(t2.reply?.text ?? '', /180/);
 });
+
+test('guard: invented discounts and promotions are blocked; negations pass', async () => {
+  const { inventedDiscount } = await import('../src/engine/guard.ts');
+  assert.notEqual(inventedDiscount('Sai R$350. Aproveite o desconto de 10% se agendar hoje!'), null);
+  assert.notEqual(inventedDiscount('Temos uma promocao especial essa semana.'), null);
+  assert.equal(inventedDiscount('Nao temos desconto fora do pacote, mas parcelamos em 6x.'), null);
+  assert.equal(inventedDiscount('Parcelamos em ate 6x sem juros no cartao.'), null);
+  const r = checkPrices('Pastilhas R$350 com 10% de desconto hoje', { services: oficina });
+  assert.equal(r.ok, false);
+});

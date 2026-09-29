@@ -140,11 +140,28 @@ export function allowedPrices(ctx: GuardContext, text = ''): Set<number> {
   return allowed;
 }
 
-export function checkPrices(text: string, ctx: GuardContext): GuardResult {
+export interface GuardResult2 extends GuardResult {
+  discount: string | null;
+}
+
+/** An affirmative discount/promotion offer (never on the tenant list, so always invented). */
+export function inventedDiscount(text: string): string | null {
+  for (const sentence of norm(text).split(/(?<=[.!?\n])\s+/)) {
+    const m = sentence.match(/\b\d{1,2}\s?%|\bdesconto\b|\bpromocao\b|\bpromocional\b|\bcupom\b|\bfrete gratis\b|\bbrinde\b/);
+    if (!m) continue;
+    if (/\b(nao|sem|nenhum|nenhuma|infelizmente)\b/.test(sentence)) continue; // "nao temos desconto"
+    if (/\b(parcel|juros|cartao)\b/.test(sentence) && !/desconto|promo|cupom/.test(sentence)) continue;
+    return m[0];
+  }
+  return null;
+}
+
+export function checkPrices(text: string, ctx: GuardContext): GuardResult2 {
   const found = extractPrices(text, ctx);
   const allowed = allowedPrices(ctx, text);
   const offending = found.filter((v) => !allowed.has(v));
-  return { ok: offending.length === 0, found, offending };
+  const discount = inventedDiscount(text);
+  return { ok: offending.length === 0 && !discount, found, offending, discount };
 }
 
 /**

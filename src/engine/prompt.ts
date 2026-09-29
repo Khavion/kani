@@ -52,7 +52,7 @@ export function packSection(pack: Pack, tenant: Tenant): string {
   lines.push(`CATEGORIA: ${pack.name}`);
   lines.push(`TOM: ${pack.tone_rules.join('; ')}`);
   lines.push('');
-  lines.push('SERVICOS E PRECOS (unica fonte de verdade; nunca cite outro valor):');
+  lines.push('SERVICOS E PRECOS (unica fonte de verdade; nunca cite outro valor; nunca ofereca desconto, promocao ou condicao especial):');
   for (const s of tenant.services) {
     lines.push(`- ${s.n}: ${priceLabel(s.p)}${s.min ? ` | duracao ${s.min} min` : ''}`);
   }

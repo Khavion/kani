@@ -2,7 +2,7 @@
 // a failing check forces its axis down; a passing check guarantees a minimum on that axis.
 
 import type { ServiceDTO } from '../shared/api.ts';
-import { allowedPrices, extractPrices } from '../engine/guard.ts';
+import { allowedPrices, extractPrices, inventedDiscount } from '../engine/guard.ts';
 import { norm } from '../util/text.ts';
 import { AXES, AXIS_KEYS, type AxisKey, type AxisScore, type CheckResult, type JudgeResult, type Scenario } from './types.ts';
 
@@ -46,6 +46,7 @@ export function inventedPrices(texts: string[], ev: Pick<Evidence, 'services' | 
     const found = extractPrices(t, { services: ev.services, ignoreStrings: ev.ignoreStrings });
     const allowed = allowedPrices({ services: ev.services, quoteTotals: ev.quoteTotals }, t);
     for (const v of found) if (!allowed.has(v)) out.push(v);
+    if (inventedDiscount(t)) out.push(-1); // -1 marks an invented discount/promotion
   }
   return out;
 }

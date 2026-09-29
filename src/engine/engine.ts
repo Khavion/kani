@@ -547,6 +547,7 @@ export class Engine {
       this.repo.logEvent(tenant.id, 'guard_violation', {
         conversation_id: conv.id,
         offending: guard.offending,
+        discount: guard.discount,
         raw: reply,
       });
       reply = GUARD_REPLY;
@@ -562,7 +563,13 @@ export class Engine {
     const { msg, latency } = await send(reply, meta);
 
     if (guardTriggered && !escalated) {
-      this.escalate(conv, `valor fora da lista: ${guard.offending.map((v) => formatBRL(v)).join(', ')}`, 'guard');
+      this.escalate(
+        conv,
+        guard.offending.length
+          ? `valor fora da lista: ${guard.offending.map((v) => formatBRL(v)).join(', ')}`
+          : `desconto/promocao inventado: ${guard.discount}`,
+        'guard',
+      );
       escalated = true;
     }
     if (!forceEscalation && !escalated && promisesHandoff(reply)) {
