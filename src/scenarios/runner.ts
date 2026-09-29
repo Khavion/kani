@@ -97,7 +97,8 @@ async function simulateCustomer(llm: LLM, model: string, s: Scenario, tenant: Te
   const res = await llm.chat({ model, messages: [...msgs, ...turns], temperature: 0.8, numPredict: 90, label: 'customer' });
   let text = stripThink(res.content).trim();
   text = text.replace(/^(cliente|voce|eu)\s*:\s*/i, '').replace(/^["']|["']$/g, '').trim();
-  if (!text || /\[\s*fim\s*\]/i.test(text) || /^\s*\(?fim\)?[.!]?\s*$/i.test(text)) return null;
+  // End markers: [FIM], a bare FIM, or any invented bracket token at the start ("[OK] ...").
+  if (!text || /\[\s*fim\s*\]/i.test(text) || /^\s*\(?fim\)?[.!]?\s*$/i.test(text) || /^\s*\[[A-Z_ ]{2,12}\]/.test(text)) return null;
   return text.slice(0, 400);
 }
 
