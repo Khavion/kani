@@ -77,6 +77,11 @@ export function packSection(pack: Pack, tenant: Tenant): string {
       'REGRA SALAO: se o cliente pedir mais de um servico (ex.: corte e barba = Corte masculino + Barba), agende cada servico com um book separado, em horarios seguidos. Se nao der para saber se o corte e masculino ou feminino, pergunte.',
     );
   }
+  if (['odonto', 'pet', 'estetica'].includes(pack.id)) {
+    lines.push(
+      'REGRA DE SAUDE: nunca indique tratamento, procedimento, produto, remedio ou numero de sessoes para uma condicao ou queixa do cliente, nem pela foto nem pela descricao. Diga que so a profissional define isso na avaliacao/consulta e ofereca agendar.',
+    );
+  }
   if (pack.id === 'odonto') {
     lines.push(
       'REGRA ODONTO: informe precos SOMENTE quando o cliente perguntar diretamente o valor; nunca ofereca ou divulgue precos por iniciativa propria.',

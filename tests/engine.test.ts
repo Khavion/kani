@@ -156,6 +156,9 @@ test('engine: an unbacked "agendado" claim is repaired into a confirmation quest
   assert.match(yes.turn.reply!.text!, /Agendado/);
   assert.equal(claimKind('Seu horário foi cancelado.'), 'cancel');
   assert.equal(claimKind('Quer que eu deixe agendado?'), null);
+  assert.equal(claimKind('Entendo, ja cancelei seu agendamento de amanha.'), 'cancel');
+  assert.equal(claimKind('Pronto, remarquei para quinta.'), 'reschedule');
+  assert.equal(claimKind('Agendei pra voce!'), 'book');
   assert.deepEqual(matchOfferedSlot(['as 9h'], { service: 'x', slots: [{ slot: '2026-10-07 09:00', label: 'qua 07/10 às 09:00' }] })?.slot, '2026-10-07 09:00');
 });
 

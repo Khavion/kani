@@ -57,7 +57,8 @@ export interface InboundResult {
   done: Promise<TurnResult>;
 }
 
-const ACTION_CLAIM = /\b(agendad[oa]s?|marcad[oa]s?|reservad[oa]s?|remarcad[oa]s?|cancelad[oa]s?)\b/;
+// Participles ("agendado") and first-person past ("agendei", "cancelei", "remarquei", "reservei").
+const ACTION_CLAIM = /\b(agendad[oa]s?|marcad[oa]s?|reservad[oa]s?|remarcad[oa]s?|cancelad[oa]s?|agendei|marquei|reservei|remarquei|reagendei|cancelei|desmarquei)\b/;
 
 export class Engine {
   readonly repo: Repo;
@@ -1094,8 +1095,8 @@ export function claimKind(text: string): ClaimKind | null {
     const s = norm(sRaw);
     if (!ACTION_CLAIM.test(s)) continue;
     if (/\b(se quiser|posso|quer que|gostaria|prefere|podemos|vamos)\b/.test(s)) continue;
-    if (/cancelad/.test(s)) return 'cancel';
-    if (/remarcad/.test(s)) return 'reschedule';
+    if (/cancelad|cancelei|desmarquei/.test(s)) return 'cancel';
+    if (/remarcad|remarquei|reagendei/.test(s)) return 'reschedule';
     return 'book';
   }
   return null;
