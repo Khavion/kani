@@ -792,6 +792,7 @@ export class Engine {
     let claimRetried = false;
     let nudged = false;
     let repeatRetried = false;
+    let priceRetried = false;
     let lastText = '';
     try {
       for (let round = 0; round <= this.opts.maxToolRounds; round++) {
@@ -847,6 +848,20 @@ export class Engine {
             continue;
           }
           const lastText = lastCustomer ? norm(this.customerText(lastCustomer)) : '';
+          // The customer asked a price and the reply states none: answer from the list first.
+          if (
+            !priceRetried && allowTools && round < this.opts.maxToolRounds - 1 && lastCustomer && asksAboutPrice(lastText) &&
+            !/r\$\s?\d|\b\d{2,4}\s?reais\b|sem custo|gratuit/.test(norm(content)) && !checked
+          ) {
+            priceRetried = true;
+            messages.push({ role: 'assistant', content });
+            messages.push({
+              role: 'user',
+              content:
+                '(Sistema) O cliente perguntou o VALOR. Responda primeiro com o preco exato de cada servico citado, da lista (se forem dois servicos, informe os dois). Nao repita perguntas ja respondidas.',
+            });
+            continue;
+          }
           const defers = /\b(depois|dps|mais tarde|outra hora|outro momento|vou ver|chamo|te chamo|vou chamar|volto|retorno|agora nao|por enquanto nao)\b/.test(lastText);
           const wantsBooking = !defers && /\b(agendar|agenda|marcar|marca|horario|vaga|encaixe|remarcar)\b/.test(lastText);
           const offersTimes = /\b\d{1,2}(:\d{2}|h)/.test(content);

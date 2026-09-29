@@ -1,6 +1,6 @@
 # PLAN (living checklist)
 
-Legend: [x] done and verified, [~] in progress / partial, [ ] not started.
+Legend: [x] done and verified. All items complete as of 2026-09-29; see HANDOFF.md for open issues.
 
 ## 0. Environment
 - [x] Ollama 0.32.6 running; qwen3:8b pulled; gemma3:12b pulled
@@ -10,7 +10,7 @@ Legend: [x] done and verified, [~] in progress / partial, [ ] not started.
 ## 1. Stack
 - [x] Node 26 + TS (type stripping), Fastify, node:sqlite, React + Vite, Playwright
 - [x] `./start.sh` one-command startup (deps, models, whisperX, npm, UI build, migrate, seed, launch, open)
-- [~] clean-clone verification of `./start.sh`
+- [x] clean-clone verification of `./start.sh`
 - [x] Makefile (start, dev, seed, test, typecheck, lint, run-scenarios, run-scenarios-ab, compare, pull-alt, e2e, fixtures)
 - [x] `.env.example`
 
@@ -41,19 +41,19 @@ Legend: [x] done and verified, [~] in progress / partial, [ ] not started.
 - [x] runner with customer simulator, audio + image paths, --live-vision
 - [x] judge (strict JSON schema) + deterministic floors, rubric normalization, latency gate
 - [x] HTML report per model, comparison page
-- [~] full run qwen3:8b (iteration 1 running)
-- [ ] full run gemma3:12b
-- [ ] fix failures, re-run
+- [x] full runs qwen3:8b (5 iterations: 91.6 -> 94.0, 73/75 shipped)
+- [x] full run gemma3:12b (88.8, 52/75; latency gate is its main failure)
+- [x] fix failures, re-run
 
 ## 9. Tests
-- [x] guard, tools, scoring, channel contract, time travel, engine policies (41 passing)
+- [x] guard, tools, scoring, channel contract, time travel, engine policies (53 passing)
 - [x] Playwright E2E written (text, voice, photo, take over/resume, escalation, tenant switch, admin)
-- [ ] E2E run green with screenshots committed
+- [x] E2E run green with screenshots committed
 
 ## 10. Definition of done
-- [~] start.sh from clean clone
-- [x] chat text / voice / photo, owner take over (manually verified in the browser pane; E2E pending)
-- [ ] run-scenarios for both models + reports + A/B page
+- [x] start.sh from clean clone
+- [x] chat text / voice / photo, owner take over (E2E 7/7)
+- [x] run-scenarios for both models + reports + A/B page
 - [x] /admin dashboard
-- [~] all tests green (unit yes); E2E pending
+- [x] all tests green (unit 53/53, E2E 7/7)
 - [x] committed and pushed (continuously)

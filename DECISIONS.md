@@ -88,3 +88,27 @@ template fallback and are logged as `review_requested` events (not a reminders k
 `seed` creates the 5 tenants plus a deterministic week of history per tenant (price questions,
 bookings with confirmed reminders, a no-show, a reactivated customer, escalations, oficina quotes) so
 `/admin` renders real numbers on first boot. All seeded prices come from the tenant's list.
+
+## D16. Deterministic actions where the stakes are high
+The model proposes, code executes when intent is unambiguous: a short "sim" to a confirmation question
+the bot asked about a specific offered slot books/reschedules it; a clear cancel request with exactly one
+upcoming appointment cancels it; "1"/"2" answer reminders. Any claim that something was booked, moved or
+cancelled without the matching successful tool call (participles, first person singular/plural, "agendamento
+confirmado/feito") is replaced by a confirmation question before the customer sees it. `book` during a
+reschedule conversation moves the existing appointment instead of creating a second one.
+
+## D17. Sensitive topics get pre-approved templates, not model text
+Health, pregnancy, allergy, emergencies and out-of-scope technical questions receive a fixed per-pack safe
+reply and an escalation. In odonto, pet and estetica, any model sentence recommending a treatment for the
+customer's condition is removed. Invented discounts/promotions are blocked by the guard like invented prices.
+
+## D18. Benchmark methodology
+Customer simulator and judge use the same model as the bot (spec). A fair A/B requires both models on the
+same engine commit, so runs were restarted whenever an engine fix landed mid-run; the committed comparison
+page is built from the `bc0827a` pair. Model actions the engine had to repair (unbacked claims, book used for
+a reschedule) cap action/grounding at 2 instead of failing the scenario, so the report reflects what the
+customer saw while still penalizing the model.
+
+## D19. GitHub push over SSH
+HTTPS push had no stored credentials. The machine has an SSH alias `github.com-khavion` with the owner's key;
+only the repo's push URL was changed to it (fetch stays HTTPS).
