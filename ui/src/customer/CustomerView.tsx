@@ -51,6 +51,16 @@ export function useCustomerStore(tenants: TenantDTO[], tenantId: string | null, 
     tenants.forEach((t) => void loadSession(t));
   }, [tenants, loadSession]);
 
+  // Refs so the long-lived SSE handler always sees current values.
+  const chatsRef = useRef(chats);
+  chatsRef.current = chats;
+  const tenantsRef = useRef(tenants);
+  tenantsRef.current = tenants;
+  const phoneRef = useRef(customer.phone);
+  phoneRef.current = customer.phone;
+  const loadRef = useRef(loadSession);
+  loadRef.current = loadSession;
+
   useEffect(() => {
     saveSeen(seen);
   }, [seen]);
@@ -76,6 +86,13 @@ export function useCustomerStore(tenants: TenantDTO[], tenantId: string | null, 
       } else if (e.type === 'typing') {
         setTypingFor(e.conversationId, e.on);
       } else if (e.type === 'conversation.updated') {
+        // A new thread for this customer (e.g. after LGPD erasure): reload the session.
+        const current = chatsRef.current[e.tenantId];
+        if (current && current.conversation?.id !== e.conversation.id && e.conversation.contact.phone === phoneRef.current) {
+          const t = tenantsRef.current.find((x) => x.id === e.tenantId);
+          if (t) void loadRef.current(t);
+          return;
+        }
         setChats((prev) => {
           const chat = prev[e.tenantId];
           if (!chat || chat.conversation?.id !== e.conversation.id) return prev;

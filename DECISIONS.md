@@ -49,7 +49,8 @@ Tool calls are recorded with `source` so reports can tell model behavior from po
 
 ## D9. Price guard allowances
 The guard blocks any R$ value or price-like numeral not backed by the tenant list. Allowed derived
-values: `0`, list prices, totals of quotes created by `create_quote` in the conversation, installments
+values: `0`, list prices, quantity multiples (2..10 x one list price, e.g. "2 sessoes = R$240"),
+totals of quotes created by `create_quote` in the conversation, installments
 (`p/n`, n = 2..12, only when the text mentions `Nx`/parcelas), and sums of two list prices (salao combos:
 "informe faixa apenas se ambos os itens estiverem na lista"). Customer-quoted values (competitor prices)
 are NOT allowed: echoing "voces fazem por 100?" would otherwise pass a negotiated price.

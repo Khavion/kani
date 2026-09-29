@@ -122,12 +122,14 @@ export function extractPrices(text: string, ctx: Pick<GuardContext, 'services' |
   return found;
 }
 
-/** Values the assistant may state: list prices, 0, quote totals, installments, and pair combos. */
+/** Values the assistant may state: list prices, 0, quote totals, quantity multiples (2..10 x price),
+ * sums of two different items, and installments when the text mentions them. */
 export function allowedPrices(ctx: GuardContext, text = ''): Set<number> {
   const base = ctx.services.map((s) => s.p);
   const allowed = new Set<number>([0, ...base, ...(ctx.quoteTotals ?? [])]);
   const positive = base.filter((p) => p > 0);
   for (let i = 0; i < positive.length; i++) {
+    for (let k = 2; k <= 10; k++) allowed.add(positive[i] * k);
     for (let j = i + 1; j < positive.length; j++) allowed.add(positive[i] + positive[j]);
   }
   if (/\d+\s*x\b|parcel/i.test(text)) {

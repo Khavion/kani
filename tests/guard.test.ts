@@ -35,6 +35,7 @@ test('guard: list prices, derived installments and non-price numerals pass', () 
   ok('A revisao do seu Onix 2019 sai R$420.');
   ok('Pacote 10 drenagens por R$1.200, ou 6x de R$200 no cartao.', estetica);
   ok('Te espero as 10 amanha!');
+  ok('Duas sessoes de laser na axila ficam R$240.', estetica);
 });
 
 test('guard: bare price-like numerals and off-list values are caught', () => {
