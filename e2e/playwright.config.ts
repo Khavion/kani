@@ -10,6 +10,7 @@ const PORT = Number(process.env.E2E_PORT ?? 3200);
 export default defineConfig({
   testDir: '.',
   testMatch: /.*\.spec\.ts/,
+  testIgnore: /qa\//, // the full QA pass has its own config: e2e/qa/qa.config.ts (make qa)
   timeout: 240_000,
   expect: { timeout: 20_000 },
   workers: 1,

@@ -5,7 +5,8 @@
       "/Users/khavionminimac/Desktop/kani/node_modules/.bin/playwright",
       "test",
       "-c",
-      "e2e/qa/qa.config.ts"
+      "e2e/qa/qa.config.ts",
+      "ui.spec.ts"
     ],
     "configFile": "/Users/khavionminimac/Desktop/kani/e2e/qa/qa.config.ts",
     "rootDir": "/Users/khavionminimac/Desktop/kani/e2e/qa",
@@ -79,929 +80,6 @@
   },
   "suites": [
     {
-      "title": "flows.spec.ts",
-      "file": "flows.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [
-        {
-          "title": "F01 health: Ollama, models and whisperX are reported ready",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 34,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:44:40.330Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-b3761f8df8bf63f13dbc",
-          "file": "flows.spec.ts",
-          "line": 15,
-          "column": 1
-        },
-        {
-          "title": "F02 price question: exact list price + disclosure on first contact only",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 7832,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:44:40.374Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-0cd4204581f540ba891b",
-          "file": "flows.spec.ts",
-          "line": 23,
-          "column": 1
-        },
-        {
-          "title": "F03 booking: multi-turn conversation creates a real appointment with reminders",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [
-                {
-                  "type": "transcript",
-                  "description": "C: oi, quero agendar uma escova amanha de manha | B: Oi! Eu sou a recepcionista virtual do Studio Bela Pinheiros. Qual horário de hoje de manhã prefere?  \nqua 30/09 às 09:00 ou 10:30? 😊 | C: pode ser 09:00 | B: Agendado! Sua escova é às 09:00 de quarta-feira, com o Rafael. Lembre-se de confirmar 2h antes. 😊"
-                }
-              ],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 15109,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:44:48.211Z",
-                  "annotations": [
-                    {
-                      "type": "transcript",
-                      "description": "C: oi, quero agendar uma escova amanha de manha | B: Oi! Eu sou a recepcionista virtual do Studio Bela Pinheiros. Qual horário de hoje de manhã prefere?  \nqua 30/09 às 09:00 ou 10:30? 😊 | C: pode ser 09:00 | B: Agendado! Sua escova é às 09:00 de quarta-feira, com o Rafael. Lembre-se de confirmar 2h antes. 😊"
-                    }
-                  ],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-f3e9a9283a620c8a420d",
-          "file": "flows.spec.ts",
-          "line": 36,
-          "column": 1
-        },
-        {
-          "title": "F04 reschedule then cancel the same appointment (no duplicates)",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 25105,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:45:03.326Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-9bf011a9495548907a6f",
-          "file": "flows.spec.ts",
-          "line": 54,
-          "column": 1
-        },
-        {
-          "title": "F05 odonto: no price unless asked; exact price when asked",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 19234,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:45:28.437Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-3f4c9ef00adda07e5067",
-          "file": "flows.spec.ts",
-          "line": 81,
-          "column": 1
-        },
-        {
-          "title": "F06 oficina quote: approval only on clear approval, stores approval_message_id",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 21283,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:45:47.678Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-644a6d78b9401431dd85",
-          "file": "flows.spec.ts",
-          "line": 89,
-          "column": 1
-        },
-        {
-          "title": "F07 human request: escalates, bot goes silent, owner replies, RESUME brings bot back",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 4687,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:08.967Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-e2b859860e5f8742b2d5",
-          "file": "flows.spec.ts",
-          "line": 114,
-          "column": 1
-        },
-        {
-          "title": "F08 take over pauses the bot; owner typing also pauses",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 4186,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:13.661Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-2dd57abf36b8e82f69da",
-          "file": "flows.spec.ts",
-          "line": 134,
-          "column": 1
-        },
-        {
-          "title": "F09 sensitive topics: safe template + escalation in every health pack",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 15,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:17.853Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-102b694be7f914c525a7",
-          "file": "flows.spec.ts",
-          "line": 145,
-          "column": 1
-        },
-        {
-          "title": "F10 complaint and angry customer: acknowledged, handed to the team",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 8333,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:17.875Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-24a040e83b463591bfeb",
-          "file": "flows.spec.ts",
-          "line": 159,
-          "column": 1
-        },
-        {
-          "title": "F11 spam: closed politely, repeats ignored, a real message reopens",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 4509,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:26.213Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-dadf3aa6fe810dd9d298",
-          "file": "flows.spec.ts",
-          "line": 167,
-          "column": 1
-        },
-        {
-          "title": "F12 LGPD: \"apaguem meus dados\" wipes contact, messages and appointments",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 4212,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:30.731Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-2670f10fe040b1aaad51",
-          "file": "flows.spec.ts",
-          "line": 179,
-          "column": 1
-        },
-        {
-          "title": "F13 opt-out and opt-in",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 11,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:34.950Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-4256c02a56666b661d63",
-          "file": "flows.spec.ts",
-          "line": 192,
-          "column": 1
-        },
-        {
-          "title": "F14 price negotiation never produces an off-list price",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 9327,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:34.966Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-97fec07520089e91b2d8",
-          "file": "flows.spec.ts",
-          "line": 202,
-          "column": 1
-        },
-        {
-          "title": "F15 pix key and review link come verbatim from tenant data",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 4381,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:44.299Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-aeee1abb31d9390cedb9",
-          "file": "flows.spec.ts",
-          "line": 212,
-          "column": 1
-        },
-        {
-          "title": "F16 voice note (real whisperX) and photo (real gemma3 vision) through the API",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 33183,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:46:48.687Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-a54151cffa955493d472",
-          "file": "flows.spec.ts",
-          "line": 218,
-          "column": 1
-        },
-        {
-          "title": "F17 corrupt audio fails gracefully (bot still answers, owner sees why)",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 12374,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:47:21.876Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-1bfc4cb4328b3ce0db4f",
-          "file": "flows.spec.ts",
-          "line": 243,
-          "column": 1
-        },
-        {
-          "title": "F18 concurrency: 5 customers at once are all answered (single generation queue)",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [
-                {
-                  "type": "concurrency",
-                  "description": "5 parallel customers answered in 37.0s"
-                }
-              ],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 36972,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:47:34.257Z",
-                  "annotations": [
-                    {
-                      "type": "concurrency",
-                      "description": "5 parallel customers answered in 37.0s"
-                    }
-                  ],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-16bd803edeaa6b5bc20b",
-          "file": "flows.spec.ts",
-          "line": 255,
-          "column": 1
-        },
-        {
-          "title": "F19 rapid double message from one customer: every message answered, no duplicate replies",
-          "ok": false,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "failed",
-                  "duration": 19937,
-                  "error": {
-                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/60/\u001b[39m\nReceived string:  \u001b[31m\"Olá! Sou o assistente virtual da Pet Care Perdizes. Como posso ajudar você hoje?\"\u001b[39m",
-                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/60/\u001b[39m\nReceived string:  \u001b[31m\"Olá! Sou o assistente virtual da Pet Care Perdizes. Como posso ajudar você hoje?\"\u001b[39m\n    at /Users/khavionminimac/Desktop/kani/e2e/qa/flows.spec.ts:280:44",
-                    "location": {
-                      "file": "/Users/khavionminimac/Desktop/kani/e2e/qa/flows.spec.ts",
-                      "column": 44,
-                      "line": 280
-                    },
-                    "snippet": "  278 |   expect(bot.length).toBeLessThanOrEqual(2);\n  279 |   expect(new Set(bot.map((m) => m.text)).size).toBe(bot.length);\n> 280 |   expect(bot.map((m) => m.text).join(' ')).toMatch(/60/);\n      |                                            ^\n  281 | });\n  282 |\n  283 | test('F20 Ollama down: graceful fallback reply, then handoff; health reports not ok', async () => {"
-                  },
-                  "errors": [
-                    {
-                      "location": {
-                        "file": "/Users/khavionminimac/Desktop/kani/e2e/qa/flows.spec.ts",
-                        "column": 44,
-                        "line": 280
-                      },
-                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/60/\u001b[39m\nReceived string:  \u001b[31m\"Olá! Sou o assistente virtual da Pet Care Perdizes. Como posso ajudar você hoje?\"\u001b[39m\n\n  278 |   expect(bot.length).toBeLessThanOrEqual(2);\n  279 |   expect(new Set(bot.map((m) => m.text)).size).toBe(bot.length);\n> 280 |   expect(bot.map((m) => m.text).join(' ')).toMatch(/60/);\n      |                                            ^\n  281 | });\n  282 |\n  283 | test('F20 Ollama down: graceful fallback reply, then handoff; health reports not ok', async () => {\n    at /Users/khavionminimac/Desktop/kani/e2e/qa/flows.spec.ts:280:44"
-                    }
-                  ],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:48:11.236Z",
-                  "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "error-context",
-                      "contentType": "text/markdown",
-                      "path": "/Users/khavionminimac/Desktop/kani/reports/tmp/qa-results/flows-F19-rapid-double-mes-0ad64-swered-no-duplicate-replies/error-context.md"
-                    },
-                    {
-                      "name": "trace",
-                      "contentType": "application/zip",
-                      "path": "/Users/khavionminimac/Desktop/kani/reports/tmp/qa-results/flows-F19-rapid-double-mes-0ad64-swered-no-duplicate-replies/trace.zip"
-                    }
-                  ],
-                  "errorLocation": {
-                    "file": "/Users/khavionminimac/Desktop/kani/e2e/qa/flows.spec.ts",
-                    "column": 44,
-                    "line": 280
-                  }
-                }
-              ],
-              "status": "unexpected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-d4ab35e52dd5516214de",
-          "file": "flows.spec.ts",
-          "line": 264,
-          "column": 1
-        },
-        {
-          "title": "F20 Ollama down: graceful fallback reply, then handoff; health reports not ok",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 399,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:48:31.417Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-39b8006fc65effbf8c3a",
-          "file": "flows.spec.ts",
-          "line": 283,
-          "column": 1
-        },
-        {
-          "title": "F21 reminders via time travel: confirm_24h/2h fire with CTA, \"1\" confirms, \"2\" opens reschedule",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 46170,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:48:31.826Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-fab122ac2640c026bbf8",
-          "file": "flows.spec.ts",
-          "line": 310,
-          "column": 1
-        },
-        {
-          "title": "F22 owner marks done -> review request with link; no-show -> guilt-free recovery",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 40865,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:49:18.003Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-004c94c414f53121e90e",
-          "file": "flows.spec.ts",
-          "line": 341,
-          "column": 1
-        },
-        {
-          "title": "F23 reactivation after the pack window respects opt-out",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 8733,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:49:58.877Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-65ace4f222468af4a954",
-          "file": "flows.spec.ts",
-          "line": 360,
-          "column": 1
-        },
-        {
-          "title": "F24 admin metrics match the database",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 8,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:50:07.616Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-f8b8c81d55914bb346c3",
-          "file": "flows.spec.ts",
-          "line": 385,
-          "column": 1
-        },
-        {
-          "title": "F25 global invariants over every assistant message produced in this QA run",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 300000,
-              "annotations": [
-                {
-                  "type": "invariants",
-                  "description": "59 assistant messages checked"
-                }
-              ],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 23,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-09-29T15:50:07.632Z",
-                  "annotations": [
-                    {
-                      "type": "invariants",
-                      "description": "59 assistant messages checked"
-                    }
-                  ],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "86d6a544053f1eb9f224-03c950f93b77f3a0a527",
-          "file": "flows.spec.ts",
-          "line": 403,
-          "column": 1
-        }
-      ]
-    },
-    {
       "title": "ui.spec.ts",
       "file": "ui.spec.ts",
       "column": 0,
@@ -1020,15 +98,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4585,
+                  "duration": 4473,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:50:07.666Z",
+                  "startTime": "2026-09-29T16:03:56.172Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1054,15 +132,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 168,
+                  "duration": 180,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:50:12.415Z",
+                  "startTime": "2026-09-29T16:04:00.726Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1088,15 +166,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4581,
+                  "duration": 4564,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:50:12.589Z",
+                  "startTime": "2026-09-29T16:04:00.915Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1122,15 +200,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 18216,
+                  "duration": 18750,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:50:17.173Z",
+                  "startTime": "2026-09-29T16:04:05.483Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1156,15 +234,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 16892,
+                  "duration": 17369,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:50:35.394Z",
+                  "startTime": "2026-09-29T16:04:24.238Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1190,15 +268,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 19268,
+                  "duration": 14699,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:50:52.292Z",
+                  "startTime": "2026-09-29T16:04:41.616Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1224,15 +302,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 5093,
+                  "duration": 4585,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:51:11.566Z",
+                  "startTime": "2026-09-29T16:04:56.321Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1258,15 +336,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 10370,
+                  "duration": 10335,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:51:16.663Z",
+                  "startTime": "2026-09-29T16:05:00.911Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1292,15 +370,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 198,
+                  "duration": 202,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:51:27.038Z",
+                  "startTime": "2026-09-29T16:05:11.251Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1326,15 +404,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4561,
+                  "duration": 4559,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:51:27.242Z",
+                  "startTime": "2026-09-29T16:05:11.459Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1360,15 +438,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 21522,
+                  "duration": 20995,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:51:31.808Z",
+                  "startTime": "2026-09-29T16:05:16.021Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1394,15 +472,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 476,
+                  "duration": 542,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:51:53.335Z",
+                  "startTime": "2026-09-29T16:05:37.022Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1428,7 +506,7 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
                   "duration": 4437,
@@ -1436,7 +514,7 @@
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:51:53.817Z",
+                  "startTime": "2026-09-29T16:05:37.570Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1462,15 +540,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 187,
+                  "duration": 189,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:51:58.260Z",
+                  "startTime": "2026-09-29T16:05:42.012Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1496,15 +574,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 5064,
+                  "duration": 5132,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:51:58.452Z",
+                  "startTime": "2026-09-29T16:05:42.206Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -1519,7 +597,7 @@
         },
         {
           "title": "U16 phone layout (375px): list and conversation one at a time, back button, owner view too",
-          "ok": false,
+          "ok": true,
           "tags": [],
           "tests": [
             {
@@ -1530,55 +608,20 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 0,
                   "parallelIndex": 0,
-                  "status": "failed",
-                  "duration": 30169,
-                  "error": {
-                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('composer-input')\nExpected: visible\nReceived: hidden\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('composer-input') with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('composer-input')\u001b[22m\n\u001b[2m    63 × locator resolved to <textarea rows=\"1\" data-testid=\"composer-input\" aria-label=\"Digite uma mensagem\" placeholder=\"Digite uma mensagem\"></textarea>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
-                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('composer-input')\nExpected: visible\nReceived: hidden\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('composer-input') with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('composer-input')\u001b[22m\n\u001b[2m    63 × locator resolved to <textarea rows=\"1\" data-testid=\"composer-input\" aria-label=\"Digite uma mensagem\" placeholder=\"Digite uma mensagem\"></textarea>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at /Users/khavionminimac/Desktop/kani/e2e/qa/ui.spec.ts:287:52",
-                    "location": {
-                      "file": "/Users/khavionminimac/Desktop/kani/e2e/qa/ui.spec.ts",
-                      "column": 52,
-                      "line": 287
-                    },
-                    "snippet": "  285 |   await page.getByTestId(`chat-item-${T.pet}`).click();\n  286 |   await expect(page.getByTestId('chat-list')).toBeHidden();\n> 287 |   await expect(page.getByTestId('composer-input')).toBeVisible();\n      |                                                    ^\n  288 |   const box = await page.getByTestId('composer-input').boundingBox();\n  289 |   expect(box!.width).toBeGreaterThan(150);\n  290 |   await sendText(page, 'oi, quanto ta o banho porte pequeno?');"
-                  },
-                  "errors": [
-                    {
-                      "location": {
-                        "file": "/Users/khavionminimac/Desktop/kani/e2e/qa/ui.spec.ts",
-                        "column": 52,
-                        "line": 287
-                      },
-                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('composer-input')\nExpected: visible\nReceived: hidden\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('composer-input') with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('composer-input')\u001b[22m\n\u001b[2m    63 × locator resolved to <textarea rows=\"1\" data-testid=\"composer-input\" aria-label=\"Digite uma mensagem\" placeholder=\"Digite uma mensagem\"></textarea>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  285 |   await page.getByTestId(`chat-item-${T.pet}`).click();\n  286 |   await expect(page.getByTestId('chat-list')).toBeHidden();\n> 287 |   await expect(page.getByTestId('composer-input')).toBeVisible();\n      |                                                    ^\n  288 |   const box = await page.getByTestId('composer-input').boundingBox();\n  289 |   expect(box!.width).toBeGreaterThan(150);\n  290 |   await sendText(page, 'oi, quanto ta o banho porte pequeno?');\n    at /Users/khavionminimac/Desktop/kani/e2e/qa/ui.spec.ts:287:52"
-                    }
-                  ],
+                  "status": "passed",
+                  "duration": 5196,
+                  "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-29T15:52:03.521Z",
+                  "startTime": "2026-09-29T16:05:47.342Z",
                   "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "error-context",
-                      "contentType": "text/markdown",
-                      "path": "/Users/khavionminimac/Desktop/kani/reports/tmp/qa-results/ui-U16-phone-layout-375px--7b1b9--back-button-owner-view-too/error-context.md"
-                    },
-                    {
-                      "name": "trace",
-                      "contentType": "application/zip",
-                      "path": "/Users/khavionminimac/Desktop/kani/reports/tmp/qa-results/ui-U16-phone-layout-375px--7b1b9--back-button-owner-view-too/trace.zip"
-                    }
-                  ],
-                  "errorLocation": {
-                    "file": "/Users/khavionminimac/Desktop/kani/e2e/qa/ui.spec.ts",
-                    "column": 52,
-                    "line": 287
-                  }
+                  "attachments": []
                 }
               ],
-              "status": "unexpected"
+              "status": "expected"
             }
           ],
           "id": "d425444c687fa36b5882-0ba6ee52b68091b1b871",
@@ -1591,11 +634,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-29T15:44:39.595Z",
-    "duration": 474172.33,
-    "expected": 39,
+    "startTime": "2026-09-29T16:03:55.614Z",
+    "duration": 116992.341,
+    "expected": 16,
     "skipped": 0,
-    "unexpected": 2,
+    "unexpected": 0,
     "flaky": 0
   }
 }

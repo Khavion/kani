@@ -58,7 +58,8 @@ export function Composer({ onSend, onPickImage }: { onSend: (p: OutgoingPayload)
     const ta = taRef.current;
     if (!ta) return;
     ta.style.height = 'auto';
-    ta.style.height = `${Math.min(ta.scrollHeight, MAX_LINES * LINE_H + 18)}px`;
+    // A hidden textarea (e.g. mounted behind the phone list view) measures 0: keep 'auto' instead of pinning 0px.
+    if (ta.scrollHeight > 0) ta.style.height = `${Math.min(ta.scrollHeight, MAX_LINES * LINE_H + 18)}px`;
   }, [text, recording]);
 
   useEffect(() => {

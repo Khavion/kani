@@ -7,7 +7,7 @@ MODEL ?= $(or $(shell grep -E '^MODEL=' .env 2>/dev/null | cut -d= -f2-),qwen3:8
 ALT_MODEL ?= $(or $(shell grep -E '^ALT_MODEL=' .env 2>/dev/null | cut -d= -f2-),gemma3:12b)
 ARGS ?=
 
-.PHONY: help start dev seed test typecheck lint run-scenarios run-scenarios-ab compare pull-alt e2e fixtures check share
+.PHONY: help start dev seed test typecheck lint run-scenarios run-scenarios-ab compare pull-alt e2e fixtures check share qa
 
 help:
 	@echo "make start             one-command startup (same as ./start.sh)"
@@ -21,6 +21,7 @@ help:
 	@echo "make pull-alt          ollama pull the alternative model ($(ALT_MODEL))"
 	@echo "make e2e               Playwright E2E + screenshots (needs Ollama + models)"
 	@echo "make fixtures          regenerate voice-note and image fixtures"
+	@echo "make qa                full QA pass: 25 API flows + 16 UI tests with real models (~10 min)"
 	@echo "make share             public https link to a running Kani (Cloudflare quick tunnel, no account)"
 
 start:
@@ -59,6 +60,9 @@ pull-alt:
 
 e2e:
 	npx playwright test -c e2e/playwright.config.ts
+
+qa:
+	npx playwright test -c e2e/qa/qa.config.ts
 
 fixtures:
 	node scripts/make-fixtures.ts
