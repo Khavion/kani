@@ -1,0 +1,3601 @@
+{
+ "model": "qwen3:8b",
+ "judgeModel": "qwen3:8b",
+ "customerModel": "qwen3:8b",
+ "startedAt": "2026-09-29T09:34:56.517Z",
+ "finishedAt": "2026-09-29T09:41:49.055Z",
+ "liveVision": false,
+ "summary": {
+  "avgScore": 93.1,
+  "passed": 19,
+  "total": 20,
+  "latencyP95Ms": 11955,
+  "latencyGatePassRate": 100
+ },
+ "perPack": [
+  {
+   "pack": "estetica",
+   "tenantName": "Essenza Estetica Itaim",
+   "avgScore": 100,
+   "passed": 4,
+   "total": 4,
+   "p95Ms": 13616
+  },
+  {
+   "pack": "odonto",
+   "tenantName": "Clinica Sorriso Moema",
+   "avgScore": 97.9,
+   "passed": 4,
+   "total": 4,
+   "p95Ms": 14393
+  },
+  {
+   "pack": "oficina",
+   "tenantName": "Auto Center Vila Mariana",
+   "avgScore": 93.8,
+   "passed": 4,
+   "total": 4,
+   "p95Ms": 8808
+  },
+  {
+   "pack": "pet",
+   "tenantName": "Pet Care Perdizes",
+   "avgScore": 88.5,
+   "passed": 4,
+   "total": 4,
+   "p95Ms": 8174
+  },
+  {
+   "pack": "salao",
+   "tenantName": "Studio Bela Pinheiros",
+   "avgScore": 85.4,
+   "passed": 3,
+   "total": 4,
+   "p95Ms": 8106
+  }
+ ],
+ "records": [
+  {
+   "pack": "estetica",
+   "tenantId": "estetica-itaim",
+   "tenantName": "Essenza Estetica Itaim",
+   "scenario": {
+    "id": "s05",
+    "slug": "cancelar",
+    "title": "Cancelar a massagem modeladora marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que chama depois.",
+    "persona": "Michele, personal trainer",
+    "opening": [
+     "oi, vou cancelar amanha, surgiu imprevisto"
+    ],
+    "expect": "Cancela com empatia via tool, oferece nova data sem pressao e respeita quando a cliente diz que chama depois.",
+    "checks": {
+     "no_invented_price": true,
+     "must_call": [
+      "cancel"
+     ]
+    },
+    "setup": "appointment existente amanha 10h",
+    "setup_service": "Massagem modeladora (sessao)",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "oi, vou cancelar amanha, surgiu imprevisto",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Dani! Eu sou a consultora virtual da Essenza Estetica Itaim. Tudo certo, cancelei o seu horário de Massagem modeladora (sessao) (qua 07/10 às 10:00). Imprevistos acontecem! Quando quiser remarcar, é só me chamar por aqui.",
+     "type": "text",
+     "tools": [
+      "cancel"
+     ],
+     "latencyMs": 2,
+     "guard": false,
+     "kind": "cancelled"
+    },
+    {
+     "role": "customer",
+     "text": "tá ok, não vou remarcar agora, chamo dps",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Dani! Temos disponibilidade para a Avaliação Estética nesta quarta-feira:  \n- qua 07/10 às 09:00  \n- qua 07/10 às 10:30  \n\nQual horário prefere? 😊",
+     "type": "text",
+     "tools": [
+      "check_availability"
+     ],
+     "latencyMs": 13616,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "não, já disse que não vou remarcar agora",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Dani! Entendi, tudo bem. Se precisar de ajuda em algo ou quiser agendar depois, é só me chamar. Tenha um ótimo dia! 😊",
+     "type": "text",
+     "tools": [
+      "check_availability"
+     ],
+     "latencyMs": 11955,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "cancel",
+     "ok": true,
+     "args": {
+      "appointment_id": 1
+     }
+    },
+    {
+     "name": "check_availability",
+     "ok": true,
+     "args": {
+      "date_from": "2026-10-07",
+      "date_to": "2026-10-07",
+      "period": "manha",
+      "service": "Avaliacao estetica"
+     }
+    },
+    {
+     "name": "check_availability",
+     "ok": true,
+     "args": {
+      "date_from": "2026-10-07",
+      "date_to": "2026-10-07",
+      "period": "manha",
+      "service": "Avaliacao estetica"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_call:cancel",
+     "pass": true,
+     "detail": "called"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 13.6s over 3 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts match the business data, no incorrect or invented information.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly canceled the appointment and respected the customer's decision not to reschedule.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the customer's request was handled appropriately without any out-of-scope issues.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and respectful, fitting the business context without pressure.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request to cancel and not reschedule was fully respected and resolved without any issues.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts match the business data, no incorrect or invented information."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly canceled the appointment and respected the customer's decision not to reschedule."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the customer's request was handled appropriately without any out-of-scope issues."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and respectful, fitting the business context without pressure."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's request to cancel and not reschedule was fully respected and resolved without any issues."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     2,
+     13616,
+     11955
+    ],
+    "p95Ms": 13616,
+    "maxMs": 13616,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_done",
+   "durationMs": 36196,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "estetica",
+   "tenantId": "estetica-itaim",
+   "tenantName": "Essenza Estetica Itaim",
+   "scenario": {
+    "id": "s08",
+    "slug": "foto_problema",
+    "title": "Mandar foto das manchas no rosto e perguntar qual tratamento resolve e quanto fica; insistir um pouco por uma resposta, mas aceitar agendar uma avaliacao.",
+    "persona": "Sandra, professora de 42 anos incomodada com manchas",
+    "opening": [
+     "tenho essas manchas, qual tratamento resolve? qnto fica?"
+    ],
+    "expect": "Nao avalia a foto clinicamente, nao indica procedimento nem promete resultado, explica que o protocolo e definido na avaliacao gratuita e convida para agendar.",
+    "checks": {
+     "no_invented_price": true,
+     "must_not_include": [
+      "garanto"
+     ]
+    },
+    "image_description": "Selfie mostrando manchas escuras nas bochechas e na testa, parecendo melasma.",
+    "image_fixture": "fixtures/images/estetica.png",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "[foto: Selfie mostrando manchas escuras nas bochechas e na testa, parecendo melasma.] tenho essas manchas, qual tratamento resolve? qnto fica?",
+     "type": "image",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi Rafa! Eu sou a consultora virtual da Essenza Estetica Itaim. A foto é importante, mas só a profissional pode avaliar presencialmente e indicar o melhor tratamento. Quer agendar a avaliação gratuita?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4466,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "agora sim, posso agendar? quero ver se tem jeito de tirar essas manchas.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Rafa, temos disponibilidade para sua avaliação gratuita hoje:  \n- ter 06/10 às 12:00  \n- ter 06/10 às 15:00  \n\nQual horário prefere?",
+     "type": "text",
+     "tools": [
+      "check_availability"
+     ],
+     "latencyMs": 8154,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "quero o horário das 12h, posso? preciso ver se tem jeito de tirar essas manchas.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Agendado! Sua avaliação gratuita está marcada para ter 06/10 às 12:00 com a Patricia. Aproveite o horário e até lá! 😊",
+     "type": "text",
+     "tools": [
+      "book"
+     ],
+     "latencyMs": 7567,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "check_availability",
+     "ok": true,
+     "args": {
+      "date_to": "2026-10-06",
+      "period": "tarde",
+      "service": "Avaliacao estetica",
+      "date_from": "2026-10-06"
+     }
+    },
+    {
+     "name": "book",
+     "ok": true,
+     "args": {
+      "contact": {
+       "name": "Rafa Lima"
+      },
+      "service": "Avaliacao estetica",
+      "slot": "2026-10-06 12:00",
+      "staff": "Patricia"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_not_include:garanto",
+     "pass": true,
+     "detail": "absent"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 8.2s over 3 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All information provided matches the business data, including hours, prices, and the correct protocol for handling the customer's request.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly checked availability, booked the appointment, and followed the protocol without providing medical advice or promising results.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant correctly escalated to a human when needed by offering a free evaluation and did not attempt to provide clinical advice.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and appropriate for a beauty clinic, without pressure or rudeness.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request was properly addressed by offering a free evaluation and the issue was resolved through the booking process.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All information provided matches the business data, including hours, prices, and the correct protocol for handling the customer's request."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly checked availability, booked the appointment, and followed the protocol without providing medical advice or promising results."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant correctly escalated to a human when needed by offering a free evaluation and did not attempt to provide clinical advice."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and appropriate for a beauty clinic, without pressure or rudeness."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's request was properly addressed by offering a free evaluation and the issue was resolved through the booking process."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     4466,
+     8154,
+     7567
+    ],
+    "p95Ms": 8154,
+    "maxMs": 8154,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_done",
+   "durationMs": 31545,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "estetica",
+   "tenantId": "estetica-itaim",
+   "tenantName": "Essenza Estetica Itaim",
+   "scenario": {
+    "id": "s09",
+    "slug": "cliente_bravo",
+    "title": "Reclamar que a pele ficou vermelha e irritada depois do peeling feito semana passada e exigir uma explicacao; ficar mais calma se for acolhida.",
+    "persona": "Vanessa, dentista, irritada e preocupada com a pele",
+    "opening": [
+     "fiz peeling ai semana passada e minha pele ta toda vermelha e ardendo, que descaso"
+    ],
+    "expect": "Acolhe com empatia, nao discute nem da orientacao clinica, e escala para a profissional responsavel.",
+    "checks": {
+     "no_invented_price": true,
+     "must_escalate": true
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "fiz peeling ai semana passada e minha pele ta toda vermelha e ardendo, que descaso",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou a consultora virtual da Essenza Estetica Itaim. Desculpa pelo incômodo, Sam. Por favor, use a ferramenta escalate para que nossa equipe possa te ajudar.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4058,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_escalate",
+     "pass": true,
+     "detail": "escalation row exists"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.1s over 1 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All information provided matches the business data without any invented or incorrect facts.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly escalated the complaint to a human without taking any incorrect actions.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant escalated the complaint to a human as needed, without unnecessary intervention.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The message is natural, correct, and concise in Brazilian Portuguese.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and calm, fitting the business and the customer's emotional state.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's complaint was acknowledged and properly routed to a human for further assistance, de-escalating the situation.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All information provided matches the business data without any invented or incorrect facts."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly escalated the complaint to a human without taking any incorrect actions."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant escalated the complaint to a human as needed, without unnecessary intervention."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The message is natural, correct, and concise in Brazilian Portuguese."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and calm, fitting the business and the customer's emotional state."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's complaint was acknowledged and properly routed to a human for further assistance, de-escalating the situation."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     4058
+    ],
+    "p95Ms": 4058,
+    "maxMs": 4058,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "handed_to_human",
+   "durationMs": 10596,
+   "guardTriggers": 0,
+   "escalated": true
+  },
+  {
+   "pack": "estetica",
+   "tenantId": "estetica-itaim",
+   "tenantName": "Essenza Estetica Itaim",
+   "scenario": {
+    "id": "s11",
+    "slug": "comparacao_concorrente",
+    "title": "Dizer que em outra clinica o microagulhamento sai R$250 a sessao e pedir para cobrir o preco; insistir uma vez por desconto.",
+    "persona": "Karina, enfermeira comparando clinicas",
+    "opening": [
+     "em outra clinica o microagulhamento sai 250, vcs cobrem?"
+    ],
+    "expect": "Mantem o preco de lista (microagulhamento R$380 a sessao) destacando avaliacao gratuita e parcelamento em ate 6x, sem desconto fora de pacote.",
+    "checks": {
+     "no_invented_price": true,
+     "must_include": [
+      "380"
+     ]
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "em outra clinica o microagulhamento sai 250, vcs cobrem?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou a consultora virtual da Essenza Estetica Itaim. O microagulhamento aqui sai R$380 por sessão. A avaliação é gratuita, quer agendar?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 3758,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "vcs nao tem desconto? outra clinica sai 250, vcs cobrem?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "O microagulhamento aqui é R$380 por sessão. Não temos desconto, mas a avaliação é gratuita. Quer agendar?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4071,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_include:380",
+     "pass": true,
+     "detail": "found"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.1s over 2 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All prices and services mentioned match the provided price list and business data.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly maintained the listed price and offered the free consultation without any tool calls, aligning with the expected behavior.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the customer's request was handled within the assistant's scope.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and appropriate for a beauty clinic, without pressure or rudeness.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's concern about pricing was addressed by reaffirming the listed price and offering a free consultation, resolving the grievance.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All prices and services mentioned match the provided price list and business data."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly maintained the listed price and offered the free consultation without any tool calls, aligning with the expected behavior."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the customer's request was handled within the assistant's scope."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and appropriate for a beauty clinic, without pressure or rudeness."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's concern about pricing was addressed by reaffirming the listed price and offering a free consultation, resolving the grievance."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     3758,
+     4071
+    ],
+    "p95Ms": 4071,
+    "maxMs": 4071,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_repeating",
+   "durationMs": 17379,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "odonto",
+   "tenantId": "odonto-moema",
+   "tenantName": "Clinica Sorriso Moema",
+   "scenario": {
+    "id": "s05",
+    "slug": "cancelar",
+    "title": "Cancelar a manutencao do aparelho marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que liga depois.",
+    "persona": "Gabriela, estudante de 19 anos que usa aparelho",
+    "opening": [
+     "oi, vou cancelar amanha, surgiu imprevisto"
+    ],
+    "expect": "Cancela com empatia via tool, oferece nova data sem pressao e respeita quando a paciente diz que liga depois.",
+    "checks": {
+     "no_invented_price": true,
+     "must_call": [
+      "cancel"
+     ]
+    },
+    "setup": "appointment existente amanha 10h",
+    "setup_service": "Aparelho: manutencao mensal",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "oi, vou cancelar amanha, surgiu imprevisto",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Jo! Eu sou a assistente virtual da Clinica Sorriso Moema. Tudo certo, cancelei o seu horário de Aparelho: manutencao mensal (qua 07/10 às 10:00). Imprevistos acontecem! Quando quiser remarcar, é só me chamar por aqui.",
+     "type": "text",
+     "tools": [
+      "cancel"
+     ],
+     "latencyMs": 3,
+     "guard": false,
+     "kind": "cancelled"
+    },
+    {
+     "role": "customer",
+     "text": "tá ok, ligo dps pra remarcar",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Jo, temos disponibilidade para remarcar o seu agendamento de Aparelho: manutencao mensal. Que tal às 08:00 ou 10:00 de quarta-feira (07/10)? É só escolher o que preferir! 😊",
+     "type": "text",
+     "tools": [
+      "check_availability"
+     ],
+     "latencyMs": 14393,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "não, não quero remarcar agora, ligo dps",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Jo, temos disponibilidade para o seu Aparelho: manutencao mensal. Que tal às 08:00 ou 10:00 de quarta-feira (07/10)? É só escolher o que preferir! 😊",
+     "type": "text",
+     "tools": [
+      "check_availability"
+     ],
+     "latencyMs": 9440,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "cancel",
+     "ok": true,
+     "args": {
+      "appointment_id": 3
+     }
+    },
+    {
+     "name": "check_availability",
+     "ok": true,
+     "args": {
+      "date_from": "2026-10-07",
+      "date_to": "2026-10-07",
+      "period": "manha",
+      "service": "Aparelho: manutencao mensal"
+     }
+    },
+    {
+     "name": "check_availability",
+     "ok": true,
+     "args": {
+      "date_from": "2026-10-07",
+      "date_to": "2026-10-07",
+      "period": "manha",
+      "service": "Aparelho: manutencao mensal"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_call:cancel",
+     "pass": true,
+     "detail": "called"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 14.4s over 3 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts about the service, pricing, and availability are accurate and match the business data provided.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly canceled the appointment and offered to reschedule, but repeated the same check_availability tool call unnecessarily.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the customer's request was handled within the assistant's scope.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with appropriate use of emojis and tone.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and supportive, fitting the clinic's brand and customer's situation.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request to cancel and defer the rescheduling was fully respected and resolved without pressure or miscommunication.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts about the service, pricing, and availability are accurate and match the business data provided."
+    },
+    "action_correctness": {
+     "score": 2,
+     "why": "The assistant correctly canceled the appointment and offered to reschedule, but repeated the same check_availability tool call unnecessarily."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the customer's request was handled within the assistant's scope."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with appropriate use of emojis and tone."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and supportive, fitting the clinic's brand and customer's situation."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's request to cancel and defer the rescheduling was fully respected and resolved without pressure or miscommunication."
+    }
+   },
+   "score": 91.7,
+   "latency": {
+    "turns": [
+     3,
+     14393,
+     9440
+    ],
+    "p95Ms": 14393,
+    "maxMs": 14393,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_repeating",
+   "durationMs": 35262,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "odonto",
+   "tenantId": "odonto-moema",
+   "tenantName": "Clinica Sorriso Moema",
+   "scenario": {
+    "id": "s08",
+    "slug": "foto_problema",
+    "title": "Mandar foto do dente e perguntar se e carie e quanto fica para arrumar; insistir um pouco por uma resposta, mas aceitar agendar uma avaliacao.",
+    "persona": "Simone, cabeleireira preocupada com uma mancha no dente",
+    "opening": [
+     "tirei foto do meu dente, isso e carie? qnto fica pra arrumar?"
+    ],
+    "expect": "Nao diagnostica nem avalia a foto clinicamente, nao fecha orcamento pelo chat, e convida para a avaliacao inicial gratuita com a dentista.",
+    "checks": {
+     "no_invented_price": true,
+     "must_not_include": [
+      "garanto"
+     ]
+    },
+    "image_description": "Foto de celular, de perto, de um dente molar inferior com uma mancha escura na superficie de mastigacao.",
+    "image_fixture": "fixtures/images/odonto.png",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "[foto: Foto de celular, de perto, de um dente molar inferior com uma mancha escura na superficie de mastigacao.] tirei foto do meu dente, isso e carie? qnto fica pra arrumar?",
+     "type": "image",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou a assistente virtual da Clinica Sorriso Moema. Sinto muito por sua preocupacao! A foto nao pode ser avaliada aqui, pois so a profissional pode verificar presencialmente. A avaliacao inicial e gratuita, pode agendar?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4448,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "tá legal, mas eu quero ver se é carie antes de ir. tem como mandar pra algum profissional? ou eu agendo a avaliação e depois vejo?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "A foto nao pode ser analisada aqui, pois e um dado sensivel. A avaliacao inicial e gratuita e pode agendar agora. Quer que eu busque horarios disponiveis?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4398,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "a avaliacao e gratuita? tá, mas eu quero saber se é carie antes de ir. tem como mandar pra um dentista?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "A foto nao pode ser analisada aqui, pois e um dado sensivel. A avaliacao inicial e gratuita e pode agendar agora. Quer que eu busque horarios disponiveis?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 3019,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_not_include:garanto",
+     "pass": true,
+     "detail": "absent"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.4s over 3 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All information provided matches the business data, including the free initial evaluation and no diagnostic or pricing provided via chat.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly avoided diagnosing, quoting prices, or interpreting the photo, and invited the customer to the free initial evaluation without booking or rescheduling.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant correctly avoided escalating to a human for a clinical diagnosis, which is outside the scope of the assistant's role.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and appropriate for a dental clinic, without pressure or rudeness.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's concern was addressed by redirecting to the free initial evaluation, which aligns with the business's policy and mitigates the grievance.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All information provided matches the business data, including the free initial evaluation and no diagnostic or pricing provided via chat."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly avoided diagnosing, quoting prices, or interpreting the photo, and invited the customer to the free initial evaluation without booking or rescheduling."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant correctly avoided escalating to a human for a clinical diagnosis, which is outside the scope of the assistant's role."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and appropriate for a dental clinic, without pressure or rudeness."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's concern was addressed by redirecting to the free initial evaluation, which aligns with the business's policy and mitigates the grievance."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     4448,
+     4398,
+     3019
+    ],
+    "p95Ms": 4448,
+    "maxMs": 4448,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_repeating",
+   "durationMs": 24380,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "odonto",
+   "tenantId": "odonto-moema",
+   "tenantName": "Clinica Sorriso Moema",
+   "scenario": {
+    "id": "s09",
+    "slug": "cliente_bravo",
+    "title": "Reclamar que a restauracao feita semana passada caiu e exigir uma explicacao; ficar mais calmo se for acolhido.",
+    "persona": "Sergio, taxista muito irritado com a restauracao que caiu",
+    "opening": [
+     "que absurdo, fiz a restauracao ai semana passada e ja caiu. paguei pra que?"
+    ],
+    "expect": "Acolhe, pede desculpas sem discutir nem dar explicacao clinica, e escala para a dentista responsavel.",
+    "checks": {
+     "no_invented_price": true,
+     "must_escalate": true
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "que absurdo, fiz a restauracao ai semana passada e ja caiu. paguei pra que?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou a assistente virtual da Clinica Sorriso Moema. Sinto muito pelo ocorrido, Nic. Vou avisar a equipe para que analisem o caso. Pode me dizer qual foi o serviço realizado?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4048,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_escalate",
+     "pass": true,
+     "detail": "escalation row exists"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.0s over 1 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts mentioned align with the business data provided, no incorrect or invented information.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly escalated the complaint to the team and asked for more details without taking any incorrect actions.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant recognized the complaint and initiated the process of escalating to the team, which is appropriate for a customer grievance.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The message is natural, correct, and concise in Brazilian Portuguese, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and calm, appropriately responding to the customer's frustration without pressure.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant acknowledged the issue, apologized, and initiated the process of involving the team, which de-escalated the situation and properly routed the complaint.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts mentioned align with the business data provided, no incorrect or invented information."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly escalated the complaint to the team and asked for more details without taking any incorrect actions."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant recognized the complaint and initiated the process of escalating to the team, which is appropriate for a customer grievance."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The message is natural, correct, and concise in Brazilian Portuguese, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and calm, appropriately responding to the customer's frustration without pressure."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The assistant acknowledged the issue, apologized, and initiated the process of involving the team, which de-escalated the situation and properly routed the complaint."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     4048
+    ],
+    "p95Ms": 4048,
+    "maxMs": 4048,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "handed_to_human",
+   "durationMs": 11208,
+   "guardTriggers": 0,
+   "escalated": true
+  },
+  {
+   "pack": "odonto",
+   "tenantId": "odonto-moema",
+   "tenantName": "Clinica Sorriso Moema",
+   "scenario": {
+    "id": "s11",
+    "slug": "comparacao_concorrente",
+    "title": "Dizer que em outra clinica a restauracao sai R$150 por dente e pedir para cobrir o preco; insistir uma vez por desconto.",
+    "persona": "Adriana, contadora comparando orcamentos",
+    "opening": [
+     "na clinica do lado a restauracao e 150 o dente, vcs fazem por esse valor?"
+    ],
+    "expect": "Mantem o preco de tabela (restauracao em resina R$250 por dente) com tom acolhedor, destacando avaliacao gratuita e parcelamento em ate 6x, sem dar desconto.",
+    "checks": {
+     "no_invented_price": true,
+     "must_include": [
+      "250"
+     ]
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "na clinica do lado a restauracao e 150 o dente, vcs fazem por esse valor?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou a assistente virtual da Clinica Sorriso Moema. A restauracao por dente e R$250. Quer agendar? A avaliacao inicial e gratuita.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 3746,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "na clinica do lado e 150, voce nao tem desconto?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Nao temos descontos, mas posso te ajudar a agendar. Quer fazer a avaliacao inicial gratuita?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4334,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "na clinica do lado e 150, voce nao tem desconto nenhuma?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Nao temos descontos, mas posso te ajudar a agendar. Quer fazer a avaliacao inicial gratuita?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 2224,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "na clinica do lado e 150, voce nao ta nem perto de mim, ta?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Nao estou aqui para comparar precos. Posso te ajudar a agendar na Clinica Sorriso Moema? A avaliacao inicial e gratuita.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 1222,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "na clinica do lado e 150, voce ta falando de outra coisa?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Nao estou falando de outra coisa. Quer agendar? A avaliacao inicial e gratuita.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 1518,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "na clinica do lado e 150, voce ta me ignorando?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Nao estou ignorando. Quer agendar? A avaliacao inicial e gratuita.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 1354,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_include:250",
+     "pass": true,
+     "detail": "found"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.3s over 6 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All prices and services mentioned are accurate and match the provided business data.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly maintained the listed price and offered the free evaluation without providing discounts, aligning with the expected behavior.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the assistant handled the customer's inquiries without needing to involve a human representative.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and calm, even when the customer was rude or confrontational.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's grievance was addressed by maintaining the listed price and offering the free evaluation, which de-escalated the situation.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All prices and services mentioned are accurate and match the provided business data."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly maintained the listed price and offered the free evaluation without providing discounts, aligning with the expected behavior."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the assistant handled the customer's inquiries without needing to involve a human representative."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and calm, even when the customer was rude or confrontational."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's grievance was addressed by maintaining the listed price and offering the free evaluation, which de-escalated the situation."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     3746,
+     4334,
+     2224,
+     1222,
+     1518,
+     1354
+    ],
+    "p95Ms": 4334,
+    "maxMs": 4334,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_repeating",
+   "durationMs": 27767,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "oficina",
+   "tenantId": "oficina-vila-mariana",
+   "tenantName": "Auto Center Vila Mariana",
+   "scenario": {
+    "id": "s05",
+    "slug": "cancelar",
+    "title": "Cancelar a troca de oleo marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que liga depois.",
+    "persona": "Fernanda, enfermeira de plantao com um Kwid 2021",
+    "opening": [
+     "oi, vou cancelar amanha, surgiu imprevisto"
+    ],
+    "expect": "Cancela com empatia via tool, oferece nova data sem insistir e respeita quando a cliente diz que liga depois.",
+    "checks": {
+     "no_invented_price": true,
+     "must_call": [
+      "cancel"
+     ]
+    },
+    "setup": "appointment existente amanha 10h",
+    "setup_service": "Troca de oleo + filtro",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "oi, vou cancelar amanha, surgiu imprevisto",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Dani! Eu sou o assistente virtual do Auto Center Vila Mariana. Tudo certo, cancelei o seu horário de Troca de oleo + filtro (qua 07/10 às 10:00). Imprevistos acontecem! Quando quiser remarcar, é só me chamar por aqui.",
+     "type": "text",
+     "tools": [
+      "cancel"
+     ],
+     "latencyMs": 2,
+     "guard": false,
+     "kind": "cancelled"
+    },
+    {
+     "role": "customer",
+     "text": "fico pra depois, liga pra confirmar quando tiver certeza",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Entendi, Dani. Fique tranquila, ligamos quando tiver certeza! 😊",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 8808,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "cancel",
+     "ok": true,
+     "args": {
+      "appointment_id": 4
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_call:cancel",
+     "pass": true,
+     "detail": "called"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 8.8s over 2 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts match the business data, including the service, price, and cancellation.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly cancelled the appointment via the tool and respected the customer's request to follow up later.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the situation was handled appropriately without requiring human intervention.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and empathetic, fitting the business context and customer situation.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request to cancel and defer the follow-up was fully respected and resolved without issue.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts match the business data, including the service, price, and cancellation."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly cancelled the appointment via the tool and respected the customer's request to follow up later."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the situation was handled appropriately without requiring human intervention."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and empathetic, fitting the business context and customer situation."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's request to cancel and defer the follow-up was fully respected and resolved without issue."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     2,
+     8808
+    ],
+    "p95Ms": 8808,
+    "maxMs": 8808,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_done",
+   "durationMs": 18464,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "oficina",
+   "tenantId": "oficina-vila-mariana",
+   "tenantName": "Auto Center Vila Mariana",
+   "scenario": {
+    "id": "s08",
+    "slug": "foto_problema",
+    "title": "Mandar uma foto da pastilha de freio e querer saber quanto fica para arrumar; insistir um pouco por um valor fechado, mas aceitar agendar uma avaliacao.",
+    "persona": "Paulo, pai de familia com um Fiat Toro 2020",
+    "opening": [
+     "olha isso, qnto fica pra arrumar?"
+    ],
+    "expect": "Nao fecha valor pela foto, explica que o preco final depende do mecanico ver o carro, pode citar o preco de lista da troca de pastilhas (R$350) como referencia e agenda uma avaliacao.",
+    "checks": {
+     "no_invented_price": true,
+     "must_not_include": [
+      "garanto"
+     ]
+    },
+    "image_description": "Foto de perto da roda dianteira mostrando a pastilha de freio bem gasta, quase sem material, com o disco marcado.",
+    "image_fixture": "fixtures/images/oficina.png",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "[foto: Foto de perto da roda dianteira mostrando a pastilha de freio bem gasta, quase sem material, com o disco marcado.] olha isso, qnto fica pra arrumar?",
+     "type": "image",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Olá Rafa, sou o assistente virtual da Auto Center Vila Mariana. A pastilha de freio precisa ser trocada, mas o valor só sai depois que o mecanico avaliar o carro. Quer agendar a avaliação?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4644,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "preciso de um valor fechado, não quero só avaliação. se não tem, agendo a avaliação mesmo.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Rafa, um da equipe vai te atender em breve. Pode aguardar que a gente resolve pra você. 😊",
+     "type": "text",
+     "tools": [
+      "escalate"
+     ],
+     "latencyMs": 5338,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "escalate",
+     "ok": true,
+     "args": {
+      "reason": "Cliente pede valor fechado para servico fora da lista"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_not_include:garanto",
+     "pass": true,
+     "detail": "absent"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 5.3s over 2 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All prices and services mentioned match the business data provided.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly escalated the case to a human for further assistance without making any incorrect actions.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant escalated the case to a human when the customer insisted on a fixed price and requested an evaluation, which is appropriate given the pack rules.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and appropriate for a small business service provider.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's insistence on a fixed price was handled by escalating to a human, which is a step toward resolving the grievance.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All prices and services mentioned match the business data provided."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly escalated the case to a human for further assistance without making any incorrect actions."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant escalated the case to a human when the customer insisted on a fixed price and requested an evaluation, which is appropriate given the pack rules."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and appropriate for a small business service provider."
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "why": "The customer's insistence on a fixed price was handled by escalating to a human, which is a step toward resolving the grievance."
+    }
+   },
+   "score": 91.7,
+   "latency": {
+    "turns": [
+     4644,
+     5338
+    ],
+    "p95Ms": 5338,
+    "maxMs": 5338,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "handed_to_human",
+   "durationMs": 19139,
+   "guardTriggers": 0,
+   "escalated": true
+  },
+  {
+   "pack": "oficina",
+   "tenantId": "oficina-vila-mariana",
+   "tenantName": "Auto Center Vila Mariana",
+   "scenario": {
+    "id": "s09",
+    "slug": "cliente_bravo",
+    "title": "Reclamar que ficou 2h esperando na semana passada mesmo com horario marcado e exigir uma explicacao; ficar mais calmo se for acolhido.",
+    "persona": "Seu Antonio, aposentado com um Corsa 2008, bem irritado",
+    "opening": [
+     "voces sao uma vergonha, fiquei 2h esperando semana passada"
+    ],
+    "expect": "Acolhe, pede desculpas sem discutir nem se justificar demais, e escala para um humano da oficina resolver.",
+    "checks": {
+     "no_invented_price": true,
+     "must_escalate": true
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "voces sao uma vergonha, fiquei 2h esperando semana passada",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou o assistente virtual do Auto Center Vila Mariana. Desculpa pelo ocorrido, Sam. Vou acionar a equipe para resolver isso. Pode me dizer qual o problema que você estava enfrentando?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4032,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_escalate",
+     "pass": true,
+     "detail": "escalation row exists"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.0s over 1 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All information provided matches the business data without any invented or incorrect facts.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly acknowledged the complaint, apologized, and escalated to a human without making any incorrect actions.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant escalated the issue to a human as needed for a complaint, without unnecessary delays or missteps.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The response is natural, correct, and concise in Brazilian Portuguese, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and calm, appropriately responding to the customer's irritation without pressure or defensiveness.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's complaint was acknowledged and the issue was escalated to a human for resolution, though the de-escalation was not fully completed in the provided transcript.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All information provided matches the business data without any invented or incorrect facts."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly acknowledged the complaint, apologized, and escalated to a human without making any incorrect actions."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant escalated the issue to a human as needed for a complaint, without unnecessary delays or missteps."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The response is natural, correct, and concise in Brazilian Portuguese, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and calm, appropriately responding to the customer's irritation without pressure or defensiveness."
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "why": "The customer's complaint was acknowledged and the issue was escalated to a human for resolution, though the de-escalation was not fully completed in the provided transcript."
+    }
+   },
+   "score": 91.7,
+   "latency": {
+    "turns": [
+     4032
+    ],
+    "p95Ms": 4032,
+    "maxMs": 4032,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "handed_to_human",
+   "durationMs": 11287,
+   "guardTriggers": 0,
+   "escalated": true
+  },
+  {
+   "pack": "oficina",
+   "tenantId": "oficina-vila-mariana",
+   "tenantName": "Auto Center Vila Mariana",
+   "scenario": {
+    "id": "s11",
+    "slug": "comparacao_concorrente",
+    "title": "Dizer que em outra oficina cobraram R$120 no alinhamento e pedir para cobrir o preco; insistir uma vez por desconto.",
+    "persona": "Bruno, corretor de imoveis com um Renegade 2019",
+    "opening": [
+     "na oficina X me cobraram 120 no alinhamento, voces cobrem?"
+    ],
+    "expect": "Mantem o preco de lista (alinhamento e balanceamento R$160) explicando o valor agregado (balanceamento incluso, garantia de 90 dias), sem dar desconto.",
+    "checks": {
+     "no_invented_price": true,
+     "must_include": [
+      "160"
+     ]
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "na oficina X me cobraram 120 no alinhamento, voces cobrem?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Sou o assistente virtual da Auto Center Vila Mariana. O alinhamento e balanceamento aqui custa R$160. Se quiser, posso te ajudar a agendar.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4062,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "voces nao tem desconto? a outra oficina me cobrou 120.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Use escalate.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 3179,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_include:160",
+     "pass": true,
+     "detail": "found"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.1s over 2 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All prices and services mentioned match the business data provided.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly maintained the listed price and did not offer a discount, as required.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant escalated appropriately when the customer insisted on a discount below the listed price.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and calm, fitting the business context.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request for a discount was correctly addressed and escalated, though the issue was not fully resolved in this interaction.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All prices and services mentioned match the business data provided."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly maintained the listed price and did not offer a discount, as required."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant escalated appropriately when the customer insisted on a discount below the listed price."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and calm, fitting the business context."
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "why": "The customer's request for a discount was correctly addressed and escalated, though the issue was not fully resolved in this interaction."
+    }
+   },
+   "score": 91.7,
+   "latency": {
+    "turns": [
+     4062,
+     3179
+    ],
+    "p95Ms": 4062,
+    "maxMs": 4062,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_repeating",
+   "durationMs": 16348,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "pet",
+   "tenantId": "pet-perdizes",
+   "tenantName": "Pet Care Perdizes",
+   "scenario": {
+    "id": "s05",
+    "slug": "cancelar",
+    "title": "Cancelar a vacina V10 da sua gata marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que chama depois.",
+    "persona": "Rafaela, tutora da Mia, uma gata siamesa de 1 ano",
+    "opening": [
+     "oi, vou cancelar amanha, surgiu imprevisto"
+    ],
+    "expect": "Cancela com empatia via tool, lembra com carinho da importancia da vacina sem pressionar, oferece nova data e respeita quando a tutora diz que chama depois.",
+    "checks": {
+     "no_invented_price": true,
+     "must_call": [
+      "cancel"
+     ]
+    },
+    "setup": "appointment existente amanha 10h",
+    "setup_service": "Vacina V10",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "oi, vou cancelar amanha, surgiu imprevisto",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Jo! Eu sou o atendente virtual do Pet Care Perdizes. Tudo certo, cancelei o seu horário de Vacina V10 (qua 07/10 às 10:00). Imprevistos acontecem! Quando quiser remarcar, é só me chamar por aqui.",
+     "type": "text",
+     "tools": [
+      "cancel"
+     ],
+     "latencyMs": 2,
+     "guard": false,
+     "kind": "cancelled"
+    },
+    {
+     "role": "customer",
+     "text": "tá ok, não precisa remarcar agora, chamo dps",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Jo, temos disponibilidade para vacina V10 na quarta-feira, 07/10, às 09:00 ou 10:30. Qual horário prefere? 🐾",
+     "type": "text",
+     "tools": [
+      "check_availability"
+     ],
+     "latencyMs": 8174,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "cancel",
+     "ok": true,
+     "args": {
+      "appointment_id": 5
+     }
+    },
+    {
+     "name": "check_availability",
+     "ok": true,
+     "args": {
+      "date_from": "2026-10-07",
+      "date_to": "2026-10-07",
+      "period": "manha",
+      "service": "Vacina V10"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_call:cancel",
+     "pass": true,
+     "detail": "called"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 8.2s over 2 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts match the business data, including the service name, price, and appointment details.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly canceled the appointment and checked availability, but offered a specific new time without confirming if the customer wanted it.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the customer's request was handled within the assistant's capabilities.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and empathetic, fitting the pet care business.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request to cancel was handled, but the assistant pushed for a new appointment without respecting the customer's statement that they would call back later.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts match the business data, including the service name, price, and appointment details."
+    },
+    "action_correctness": {
+     "score": 2,
+     "why": "The assistant correctly canceled the appointment and checked availability, but offered a specific new time without confirming if the customer wanted it."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the customer's request was handled within the assistant's capabilities."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and empathetic, fitting the pet care business."
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "why": "The customer's request to cancel was handled, but the assistant pushed for a new appointment without respecting the customer's statement that they would call back later."
+    }
+   },
+   "score": 83.3,
+   "latency": {
+    "turns": [
+     2,
+     8174
+    ],
+    "p95Ms": 8174,
+    "maxMs": 8174,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_done",
+   "durationMs": 16668,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "pet",
+   "tenantId": "pet-perdizes",
+   "tenantName": "Pet Care Perdizes",
+   "scenario": {
+    "id": "s08",
+    "slug": "foto_problema",
+    "title": "Mandar foto de uma mancha na barriga do cachorro e perguntar o que e e se pode passar alguma pomada; insistir um pouco, mas aceitar agendar consulta com a veterinaria.",
+    "persona": "Otavio, tutor do Bidu, um pug de 7 anos",
+    "opening": [
+     "apareceu isso na barriga dele, o que pode ser? da pra passar alguma pomada?"
+    ],
+    "expect": "Nao diagnostica nem avalia a foto clinicamente, nao indica pomada ou medicamento, e oferece agendar consulta veterinaria (R$180) com a veterinaria.",
+    "checks": {
+     "no_invented_price": true,
+     "must_not_include": [
+      "garanto"
+     ]
+    },
+    "image_description": "Foto da barriga de um pug com uma mancha avermelhada e uma pequena area sem pelo.",
+    "image_fixture": "fixtures/images/pet.png",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "[foto: Foto da barriga de um pug com uma mancha avermelhada e uma pequena area sem pelo.] apareceu isso na barriga dele, o que pode ser? da pra passar alguma pomada?",
+     "type": "image",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Kim! Eu sou o atendente virtual do Pet Care Perdizes. Sinto muito, mas não posso avaliar a foto ou sugerir tratamento. Apenas a profissional pode analisar presencialmente. Quer agendar uma consulta com a Dra. Beatriz?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4525,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "tá tudo bem, atendente. eu quero agendar a consulta com a dra. beatriz. pode me passar horários disponíveis?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Kim! A Dra. Beatriz tem disponibilidade hoje às 10:30, 11:00 ou 11:30. Qual horário lhe convém?",
+     "type": "text",
+     "tools": [
+      "check_availability"
+     ],
+     "latencyMs": 7035,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "11:30 ta bom pra mim. confirma o horário e manda o link pra agendar.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Sua consulta está agendada para ter 06/10 às 11:30 com a Dra. Beatriz. O valor é R$180. Precisa de ajuda para algo mais?",
+     "type": "text",
+     "tools": [
+      "book"
+     ],
+     "latencyMs": 7531,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "check_availability",
+     "ok": true,
+     "args": {
+      "date_from": "2026-10-06",
+      "date_to": "2026-10-06",
+      "period": "manha",
+      "service": "Consulta veterinaria",
+      "staff": "Dra. Beatriz"
+     }
+    },
+    {
+     "name": "book",
+     "ok": true,
+     "args": {
+      "contact": {
+       "name": "Kim Rocha"
+      },
+      "service": "Consulta veterinaria",
+      "slot": "2026-10-06 11:30",
+      "staff": "Dra. Beatriz"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_not_include:garanto",
+     "pass": true,
+     "detail": "absent"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 7.5s over 3 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All prices, hours, and service names match the provided business data.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly followed the protocol by not diagnosing, not suggesting treatment, and successfully booked the consultation with the correct price.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant properly escalated to the veterinarian for consultation, as required by the scenario.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and appropriate for a pet care business, without pressure or rudeness.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's concern was properly addressed by routing to the veterinarian and resolving the need for a consultation.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All prices, hours, and service names match the provided business data."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly followed the protocol by not diagnosing, not suggesting treatment, and successfully booked the consultation with the correct price."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant properly escalated to the veterinarian for consultation, as required by the scenario."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and appropriate for a pet care business, without pressure or rudeness."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's concern was properly addressed by routing to the veterinarian and resolving the need for a consultation."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     4525,
+     7035,
+     7531
+    ],
+    "p95Ms": 7531,
+    "maxMs": 7531,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_done",
+   "durationMs": 29105,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "pet",
+   "tenantId": "pet-perdizes",
+   "tenantName": "Pet Care Perdizes",
+   "scenario": {
+    "id": "s09",
+    "slug": "cliente_bravo",
+    "title": "Reclamar que o cachorro voltou da tosa com um corte na pele e exigir uma explicacao; ficar mais calma se for acolhida.",
+    "persona": "Claudia, tutora do Toby, um poodle, furiosa com a tosa",
+    "opening": [
+     "meu cachorro voltou da tosa com um corte na pele, que descuido e esse??"
+    ],
+    "expect": "Acolhe com empatia, pede desculpas sem discutir, pergunta como o pet esta, e escala para a equipe responder.",
+    "checks": {
+     "no_invented_price": true,
+     "must_escalate": true
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "meu cachorro voltou da tosa com um corte na pele, que descuido e esse??",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou o atendente virtual do Pet Care Perdizes. Vou acionar a equipe para avaliar o caso. Pode me dizer qual o porte do seu pet e se ele está com algum sintoma de dor ou irritação?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 3944,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_escalate",
+     "pass": true,
+     "detail": "escalation row exists"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 3.9s over 1 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All information provided by the assistant is accurate and aligns with the business data provided.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly escalated the issue to the team and asked relevant follow-up questions without making any incorrect actions.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant properly escalated the complaint to the team as required, without unnecessary intervention.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The response is natural, correct, and concise in Brazilian Portuguese, with one consolidated message.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and calm, appropriately responding to the customer's frustration.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant acknowledged the issue, apologized, and properly escalated the case to the team, addressing the customer's concern effectively.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All information provided by the assistant is accurate and aligns with the business data provided."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly escalated the issue to the team and asked relevant follow-up questions without making any incorrect actions."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant properly escalated the complaint to the team as required, without unnecessary intervention."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The response is natural, correct, and concise in Brazilian Portuguese, with one consolidated message."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and calm, appropriately responding to the customer's frustration."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The assistant acknowledged the issue, apologized, and properly escalated the case to the team, addressing the customer's concern effectively."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     3944
+    ],
+    "p95Ms": 3944,
+    "maxMs": 3944,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "handed_to_human",
+   "durationMs": 10835,
+   "guardTriggers": 0,
+   "escalated": true
+  },
+  {
+   "pack": "pet",
+   "tenantId": "pet-perdizes",
+   "tenantName": "Pet Care Perdizes",
+   "scenario": {
+    "id": "s11",
+    "slug": "comparacao_concorrente",
+    "title": "Dizer que em outro pet shop o banho e tosa do cachorro pequeno sai R$80 e pedir para cobrir o preco; insistir uma vez por desconto.",
+    "persona": "Rosana, tutora da Pituca, uma yorkshire de 4 anos",
+    "opening": [
+     "no pet shop perto de casa o banho e tosa sai 80, vcs fazem por esse preco?"
+    ],
+    "expect": "Mantem o preco de lista (banho e tosa porte pequeno R$110) destacando o valor agregado (manejo cuidadoso, groomer experiente), sem dar desconto.",
+    "checks": {
+     "no_invented_price": true,
+     "must_include": [
+      "110"
+     ]
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "no pet shop perto de casa o banho e tosa sai 80, vcs fazem por esse preco?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Olá, sou o assistente virtual da Pet Care Perdizes. Qual o porte do seu pet?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 3527,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "Yorkshire, 4 anos, pequeno. Tem que ser por menos de 80, pq outro pet shop faz por esse preco.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Temos disponibilidade hoje! Qual horario prefere: ter 06/10 às 10:30 ou 11:00?",
+     "type": "text",
+     "tools": [
+      "check_availability"
+     ],
+     "latencyMs": 6537,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "preferei 10:30, se fizer por menos de 80 eu passo na minha cidade.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Agendado! Seu pet vai receber banho e tosa hoje às 10:30 com Lucas. O valor é R$110. Precisa de algo mais?",
+     "type": "text",
+     "tools": [
+      "book"
+     ],
+     "latencyMs": 7306,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "tava pra 80, nao da pra fazer por menos, preciso do desconto.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Vou confirmar se temos essa opcao. Precisa de ajuda para agendar outro horario?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4766,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "não, já agendei, so queria o desconto, pq outro pet shop faz por 80.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Vou acionar a equipe para verificar essa solicitacao. Precisa de algo mais?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 898,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "check_availability",
+     "ok": true,
+     "args": {
+      "service": "Banho e tosa (pequeno)",
+      "date_from": "2026-10-06",
+      "date_to": "2026-10-06",
+      "period": "manha"
+     }
+    },
+    {
+     "name": "book",
+     "ok": true,
+     "args": {
+      "contact": {
+       "name": "Alex Souza"
+      },
+      "service": "Banho e tosa (pequeno)",
+      "slot": "2026-10-06 10:30",
+      "staff": "Lucas"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_include:110",
+     "pass": true,
+     "detail": "found"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 7.3s over 5 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All prices and services mentioned match the provided business data.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant booked the service but did not correctly maintain the listed price and failed to address the discount request appropriately.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 1,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant escalated to the team but did not clearly explain the pricing policy or resolve the customer's request.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural and correct, with concise messages per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm and professional, fitting the business context.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 1,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant did not fully resolve the customer's request for a discount and did not clearly explain the pricing policy.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All prices and services mentioned match the provided business data."
+    },
+    "action_correctness": {
+     "score": 2,
+     "why": "The assistant booked the service but did not correctly maintain the listed price and failed to address the discount request appropriately."
+    },
+    "escalation_judgment": {
+     "score": 1,
+     "why": "The assistant escalated to the team but did not clearly explain the pricing policy or resolve the customer's request."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural and correct, with concise messages per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm and professional, fitting the business context."
+    },
+    "grievance_mitigated": {
+     "score": 1,
+     "why": "The assistant did not fully resolve the customer's request for a discount and did not clearly explain the pricing policy."
+    }
+   },
+   "score": 70.8,
+   "latency": {
+    "turns": [
+     3527,
+     6537,
+     7306,
+     4766,
+     898
+    ],
+    "p95Ms": 7306,
+    "maxMs": 7306,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "handed_to_human",
+   "durationMs": 33855,
+   "guardTriggers": 0,
+   "escalated": true
+  },
+  {
+   "pack": "salao",
+   "tenantId": "salao-pinheiros",
+   "tenantName": "Studio Bela Pinheiros",
+   "scenario": {
+    "id": "s05",
+    "slug": "cancelar",
+    "title": "Cancelar a manicure marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que chama depois.",
+    "persona": "Dona Sonia, dona de casa que faz a unha toda semana",
+    "opening": [
+     "oi querida, vou cancelar amanha, surgiu imprevisto"
+    ],
+    "expect": "Cancela com empatia via tool, oferece nova data sem insistir e respeita quando a cliente diz que chama depois.",
+    "checks": {
+     "no_invented_price": true,
+     "must_call": [
+      "cancel"
+     ]
+    },
+    "setup": "appointment existente amanha 10h",
+    "setup_service": "Manicure",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "oi querida, vou cancelar amanha, surgiu imprevisto",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Dani! Eu sou a recepcionista virtual do Studio Bela Pinheiros. Tudo certo, cancelei o seu horário de Manicure (qua 07/10 às 10:00). Imprevistos acontecem! Quando quiser remarcar, é só me chamar por aqui.",
+     "type": "text",
+     "tools": [
+      "cancel"
+     ],
+     "latencyMs": 4,
+     "guard": false,
+     "kind": "cancelled"
+    },
+    {
+     "role": "customer",
+     "text": "tudo bem, vou chamar dps pra remarcar",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Dani! Temos horários disponíveis para Manicure na quarta-feira, 07/10:  \n- 09:00  \n- 10:30  \n\nQual você prefere? 😊",
+     "type": "text",
+     "tools": [
+      "check_availability"
+     ],
+     "latencyMs": 8106,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "prefiro o 10:30, mas se não tiver vou chamar dps",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Agendado! Sua Manicure está marcada para qua 07/10 às 10:30 com a Juliana. 😊  \nLembrete enviado para 24h e 2h antes. Confirme se quiser!",
+     "type": "text",
+     "tools": [
+      "book"
+     ],
+     "latencyMs": 7562,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "cancel",
+     "ok": true,
+     "args": {
+      "appointment_id": 8
+     }
+    },
+    {
+     "name": "check_availability",
+     "ok": true,
+     "args": {
+      "date_from": "2026-10-07",
+      "date_to": "2026-10-07",
+      "period": "manha",
+      "service": "Manicure"
+     }
+    },
+    {
+     "name": "book",
+     "ok": true,
+     "args": {
+      "contact": {
+       "name": "Dani Costa"
+      },
+      "service": "Manicure",
+      "slot": "2026-10-07 10:30",
+      "staff": "Juliana"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_call:cancel",
+     "pass": true,
+     "detail": "called"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 8.1s over 3 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts match the business data, including service names, prices, and hours.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "check: required actions verified in DB/tool log",
+     "source": "check"
+    },
+    "escalation_judgment": {
+     "score": 0,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant did not escalate or respect the customer's request to call later, instead attempting to book a new appointment.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural and correct, with concise and consolidated messages per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm and professional, fitting the business and customer service context.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 0,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant did not properly mitigate the customer's grievance by respecting their request to call later and instead pushed for a new booking.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts match the business data, including service names, prices, and hours."
+    },
+    "action_correctness": {
+     "score": 0,
+     "why": "The assistant incorrectly rescheduled the appointment instead of canceling it, despite the customer explicitly stating they would call later."
+    },
+    "escalation_judgment": {
+     "score": 0,
+     "why": "The assistant did not escalate or respect the customer's request to call later, instead attempting to book a new appointment."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural and correct, with concise and consolidated messages per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm and professional, fitting the business and customer service context."
+    },
+    "grievance_mitigated": {
+     "score": 0,
+     "why": "The assistant did not properly mitigate the customer's grievance by respecting their request to call later and instead pushed for a new booking."
+    }
+   },
+   "score": 58.3,
+   "latency": {
+    "turns": [
+     4,
+     8106,
+     7562
+    ],
+    "p95Ms": 8106,
+    "maxMs": 8106,
+    "gatePass": true
+   },
+   "passed": false,
+   "endedBy": "customer_done",
+   "durationMs": 24840,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "salao",
+   "tenantId": "salao-pinheiros",
+   "tenantName": "Studio Bela Pinheiros",
+   "scenario": {
+    "id": "s08",
+    "slug": "foto_problema",
+    "title": "Mandar foto do cabelo estragado e perguntar quanto fica para arrumar e se da para resolver; insistir um pouco por um valor fechado, mas aceitar agendar uma avaliacao presencial.",
+    "persona": "Larissa, universitaria que descoloriu o cabelo em casa",
+    "opening": [
+     "olha isso, fiz em casa e ficou horrivel. qnto fica pra arrumar?"
+    ],
+    "expect": "Nao diagnostica o fio nem fecha valor pela foto, nao garante resultado de quimica, acolhe e convida para avaliacao presencial gratuita com a colorista.",
+    "checks": {
+     "no_invented_price": true,
+     "must_not_include": [
+      "garanto"
+     ]
+    },
+    "image_description": "Foto do cabelo com luzes amareladas e manchadas, pontas ressecadas e com aspecto elastico depois de descoloracao caseira.",
+    "image_fixture": "fixtures/images/salao.png",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "[foto: Foto do cabelo com luzes amareladas e manchadas, pontas ressecadas e com aspecto elastico depois de descoloracao caseira.] olha isso, fiz em casa e ficou horrivel. qnto fica pra arrumar?",
+     "type": "image",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou a recepcionista virtual do Studio Bela Pinheiros. Desculpa pelo ocorrido, Rafa. A foto que você enviou não pode ser avaliada por mim, mas nossa profissional pode analisar presencialmente. Já avisei a nossa equipe, que vai continuar o atendimento com você em instantes.",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4568,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_not_include:garanto",
+     "pass": true,
+     "detail": "absent"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.6s over 1 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All information provided aligns with the business data, no incorrect or invented facts.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly did nothing that required action, as per the scenario's expected behavior.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant properly escalated to a human for in-person evaluation, which is appropriate for the customer's request.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The message is natural, correct, and concise in Brazilian Portuguese.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and appropriate for a small business service provider.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant acknowledged the issue, offered a solution, and correctly routed the customer to a human for further assistance.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All information provided aligns with the business data, no incorrect or invented facts."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly did nothing that required action, as per the scenario's expected behavior."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant properly escalated to a human for in-person evaluation, which is appropriate for the customer's request."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The message is natural, correct, and concise in Brazilian Portuguese."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and appropriate for a small business service provider."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The assistant acknowledged the issue, offered a solution, and correctly routed the customer to a human for further assistance."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     4568
+    ],
+    "p95Ms": 4568,
+    "maxMs": 4568,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "handed_to_human",
+   "durationMs": 10630,
+   "guardTriggers": 0,
+   "escalated": true
+  },
+  {
+   "pack": "salao",
+   "tenantId": "salao-pinheiros",
+   "tenantName": "Studio Bela Pinheiros",
+   "scenario": {
+    "id": "s09",
+    "slug": "cliente_bravo",
+    "title": "Reclamar que o corte feito semana passada ficou torto e bem mais curto do que pediu e exigir uma solucao; ficar mais calma se for acolhida.",
+    "persona": "Renata, gerente de loja, muito irritada com o resultado do corte",
+    "opening": [
+     "voces acabaram com meu cabelo, pedi so pra tirar as pontas e cortaram tudo torto"
+    ],
+    "expect": "Acolhe, pede desculpas sem discutir nem culpar a cliente, e escala para a equipe do salao resolver.",
+    "checks": {
+     "no_invented_price": true,
+     "must_escalate": true
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "voces acabaram com meu cabelo, pedi so pra tirar as pontas e cortaram tudo torto",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou a recepcionista virtual do Studio Bela Pinheiros. Desculpa pelo ocorrido, Sam. Vou acionar a equipe para resolver isso. Pode me contar qual servico você queria fazer?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 3979,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_escalate",
+     "pass": true,
+     "detail": "escalation row exists"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.0s over 1 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts mentioned align with the business data provided, including service names and pricing.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant acknowledged the complaint and offered to escalate, but did not explicitly mention the pack rules or the need to escalate as per the scenario.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The assistant recognized the need to escalate the complaint to the team, which is appropriate for a customer grievance.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The response is natural, correct, and concise in Brazilian Portuguese, with one consolidated message.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and calm, fitting the business and the situation.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant acknowledged the complaint and offered to escalate, but did not fully resolve or de-escalate the situation as expected.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts mentioned align with the business data provided, including service names and pricing."
+    },
+    "action_correctness": {
+     "score": 2,
+     "why": "The assistant acknowledged the complaint and offered to escalate, but did not explicitly mention the pack rules or the need to escalate as per the scenario."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "The assistant recognized the need to escalate the complaint to the team, which is appropriate for a customer grievance."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The response is natural, correct, and concise in Brazilian Portuguese, with one consolidated message."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and calm, fitting the business and the situation."
+    },
+    "grievance_mitigated": {
+     "score": 2,
+     "why": "The assistant acknowledged the complaint and offered to escalate, but did not fully resolve or de-escalate the situation as expected."
+    }
+   },
+   "score": 83.3,
+   "latency": {
+    "turns": [
+     3979
+    ],
+    "p95Ms": 3979,
+    "maxMs": 3979,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "handed_to_human",
+   "durationMs": 11919,
+   "guardTriggers": 0,
+   "escalated": true
+  },
+  {
+   "pack": "salao",
+   "tenantId": "salao-pinheiros",
+   "tenantName": "Studio Bela Pinheiros",
+   "scenario": {
+    "id": "s11",
+    "slug": "comparacao_concorrente",
+    "title": "Dizer que em outro salao a progressiva sai R$250 e pedir para cobrir o preco; insistir uma vez por desconto.",
+    "persona": "Priscila, vendedora de loja de shopping",
+    "opening": [
+     "no salao perto de casa a progressiva e 250, vcs fazem por esse preco?"
+    ],
+    "expect": "Mantem o preco de lista (progressiva R$350) destacando o valor agregado (profissional especializada, avaliacao do fio), sem dar desconto.",
+    "checks": {
+     "no_invented_price": true,
+     "must_include": [
+      "350"
+     ]
+    },
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "no salao perto de casa a progressiva e 250, vcs fazem por esse preco?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi! Eu sou a recepcionista virtual do Studio Bela Pinheiros. A progressiva aqui eh R$350. Vc pode agendar hoje? Qual horario prefere?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 3582,
+     "guard": false
+    },
+    {
+     "role": "customer",
+     "text": "aqui no outro salao e 250, vc pode dar um desconto?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Nossa progressiva eh R$350, nao temos desconto. Quer agendar hoje? Qual horario prefere?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 3820,
+     "guard": false
+    }
+   ],
+   "toolCalls": [],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_include:350",
+     "pass": true,
+     "detail": "found"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 3.8s over 2 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All prices and services mentioned match the provided business data.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly maintained the listed price and did not offer a discount, aligning with the expected behavior.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the customer's request was handled appropriately without requiring human intervention.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and appropriate for a small business service provider.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request for a discount was correctly addressed by maintaining the listed price and emphasizing the value provided.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All prices and services mentioned match the provided business data."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly maintained the listed price and did not offer a discount, aligning with the expected behavior."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the customer's request was handled appropriately without requiring human intervention."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and appropriate for a small business service provider."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's request for a discount was correctly addressed by maintaining the listed price and emphasizing the value provided."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     3582,
+     3820
+    ],
+    "p95Ms": 3820,
+    "maxMs": 3820,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_repeating",
+   "durationMs": 15098,
+   "guardTriggers": 0,
+   "escalated": false
+  }
+ ]
+}

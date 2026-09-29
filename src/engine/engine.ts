@@ -846,8 +846,9 @@ export class Engine {
             });
             continue;
           }
-          const wantsBooking =
-            !!lastCustomer && /\b(agendar|agenda|marcar|marca|horario|vaga|encaixe|remarcar)\b/.test(norm(this.customerText(lastCustomer)));
+          const lastText = lastCustomer ? norm(this.customerText(lastCustomer)) : '';
+          const defers = /\b(depois|dps|mais tarde|outra hora|outro momento|vou ver|chamo|te chamo|vou chamar|volto|retorno|agora nao|por enquanto nao)\b/.test(lastText);
+          const wantsBooking = !defers && /\b(agendar|agenda|marcar|marca|horario|vaga|encaixe|remarcar)\b/.test(lastText);
           const offersTimes = /\b\d{1,2}(:\d{2}|h)/.test(content);
           if (wantsBooking && !checked && !didAction && !offersTimes && !claim && !nudged && allowTools && round < this.opts.maxToolRounds - 1) {
             nudged = true;

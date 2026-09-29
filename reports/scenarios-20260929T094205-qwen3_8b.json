@@ -1,0 +1,559 @@
+{
+ "model": "qwen3:8b",
+ "judgeModel": "qwen3:8b",
+ "customerModel": "qwen3:8b",
+ "startedAt": "2026-09-29T09:42:05.418Z",
+ "finishedAt": "2026-09-29T09:42:41.934Z",
+ "liveVision": false,
+ "summary": {
+  "avgScore": 100,
+  "passed": 3,
+  "total": 3,
+  "latencyP95Ms": 4129,
+  "latencyGatePassRate": 100
+ },
+ "perPack": [
+  {
+   "pack": "odonto",
+   "tenantName": "Clinica Sorriso Moema",
+   "avgScore": 100,
+   "passed": 1,
+   "total": 1,
+   "p95Ms": 4069
+  },
+  {
+   "pack": "pet",
+   "tenantName": "Pet Care Perdizes",
+   "avgScore": 100,
+   "passed": 1,
+   "total": 1,
+   "p95Ms": 4001
+  },
+  {
+   "pack": "salao",
+   "tenantName": "Studio Bela Pinheiros",
+   "avgScore": 100,
+   "passed": 1,
+   "total": 1,
+   "p95Ms": 4129
+  }
+ ],
+ "records": [
+  {
+   "pack": "odonto",
+   "tenantId": "odonto-moema",
+   "tenantName": "Clinica Sorriso Moema",
+   "scenario": {
+    "id": "s05",
+    "slug": "cancelar",
+    "title": "Cancelar a manutencao do aparelho marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que liga depois.",
+    "persona": "Gabriela, estudante de 19 anos que usa aparelho",
+    "opening": [
+     "oi, vou cancelar amanha, surgiu imprevisto"
+    ],
+    "expect": "Cancela com empatia via tool, oferece nova data sem pressao e respeita quando a paciente diz que liga depois.",
+    "checks": {
+     "no_invented_price": true,
+     "must_call": [
+      "cancel"
+     ]
+    },
+    "setup": "appointment existente amanha 10h",
+    "setup_service": "Aparelho: manutencao mensal",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "oi, vou cancelar amanha, surgiu imprevisto",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Dani! Eu sou a assistente virtual da Clinica Sorriso Moema. Tudo certo, cancelei o seu horário de Aparelho: manutencao mensal (qua 07/10 às 10:00). Imprevistos acontecem! Quando quiser remarcar, é só me chamar por aqui.",
+     "type": "text",
+     "tools": [
+      "cancel"
+     ],
+     "latencyMs": 3,
+     "guard": false,
+     "kind": "cancelled"
+    },
+    {
+     "role": "customer",
+     "text": "agora ta tudo certo?",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Sim, Dani! Tudo certo, seu agendamento foi cancelado. Se precisar de algo, estou aqui. 😊",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4069,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "cancel",
+     "ok": true,
+     "args": {
+      "appointment_id": 1
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_call:cancel",
+     "pass": true,
+     "detail": "called"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.1s over 2 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts match the business data, including the service name, price, and cancellation.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly cancelled the appointment via the tool and confirmed the cancellation without overstepping or making promises.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the request was straightforward and within the assistant's scope.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and empathetic, fitting the clinic's brand and customer situation.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request to cancel was fully resolved, and the assistant respected their wish to call back later.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts match the business data, including the service name, price, and cancellation."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly cancelled the appointment via the tool and confirmed the cancellation without overstepping or making promises."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the request was straightforward and within the assistant's scope."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and empathetic, fitting the clinic's brand and customer situation."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's request to cancel was fully resolved, and the assistant respected their wish to call back later."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     3,
+     4069
+    ],
+    "p95Ms": 4069,
+    "maxMs": 4069,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_done",
+   "durationMs": 12879,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "pet",
+   "tenantId": "pet-perdizes",
+   "tenantName": "Pet Care Perdizes",
+   "scenario": {
+    "id": "s05",
+    "slug": "cancelar",
+    "title": "Cancelar a vacina V10 da sua gata marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que chama depois.",
+    "persona": "Rafaela, tutora da Mia, uma gata siamesa de 1 ano",
+    "opening": [
+     "oi, vou cancelar amanha, surgiu imprevisto"
+    ],
+    "expect": "Cancela com empatia via tool, lembra com carinho da importancia da vacina sem pressionar, oferece nova data e respeita quando a tutora diz que chama depois.",
+    "checks": {
+     "no_invented_price": true,
+     "must_call": [
+      "cancel"
+     ]
+    },
+    "setup": "appointment existente amanha 10h",
+    "setup_service": "Vacina V10",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "oi, vou cancelar amanha, surgiu imprevisto",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Rafa! Eu sou o atendente virtual do Pet Care Perdizes. Tudo certo, cancelei o seu horário de Vacina V10 (qua 07/10 às 10:00). Imprevistos acontecem! Quando quiser remarcar, é só me chamar por aqui.",
+     "type": "text",
+     "tools": [
+      "cancel"
+     ],
+     "latencyMs": 2,
+     "guard": false,
+     "kind": "cancelled"
+    },
+    {
+     "role": "customer",
+     "text": "agora eu chamo dps, nao quero remarcar agora",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Entendi, Rafa. Se precisar de ajuda, é só me chamar. Tenha um bom dia! 🐾",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4001,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "cancel",
+     "ok": true,
+     "args": {
+      "appointment_id": 2
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_call:cancel",
+     "pass": true,
+     "detail": "called"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.0s over 2 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts match the business data, including the service name, price, and cancellation.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly cancelled the appointment via the tool and respected the customer's request to not reschedule immediately.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the request was handled internally without requiring human intervention.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The response is natural, correct, and concise in Brazilian Portuguese, with one consolidated message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and empathetic, fitting the pet care business and the customer's situation.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request to cancel and not reschedule immediately was fully respected and resolved without further issues.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts match the business data, including the service name, price, and cancellation."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly cancelled the appointment via the tool and respected the customer's request to not reschedule immediately."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the request was handled internally without requiring human intervention."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The response is natural, correct, and concise in Brazilian Portuguese, with one consolidated message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and empathetic, fitting the pet care business and the customer's situation."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's request to cancel and not reschedule immediately was fully respected and resolved without further issues."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     2,
+     4001
+    ],
+    "p95Ms": 4001,
+    "maxMs": 4001,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_done",
+   "durationMs": 12106,
+   "guardTriggers": 0,
+   "escalated": false
+  },
+  {
+   "pack": "salao",
+   "tenantId": "salao-pinheiros",
+   "tenantName": "Studio Bela Pinheiros",
+   "scenario": {
+    "id": "s05",
+    "slug": "cancelar",
+    "title": "Cancelar a manicure marcada para amanha as 10h porque surgiu um imprevisto; nao quer remarcar agora, diz que chama depois.",
+    "persona": "Dona Sonia, dona de casa que faz a unha toda semana",
+    "opening": [
+     "oi querida, vou cancelar amanha, surgiu imprevisto"
+    ],
+    "expect": "Cancela com empatia via tool, oferece nova data sem insistir e respeita quando a cliente diz que chama depois.",
+    "checks": {
+     "no_invented_price": true,
+     "must_call": [
+      "cancel"
+     ]
+    },
+    "setup": "appointment existente amanha 10h",
+    "setup_service": "Manicure",
+    "max_turns": 8
+   },
+   "transcript": [
+    {
+     "role": "customer",
+     "text": "oi querida, vou cancelar amanha, surgiu imprevisto",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Oi, Sam! Eu sou a recepcionista virtual do Studio Bela Pinheiros. Tudo certo, cancelei o seu horário de Manicure (qua 07/10 às 10:00). Imprevistos acontecem! Quando quiser remarcar, é só me chamar por aqui.",
+     "type": "text",
+     "tools": [
+      "cancel"
+     ],
+     "latencyMs": 3,
+     "guard": false,
+     "kind": "cancelled"
+    },
+    {
+     "role": "customer",
+     "text": "vou chamar depois, não precisa remarcar agora",
+     "type": "text",
+     "tools": [],
+     "latencyMs": null,
+     "guard": false
+    },
+    {
+     "role": "assistant",
+     "text": "Entendi, Sam! Fico no aguardo. Se precisar de algo, é só me chamar. Tenha um ótimo dia! 😊",
+     "type": "text",
+     "tools": [],
+     "latencyMs": 4129,
+     "guard": false
+    }
+   ],
+   "toolCalls": [
+    {
+     "name": "cancel",
+     "ok": true,
+     "args": {
+      "appointment_id": 3
+     }
+    }
+   ],
+   "checks": [
+    {
+     "name": "no_invented_price",
+     "pass": true,
+     "detail": "ok"
+    },
+    {
+     "name": "must_call:cancel",
+     "pass": true,
+     "detail": "called"
+    },
+    {
+     "name": "latency_p95<=20s",
+     "pass": true,
+     "detail": "p95 4.1s over 2 turns"
+    }
+   ],
+   "axes": {
+    "factual_grounding": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "All facts match the business data, including the service name, time, and cancellation.",
+     "source": "judge"
+    },
+    "action_correctness": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The assistant correctly cancelled the appointment via the tool and did not insist on rescheduling.",
+     "source": "judge"
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "No escalation was needed as the request was handled fully by the assistant.",
+     "source": "judge"
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The Portuguese is natural, correct, and concise, with one message per turn.",
+     "source": "judge"
+    },
+    "tone": {
+     "score": 2,
+     "max": 2,
+     "weight": 1,
+     "why": "The tone is warm, professional, and empathetic, fitting the business and customer situation.",
+     "source": "judge"
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "max": 3,
+     "weight": 2,
+     "why": "The customer's request to cancel and not reschedule was fully respected and resolved.",
+     "source": "judge"
+    }
+   },
+   "judge": {
+    "factual_grounding": {
+     "score": 3,
+     "why": "All facts match the business data, including the service name, time, and cancellation."
+    },
+    "action_correctness": {
+     "score": 3,
+     "why": "The assistant correctly cancelled the appointment via the tool and did not insist on rescheduling."
+    },
+    "escalation_judgment": {
+     "score": 2,
+     "why": "No escalation was needed as the request was handled fully by the assistant."
+    },
+    "portuguese_quality": {
+     "score": 2,
+     "why": "The Portuguese is natural, correct, and concise, with one message per turn."
+    },
+    "tone": {
+     "score": 2,
+     "why": "The tone is warm, professional, and empathetic, fitting the business and customer situation."
+    },
+    "grievance_mitigated": {
+     "score": 3,
+     "why": "The customer's request to cancel and not reschedule was fully respected and resolved."
+    }
+   },
+   "score": 100,
+   "latency": {
+    "turns": [
+     3,
+     4129
+    ],
+    "p95Ms": 4129,
+    "maxMs": 4129,
+    "gatePass": true
+   },
+   "passed": true,
+   "endedBy": "customer_done",
+   "durationMs": 11519,
+   "guardTriggers": 0,
+   "escalated": false
+  }
+ ]
+}
