@@ -14,7 +14,7 @@
     "build:ui": "vite build --config ui/vite.config.ts",
     "migrate": "node src/db/migrate-cli.ts",
     "seed": "node src/seed/seed-cli.ts",
-    "test": "node --test --test-concurrency=1 tests/",
+    "test": "node --test --test-concurrency=1 \"tests/**/*.test.ts\"",
     "typecheck": "tsc -p tsconfig.json && tsc -p ui/tsconfig.json",
     "scenarios": "node src/scenarios/cli.ts",
     "e2e": "playwright test -c e2e/playwright.config.ts",

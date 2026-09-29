@@ -34,7 +34,7 @@ export function textIncludes(haystack: string, needle: string): boolean {
   const n = norm(needle);
   if (/^\d+$/.test(n)) {
     const withDots = n.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    const re = new RegExp(`(^|[^\\d.,])(${n}|${withDots.replace(/\./g, '\\.')})(,00)?(?![\\d])`);
+    const re = new RegExp(`(?<![\\d.,:]|\\dh)(${n}|${withDots.replace(/\./g, '\\.')})(,00)?(?![\\d:h])`);
     return re.test(h);
   }
   return h.includes(n);

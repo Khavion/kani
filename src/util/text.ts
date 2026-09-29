@@ -37,7 +37,8 @@ export function tokenOverlap(a: string, b: string): number {
   if (ta.size === 0 || tb.size === 0) return 0;
   let hits = 0;
   for (const w of ta) if (tb.has(w) || [...tb].some((x) => x.startsWith(w) || w.startsWith(x))) hits++;
-  return hits / Math.min(ta.size, tb.size);
+  // Divide by the larger set so a single shared generic word ("troca") is not a match.
+  return hits / Math.max(ta.size, tb.size);
 }
 
 export function safeJson<T>(s: string | null | undefined, fallback: T): T {

@@ -147,8 +147,9 @@ export class Engine {
     if (conv.disclosed || /\bvirtual\b/i.test(text)) return text;
     const intro = this.introFor(pack, tenant);
     const g = text.match(/^((?:oi|olá|ola|opa|bom dia|boa tarde|boa noite|e a[ií])[^.!?\n]{0,24}[!.,]?\s*)/i);
-    if (g) return `${g[1].trim()} ${intro} ${text.slice(g[1].length).trim()}`.trim();
-    return `Oi! ${intro} ${text}`.trim();
+    const cap = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
+    if (g) return `${g[1].trim()} ${intro} ${cap(text.slice(g[1].length).trim())}`.trim();
+    return `Oi! ${intro} ${cap(text)}`.trim();
   }
 
   // ------------------------------------------------------------------ inbound

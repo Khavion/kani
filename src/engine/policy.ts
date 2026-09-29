@@ -14,7 +14,7 @@ export function isHumanRequest(text: string): boolean {
 }
 
 export function isLgpdErase(text: string): boolean {
-  return /\b(esquecer|esqueca|esqueçam|apagar|apague|apaguem|excluir|exclua|deletar|delete|remover|remova)\b.{0,15}\b(meus dados|minhas informacoes|meu cadastro|meus registros)/.test(
+  return /\b(esquec(er|a|am|e|em)|apag(ar|ue|uem|a|am)|exclu(ir|a|am|i)|delet(ar|e|em|a)|remov(er|a|am|e))\b.{0,20}\b(meus dados|minhas informacoes|meu cadastro|meus registros|meu historico)/.test(
     norm(text),
   );
 }

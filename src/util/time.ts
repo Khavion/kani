@@ -119,7 +119,11 @@ export function isOpenAt(hours: HoursMap, d: Date): boolean {
 
 export function formatHoursPt(hours: HoursMap): string {
   const order: WeekdayKey[] = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'];
-  const fmt = (span: [string, string] | null) => (span ? `${span[0].replace(':00', 'h')}-${span[1].replace(':00', 'h')}` : 'fechado');
+  const hour = (hhmm: string) => {
+    const [h, m] = hhmm.split(':').map(Number);
+    return m ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`;
+  };
+  const fmt = (span: [string, string] | null) => (span ? `${hour(span[0])}-${hour(span[1])}` : 'fechado');
   // Group consecutive days with identical spans: "seg a sex 8h-18h; sab 8h-12h; dom fechado"
   const groups: { from: WeekdayKey; to: WeekdayKey; label: string }[] = [];
   for (const day of order) {
