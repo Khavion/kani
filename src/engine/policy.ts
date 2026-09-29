@@ -119,3 +119,21 @@ export function quoteDecision(text: string): 'approved' | 'rejected' | null {
 export function isAudioOrImagePlaceholder(text: string): boolean {
   return /^\[(foto|audio)/i.test(text.trim());
 }
+
+const RECOMMEND = /\b(indicad[oa]s?|recomend|costuma(m)? (ser|ajudar|resolver)|resolve(m)?|ideal para|melhor opcao|eficaz(es)?|funciona(m)? bem|trata(r)? (as|os|a|o|essa|esse|essas|esses|seu|sua) )/;
+const TREATMENT_WORDS = /\b(pomada|remedio|creme|acido|antibiotico|vermifugo|dose|protocolo de)\b/;
+
+/**
+ * Health packs: drop sentences that recommend a treatment/procedure for the customer's condition.
+ * Returns the filtered text and whether anything was removed.
+ */
+export function stripClinicalAdvice(text: string, serviceNames: string[]): { text: string; removed: boolean } {
+  const tokens = serviceNames.flatMap((n) => norm(n).split(/[^a-z]+/).filter((w) => w.length >= 5));
+  const parts = text.split(/(?<=[.!?\n])\s+/);
+  const kept = parts.filter((p) => {
+    const t = norm(p);
+    const namesTreatment = TREATMENT_WORDS.test(t) || tokens.some((w) => t.includes(w));
+    return !(RECOMMEND.test(t) && namesTreatment);
+  });
+  return { text: kept.join(' ').trim(), removed: kept.length !== parts.length };
+}

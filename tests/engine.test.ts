@@ -257,3 +257,46 @@ test('cleanReply strips leaked /no_think control tokens', async () => {
   const { cleanReply } = await import('../src/engine/engine.ts');
   assert.equal(cleanReply('Claro, posso ajudar /no_think'), 'Claro, posso ajudar');
 });
+
+test('engine: a clear cancel request cancels the only upcoming appointment deterministically', async () => {
+  const llm = new ScriptedLLM(reply('Cancelamos o agendamento?'));
+  const k = testKani(llm);
+  const first = await say(k, OFICINA, 'oi');
+  const contactId = k.repo.getConversation(first.turn.conversationId)!.contactId;
+  const tenant = k.repo.getTenant(OFICINA)!;
+  const { executeTool } = await import('../src/engine/tools.ts');
+  await executeTool(
+    { repo: k.repo, clock: k.clock, tenant, pack: getPack('oficina'), contact: k.repo.getContact(contactId)!, conversation: k.repo.getConversation(first.turn.conversationId)! },
+    'book',
+    { service: 'Revisao basica', slot: '2026-10-07 08:00' },
+  );
+  const calls = llm.requests.length;
+  const { turn } = await say(k, OFICINA, 'oi, vou cancelar amanha, surgiu imprevisto');
+  assert.equal(turn.skipped, 'cancelled');
+  assert.equal(llm.requests.length, calls);
+  assert.equal(k.repo.appointmentsForContact(contactId)[0].status, 'cancelled');
+  assert.match(turn.reply!.text!, /cancelei/);
+  const { wantsToCancel, claimKind } = await import('../src/engine/engine.ts');
+  assert.equal(wantsToCancel('preciso remarcar, nao cancelar'), false);
+  assert.equal(wantsToCancel('se nao der eu cancelo'), false);
+  assert.equal(claimKind('Cancelamos o agendamento da vacina V10 para quinta.'), 'cancel');
+  assert.equal(claimKind('Confirmado! Agendamento feito para quarta-feira às 9h.'), 'book');
+});
+
+test('engine: forced escalations always tell the customer the team takes over', async () => {
+  const k = testKani(new ScriptedLLM(reply('Sinto muito pelo transtorno! Pode me contar o que aconteceu?')));
+  const { turn } = await say(k, OFICINA, 'voces sao uma vergonha, fiquei 2h esperando');
+  assert.equal(turn.escalated, true);
+  assert.match(turn.reply!.text!, /equipe/);
+  assert.doesNotMatch(turn.reply!.text!, /\?$/);
+});
+
+test('policy: clinical treatment recommendations are stripped in health packs', async () => {
+  const { stripClinicalAdvice } = await import('../src/engine/policy.ts');
+  const names = getPack('estetica').services.map((x) => x.n);
+  const r = stripClinicalAdvice('Entendo! Para melasma, peeling quimico e microagulhamento costumam ser indicados. A avaliacao e gratuita, quer agendar?', names);
+  assert.equal(r.removed, true);
+  assert.equal(r.text, 'Entendo! A avaliacao e gratuita, quer agendar?');
+  const ok = stripClinicalAdvice('A limpeza de pele profunda custa R$180. Quer agendar?', names);
+  assert.equal(ok.removed, false);
+});

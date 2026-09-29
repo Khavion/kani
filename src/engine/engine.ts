@@ -24,6 +24,7 @@ import {
   quoteDecision,
   reminderAnswer,
   sensitiveTopic,
+  stripClinicalAdvice,
 } from './policy.ts';
 import { norm, stripDashes, stripThink, formatBRL } from '../util/text.ts';
 import { formatSlotPt, isOpenAt, type Clock } from '../util/time.ts';
@@ -58,7 +59,8 @@ export interface InboundResult {
 }
 
 // Participles ("agendado") and first-person past ("agendei", "cancelei", "remarquei", "reservei").
-const ACTION_CLAIM = /\b(agendad[oa]s?|marcad[oa]s?|reservad[oa]s?|remarcad[oa]s?|cancelad[oa]s?|agendei|marquei|reservei|remarquei|reagendei|cancelei|desmarquei)\b/;
+const ACTION_CLAIM =
+  /\b(agendad[oa]s?|marcad[oa]s?|reservad[oa]s?|remarcad[oa]s?|cancelad[oa]s?|agendei|marquei|reservei|remarquei|reagendei|cancelei|desmarquei|agendamos|marcamos|reservamos|remarcamos|reagendamos|cancelamos|desmarcamos)\b/;
 
 export class Engine {
   readonly repo: Repo;
@@ -485,10 +487,22 @@ export class Engine {
     const activeAppts = this.repo
       .appointmentsForContact(contact.id)
       .filter((a) => (a.status === 'booked' || a.status === 'confirmed') && a.startsAt > this.clock.nowIso());
-    if (activeAppts.length && /\b(cancelar|cancela|cancelo|desmarcar|desmarca|nao vou (mais )?(poder|conseguir) ir)\b/.test(norm(text)) && !/\bremarc/.test(norm(text))) {
+    if (activeAppts.length === 1 && wantsToCancel(text)) {
+      // Clear cancel request for the only upcoming appointment: do it deterministically.
       const a = activeAppts[0];
+      const result = await executeTool(
+        { repo: this.repo, clock: this.clock, tenant, pack, contact, conversation: conv },
+        'cancel',
+        { appointment_id: a.id },
+      );
+      this.repo.logEvent(tenant.id, 'tool_call', { conversation_id: conv.id, name: 'cancel', args: { appointment_id: a.id }, ok: result.ok, result, source: 'policy' });
+      if (result.ok) {
+        const { msg, latency } = await send(templates.cancelled(contact, a), { tools: ['cancel'], kind: 'cancelled' });
+        return { ...base, reply: msg, latencyMs: latency, toolCalls: [{ name: 'cancel', args: { appointment_id: a.id }, result }] as never, skipped: 'cancelled' };
+      }
+    } else if (activeAppts.length > 1 && wantsToCancel(text)) {
       notes.push(
-        `O cliente quer CANCELAR o agendamento #${a.id} (${a.service}, ${formatSlotPt(new Date(a.startsAt))}). Chame cancel agora, confirme com empatia e diga que pode remarcar quando ele quiser.`,
+        `O cliente quer CANCELAR um agendamento. Agendamentos ativos: ${activeAppts.map((a) => `#${a.id} ${a.service} ${formatSlotPt(new Date(a.startsAt))}`).join('; ')}. Pergunte qual (se nao estiver claro) e chame cancel.`,
       );
     }
     if (pending.some((m) => m.type === 'image')) {
@@ -590,6 +604,17 @@ export class Engine {
       }
     }
 
+    // Health packs: no treatment recommendations for the customer's condition, ever.
+    if (['odonto', 'pet', 'estetica'].includes(pack.id)) {
+      const filtered = stripClinicalAdvice(reply, tenant.services.map((x) => x.n));
+      if (filtered.removed) {
+        this.repo.logEvent(tenant.id, 'clinical_advice_removed', { conversation_id: conv.id, raw: reply });
+        meta.rawText = meta.rawText ?? reply;
+        reply = filtered.text || 'Quem define o tratamento ideal é a profissional, na avaliação.';
+        if (!/avalia|consulta/.test(norm(reply))) reply += ' Quem define o tratamento ideal é a profissional, na avaliação. Posso ver um horário pra você?';
+      }
+    }
+
     // Price guard.
     const guard = checkPrices(reply, guardCtx);
     let guardTriggered = false;
@@ -614,6 +639,11 @@ export class Engine {
     }
     if (looksLowConfidence(reply)) lowConfidence = true;
 
+    const willForceEscalate = !escalated && !!forceEscalation;
+    if (willForceEscalate && !/\b(equipe|atendente|alguem|responsavel|dono)\b/.test(norm(reply))) {
+      reply = reply.replace(/[^.!?\n]*\?\s*$/, '').trim();
+      reply = `${reply}${reply ? ' ' : ''}Já avisei a nossa equipe, que vai continuar o atendimento com você em instantes.`;
+    }
     const { msg, latency } = await send(reply, meta);
 
     if (guardTriggered && !escalated) {
@@ -1098,14 +1128,22 @@ export function claimKind(text: string): ClaimKind | null {
     const apptNoun = /\b(agendamento|horario|consulta|avaliacao|sessao|reserva|visita|atendimento)\b/.test(s);
     const strong = ACTION_CLAIM.test(s);
     const weak =
-      /\b(confirmad[oa]s?|confirmei|garanti|garantid[oa]|ficou (marcad|agendad|reservad|para)|coloquei|anotei|encaixei|te encaixo|na agenda)\b/.test(s) &&
+      /\b(confirmad[oa]s?|confirmei|confirmamos|garanti|garantid[oa]|ficou (marcad|agendad|reservad|para)|coloquei|anotei|encaixei|te encaixo|na agenda|feito|realizad[oa]|efetuad[oa]|registrad[oa])\b/.test(s) &&
       (hasWhen || apptNoun);
     if (!strong && !weak) continue;
-    if (/cancelad|cancelei|desmarquei/.test(s)) return 'cancel';
-    if (/remarcad|remarquei|reagendei/.test(s)) return 'reschedule';
+    if (/cancelad|cancelei|desmarquei|cancelamos|desmarcamos/.test(s)) return 'cancel';
+    if (/remarcad|remarquei|reagendei|remarcamos|reagendamos/.test(s)) return 'reschedule';
     return 'book';
   }
   return null;
+}
+
+/** Clear request to cancel (not a conditional, not a reschedule). */
+export function wantsToCancel(text: string): boolean {
+  const t = norm(text);
+  if (/\b(remarc|reagend|mudar|trocar|adiar)/.test(t)) return false;
+  if (/\bse (nao|eu nao)\b.*\bcancel/.test(t)) return false;
+  return /\b(vou|quero|preciso|pode|vou ter que|tenho que) (cancelar|desmarcar)\b|^(cancela|cancelar|desmarca)\b|\bcancela (pra mim|por favor|o horario|meu horario)/.test(t);
 }
 
 export function promisesToCheck(text: string): boolean {

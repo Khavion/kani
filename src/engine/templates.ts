@@ -81,3 +81,7 @@ export function sensitiveReply(packId: string, t: Tenant): string {
       return 'Entendi! Esse caso precisa de uma avaliação da nossa equipe técnica. Já chamei alguém para continuar o atendimento com você.';
   }
 }
+
+export function cancelled(c: Contact, a: Appointment): string {
+  return `${hi(c)} Tudo certo, cancelei o seu horário de ${a.service} (${formatSlotPt(new Date(a.startsAt))}). Imprevistos acontecem! Quando quiser remarcar, é só me chamar por aqui.`;
+}
